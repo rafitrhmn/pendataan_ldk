@@ -1,3 +1,4 @@
+import 'package:app/bloc/auth/auth_bloc.dart';
 import 'package:app/models/user_model.dart';
 import 'package:app/setttings/supabase_config.dart';
 import 'package:bloc/bloc.dart';
@@ -7,8 +8,13 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 part 'login_event.dart';
 part 'login_state.dart';
 
+// Tambahkan AuthBloc sebagai dependency
 class LoginBloc extends Bloc<LoginEvent, LoginState> {
-  LoginBloc() : super(LoginInitial()) {
+  final AuthBloc _authBloc; // TAMBAHKAN INI
+
+  LoginBloc({required AuthBloc authBloc}) // UBAH CONSTRUCTOR
+    : _authBloc = authBloc,
+      super(LoginInitial()) {
     on<LoginButtonPressed>(_onLoginButtonPressed);
   }
 
@@ -16,9 +22,7 @@ class LoginBloc extends Bloc<LoginEvent, LoginState> {
     LoginButtonPressed event,
     Emitter<LoginState> emit,
   ) async {
-    // 1. Keluarkan state LoginLoading untuk menampilkan indicator
     emit(LoginLoading());
-
     try {
       // 2. Lakukan proses autentikasi dan ambil profil (logika yang sama seperti di controller)
       final email = '${event.username.toLowerCase()}@alfaateh.com';
@@ -36,10 +40,11 @@ class LoginBloc extends Bloc<LoginEvent, LoginState> {
           .select()
           .eq('id', authResponse.user!.id)
           .single();
-
       final user = UserModel.fromJson(profileResponse);
 
-      // 3. Jika berhasil, keluarkan state LoginSuccess beserta data user
+      // LAPORKAN KE AuthBloc BAHWA LOGIN BERHASIL
+      _authBloc.add(AuthStatusChanged(user));
+
       emit(LoginSuccess(user: user));
     } on AuthException catch (e) {
       // 4. Jika gagal, keluarkan state LoginFailure dengan pesan error

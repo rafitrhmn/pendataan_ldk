@@ -18,7 +18,7 @@ class _SplashScreenState extends State<SplashScreen> {
   }
 
   startSplashScreen() {
-    const duration = Duration(seconds: 20);
+    const duration = Duration(seconds: 5);
 
     return Timer(duration, () {
       // Gunakan context.go() untuk berpindah halaman

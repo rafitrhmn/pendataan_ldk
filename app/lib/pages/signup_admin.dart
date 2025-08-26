@@ -1,12 +1,49 @@
+import 'package:app/setttings/supabase_config.dart';
 import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
-import '../setttings/supabase_config.dart'; // Pastikan file ini ada dan meng-ekspor 'supabase'
 
-// Definisikan enum untuk peran pengguna agar kode lebih aman dan rapi
+// --- BAGIAN KONFIGURASI & INISIALISASI ---
+
+Future<void> main() async {
+  // Pastikan Flutter siap sebelum menjalankan kode async
+  WidgetsFlutterBinding.ensureInitialized();
+
+  // Inisialisasi Supabase
+  // Panggil fungsi inisialisasi Supabase
+  await initializeSupabase();
+
+  runApp(const MyApp());
+}
+
+// Definisikan instance Supabase client agar bisa diakses di seluruh aplikasi
+final supabase = Supabase.instance.client;
+
+class MyApp extends StatelessWidget {
+  const MyApp({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      title: 'Create User App',
+      theme: ThemeData(
+        primarySwatch: Colors.blue,
+        useMaterial3: true,
+        inputDecorationTheme: const InputDecorationTheme(
+          border: OutlineInputBorder(),
+        ),
+      ),
+      // Halaman pertama yang akan ditampilkan adalah CreateUserScreen
+      home: const CreateUserScreen(),
+    );
+  }
+}
+
+// --- LOGIKA & FUNGSI BERSAMA ---
+
+// Enum untuk peran pengguna tetap kita gunakan, ini praktik yang bagus
 enum UserRole { admin, mentor, kaderisasi }
 
 /// Fungsi untuk mendaftarkan pengguna baru dengan peran tertentu.
-/// Anda bisa memindahkan ini ke file terpisah (misal: auth_service.dart) agar lebih rapi.
 Future<User> signUpWithRole({
   required String username,
   required String password,
@@ -24,10 +61,7 @@ Future<User> signUpWithRole({
   }
 
   // 2. Simpan profil dan perannya ke tabel 'profiles'
-  final roleString = role
-      .toString()
-      .split('.')
-      .last; // Mengubah UserRole.admin -> 'admin'
+  final roleString = role.toString().split('.').last;
   await supabase.from('profiles').insert({
     'id': authResponse.user!.id,
     'username': username,
@@ -37,24 +71,23 @@ Future<User> signUpWithRole({
   return authResponse.user!;
 }
 
-// --- WIDGET UTAMA ---
+// --- WIDGET HALAMAN UTAMA ---
 
-class CreateAdminScreen extends StatefulWidget {
-  const CreateAdminScreen({super.key});
+class CreateUserScreen extends StatefulWidget {
+  const CreateUserScreen({super.key});
 
   @override
-  State<CreateAdminScreen> createState() => _CreateAdminScreenState();
+  State<CreateUserScreen> createState() => _CreateUserScreenState();
 }
 
-class _CreateAdminScreenState extends State<CreateAdminScreen> {
+class _CreateUserScreenState extends State<CreateUserScreen> {
   final _usernameController = TextEditingController();
   final _passwordController = TextEditingController();
   bool _isLoading = false;
 
-  /// Fungsi yang dipanggil saat tombol ditekan.
-  /// Logikanya diubah dari sign-in menjadi sign-up.
-  Future<void> _createAdminAccount() async {
-    // Validasi sederhana agar form tidak kosong
+  UserRole _selectedRole = UserRole.kaderisasi; // Nilai default
+
+  Future<void> _createUserAccount() async {
     if (_usernameController.text.isEmpty || _passwordController.text.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
@@ -69,21 +102,19 @@ class _CreateAdminScreenState extends State<CreateAdminScreen> {
     });
 
     try {
-      // Panggil fungsi pendaftaran dengan peran 'admin'
       await signUpWithRole(
         username: _usernameController.text.trim(),
         password: _passwordController.text.trim(),
-        role: UserRole.admin, // Peran 'admin' ditetapkan di sini
+        role: _selectedRole,
       );
 
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Akun admin berhasil dibuat!'),
+          SnackBar(
+            content: Text('Akun ${_selectedRole.name} berhasil dibuat!'),
             backgroundColor: Colors.green,
           ),
         );
-        // Kosongkan form setelah berhasil
         _usernameController.clear();
         _passwordController.clear();
       }
@@ -118,38 +149,49 @@ class _CreateAdminScreenState extends State<CreateAdminScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      // Judul diubah
-      appBar: AppBar(title: const Text('Buat Akun Admin Baru')),
+      appBar: AppBar(title: const Text('Buat Akun Pengguna Baru')),
       body: ListView(
         padding: const EdgeInsets.all(16.0),
         children: [
           const SizedBox(height: 20),
           TextFormField(
             controller: _usernameController,
-            decoration: const InputDecoration(
-              labelText: 'Username',
-              border: OutlineInputBorder(),
-            ),
+            decoration: const InputDecoration(labelText: 'Username'),
           ),
           const SizedBox(height: 16),
           TextFormField(
             controller: _passwordController,
-            decoration: const InputDecoration(
-              labelText: 'Password',
-              border: OutlineInputBorder(),
-            ),
+            decoration: const InputDecoration(labelText: 'Password'),
             obscureText: true,
+          ),
+          const SizedBox(height: 16),
+          DropdownButtonFormField<UserRole>(
+            value: _selectedRole,
+            decoration: const InputDecoration(labelText: 'Pilih Peran'),
+            items: UserRole.values.map((UserRole role) {
+              return DropdownMenuItem<UserRole>(
+                value: role,
+                child: Text(
+                  role.name[0].toUpperCase() + role.name.substring(1),
+                ),
+              );
+            }).toList(),
+            onChanged: (UserRole? newValue) {
+              if (newValue != null) {
+                setState(() {
+                  _selectedRole = newValue;
+                });
+              }
+            },
           ),
           const SizedBox(height: 24),
           _isLoading
               ? const Center(child: CircularProgressIndicator())
               : ElevatedButton(
-                  // Fungsi yang dipanggil diubah
-                  onPressed: _createAdminAccount,
+                  onPressed: _createUserAccount,
                   style: ElevatedButton.styleFrom(
                     padding: const EdgeInsets.symmetric(vertical: 16),
                   ),
-                  // Teks tombol diubah
                   child: const Text('Buat Akun'),
                 ),
         ],

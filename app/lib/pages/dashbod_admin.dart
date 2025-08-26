@@ -1,27 +1,44 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
 
-class AdminDashboardPage extends StatelessWidget {
+class AdminDashboardPage extends StatefulWidget {
   const AdminDashboardPage({super.key});
 
   @override
+  State<AdminDashboardPage> createState() => _AdminDashboardPageState();
+}
+
+class _AdminDashboardPageState extends State<AdminDashboardPage> {
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Colors.grey[100],
       // 1. AppBar di bagian atas
       appBar: AppBar(
         title: const Text('Admin Dashboard'),
-        backgroundColor: Colors.blueAccent,
-        elevation: 4,
+        backgroundColor: Colors.white,
+        elevation: 0,
         actions: [
-          // Tombol untuk logout
-          IconButton(
-            icon: const Icon(Icons.logout),
-            onPressed: () {
-              // TODO: Tambahkan logika logout Anda di sini
-              // Contoh: Kembali ke halaman login
-              // Navigator.of(context).pushReplacementNamed('/login');
-              print('Tombol Logout ditekan');
-            },
+          // Menambahkan sedikit jarak dari tepi kanan layar
+          Padding(
+            padding: const EdgeInsets.only(right: 16.0),
+            // Menggunakan InkWell agar CircleAvatar bisa ditekan (tappable)
+            child: InkWell(
+              onTap: () {
+                GoRouter.of(context).go('/profile');
+              },
+              // Kustomisasi bentuk ripple effect agar sesuai dengan lingkaran
+              customBorder: const CircleBorder(),
+              child: CircleAvatar(
+                backgroundColor: Colors.blue[50], // Warna latar belakang avatar
+                // Ikon yang merepresentasikan admin
+                child: Icon(
+                  Icons.admin_panel_settings,
+                  color: Colors.blue[600],
+                ),
+              ),
+            ),
           ),
         ],
       ),
@@ -31,7 +48,9 @@ class AdminDashboardPage extends StatelessWidget {
           padding: EdgeInsets.zero,
           children: [
             const DrawerHeader(
-              decoration: BoxDecoration(color: Colors.blueAccent),
+              decoration: BoxDecoration(
+                color: Color.fromARGB(255, 33, 11, 231),
+              ),
               child: Text(
                 'Menu Navigasi',
                 style: TextStyle(color: Colors.white, fontSize: 24),

@@ -212,6 +212,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../bloc/login/login_bloc.dart';
 // ... import halaman home lainnya
@@ -266,7 +267,7 @@ class _LoginPageState extends State<LoginPage> {
             // Navigasi berdasarkan role
             switch (state.user.role) {
               case 'admin':
-                // Navigator.of(context).pushReplacement(... AdminHomePage ...);
+                GoRouter.of(context).go('/dashadmin');
                 break;
               case 'mentor':
                 // Navigator.of(context).pushReplacement(... MentorHomePage ...);

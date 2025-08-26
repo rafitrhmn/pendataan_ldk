@@ -1,5 +1,7 @@
 // Konfigurasi GoRouter
+import 'package:app/pages/dashbod_admin.dart';
 import 'package:app/pages/login.dart';
+import 'package:app/pages/profile_admin.dart';
 import 'package:app/pages/spalsh_screen.dart';
 import 'package:go_router/go_router.dart';
 
@@ -17,6 +19,14 @@ final GoRouter router = GoRouter(
     GoRoute(
       path: '/login', // Path URL untuk halaman ini
       builder: (context, state) => const LoginPage(),
+    ),
+    GoRoute(
+      path: '/dashadmin', // Path URL untuk halaman ini
+      builder: (context, state) => const AdminDashboardPage(),
+    ),
+    GoRoute(
+      path: '/profile', // Path URL untuk halaman ini
+      builder: (context, state) => const ProfilePage(),
     ),
   ],
 );
