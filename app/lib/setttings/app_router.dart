@@ -1,8 +1,8 @@
-import 'package:app/login.dart';
-import 'package:app/spalsh_screen.dart';
+// Konfigurasi GoRouter
+import 'package:app/pages/login.dart';
+import 'package:app/pages/spalsh_screen.dart';
 import 'package:go_router/go_router.dart';
 
-// Konfigurasi GoRouter
 final GoRouter router = GoRouter(
   // initialLocation akan menentukan rute awal saat aplikasi dibuka
   initialLocation: '/',
@@ -16,7 +16,7 @@ final GoRouter router = GoRouter(
     // Rute untuk Login Screen
     GoRoute(
       path: '/login', // Path URL untuk halaman ini
-      builder: (context, state) => const LoginScreen(),
+      builder: (context, state) => const LoginPage(),
     ),
   ],
 );
