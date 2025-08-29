@@ -1,5 +1,6 @@
+import 'package:app/widgets/admin_drawer.dart';
+import 'package:app/widgets/appbar.dart';
 import 'package:flutter/material.dart';
-import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 class AdminDashboardPage extends StatefulWidget {
@@ -15,78 +16,11 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> {
     return Scaffold(
       backgroundColor: Colors.grey[100],
       // 1. AppBar di bagian atas
-      appBar: AppBar(
-        title: const Text('Admin Dashboard'),
-        backgroundColor: Colors.white,
-        elevation: 0,
-        actions: [
-          // Menambahkan sedikit jarak dari tepi kanan layar
-          Padding(
-            padding: const EdgeInsets.only(right: 16.0),
-            // Menggunakan InkWell agar CircleAvatar bisa ditekan (tappable)
-            child: InkWell(
-              onTap: () {
-                GoRouter.of(context).go('/profile');
-              },
-              // Kustomisasi bentuk ripple effect agar sesuai dengan lingkaran
-              customBorder: const CircleBorder(),
-              child: CircleAvatar(
-                backgroundColor: Colors.blue[50], // Warna latar belakang avatar
-                // Ikon yang merepresentasikan admin
-                child: Icon(
-                  Icons.admin_panel_settings,
-                  color: Colors.blue[600],
-                ),
-              ),
-            ),
-          ),
-        ],
-      ),
-      // 2. Drawer (Menu Samping)
-      drawer: Drawer(
-        child: ListView(
-          padding: EdgeInsets.zero,
-          children: [
-            const DrawerHeader(
-              decoration: BoxDecoration(
-                color: Color.fromARGB(255, 33, 11, 231),
-              ),
-              child: Text(
-                'Menu Navigasi',
-                style: TextStyle(color: Colors.white, fontSize: 24),
-              ),
-            ),
-            ListTile(
-              leading: const Icon(Icons.dashboard),
-              title: const Text('Dashboard'),
-              onTap: () {
-                Navigator.pop(context); // Tutup drawer
-              },
-            ),
-            ListTile(
-              leading: const Icon(Icons.people),
-              title: const Text('Manajemen Pengguna'),
-              onTap: () {
-                // TODO: Navigasi ke halaman manajemen pengguna
-              },
-            ),
-            ListTile(
-              leading: const Icon(Icons.bar_chart),
-              title: const Text('Laporan'),
-              onTap: () {
-                // TODO: Navigasi ke halaman laporan
-              },
-            ),
-            ListTile(
-              leading: const Icon(Icons.settings),
-              title: const Text('Pengaturan'),
-              onTap: () {
-                // TODO: Navigasi ke halaman pengaturan
-              },
-            ),
-          ],
-        ),
-      ),
+      // DIUBAH: Menggunakan widget AppBar kustom
+      appBar: const CustomAppBar(title: 'Admin Dashboard'),
+
+      // DIUBAH: Menggunakan widget Drawer kustom
+      drawer: const AdminDrawer(),
       // 3. Badan Halaman (Body)
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16.0),
