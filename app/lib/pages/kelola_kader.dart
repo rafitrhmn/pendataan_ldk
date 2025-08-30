@@ -47,34 +47,89 @@ class _KelolaKaderPageState extends State<KelolaKaderPage> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: Colors.grey[100],
-      appBar: const CustomAppBar(title: 'Kelola Kader'),
-      drawer: const AdminDrawer(),
-      body: BlocBuilder<KaderBloc, KaderState>(
-        builder: (context, state) {
-          if (state is KaderLoading || state is KaderInitial) {
-            return const Center(child: CircularProgressIndicator());
+    // Membungkus Scaffold dengan BlocListener untuk menangani feedback
+    // seperti SnackBar tanpa perlu membangun ulang seluruh UI.
+    return BlocListener<KaderBloc, KaderState>(
+      listener: (context, state) {
+        // Jika akun berhasil dibuat...
+        if (state is KaderCreationSuccess) {
+          // Cek apakah ada dialog yang terbuka, lalu tutup.
+          if (Navigator.canPop(context)) {
+            Navigator.pop(context);
           }
-          if (state is KaderError) {
-            return Center(child: Text(state.message));
-          }
-          if (state is KaderLoaded) {
-            return Padding(
-              padding: const EdgeInsets.all(16.0),
-              child: Column(
-                children: [
-                  _buildHeader(state),
-                  const SizedBox(height: 16),
-                  _buildSearchAndFilter(),
-                  const SizedBox(height: 16),
-                  _buildKaderList(state),
-                ],
-              ),
-            );
-          }
-          return const SizedBox.shrink();
-        },
+          // Tampilkan pesan sukses menggunakan SnackBar.
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('Akun kader berhasil dibuat!'),
+              backgroundColor: Colors.green,
+            ),
+          );
+        }
+        // Jika akun gagal dibuat...
+        if (state is KaderCreationFailure) {
+          // Tampilkan pesan error.
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text('Error: ${state.error}'),
+              backgroundColor: Colors.red,
+            ),
+          );
+        }
+      },
+      child: Scaffold(
+        backgroundColor: Colors.grey[100],
+        appBar: const CustomAppBar(title: 'Kelola Kader'),
+        drawer: const AdminDrawer(),
+        // Stack digunakan untuk menumpuk widget. Di sini kita menumpuk
+        // konten utama dengan sebuah overlay loading.
+        body: Stack(
+          children: [
+            // Widget utama yang membangun daftar kader
+            BlocBuilder<KaderBloc, KaderState>(
+              builder: (context, state) {
+                if (state is KaderLoading || state is KaderInitial) {
+                  return const Center(child: CircularProgressIndicator());
+                }
+                if (state is KaderError) {
+                  return Center(child: Text(state.message));
+                }
+                if (state is KaderLoaded) {
+                  return Padding(
+                    padding: const EdgeInsets.all(16.0),
+                    child: Column(
+                      children: [
+                        _buildHeader(state),
+                        const SizedBox(height: 16),
+                        _buildSearchAndFilter(),
+                        const SizedBox(height: 16),
+                        _buildKaderList(state),
+                      ],
+                    ),
+                  );
+                }
+                // State default jika tidak ada yang cocok
+                return const SizedBox.shrink();
+              },
+            ),
+            // Widget kedua di dalam Stack: Overlay loading
+            // Ini hanya akan muncul saat state adalah KaderCreationLoading
+            BlocBuilder<KaderBloc, KaderState>(
+              builder: (context, state) {
+                if (state is KaderCreationLoading) {
+                  return Container(
+                    // Warna semi-transparan untuk menutupi layar di belakangnya
+                    color: Colors.black.withOpacity(0.5),
+                    child: const Center(
+                      child: CircularProgressIndicator(color: Colors.white),
+                    ),
+                  );
+                }
+                // Jika state bukan loading, tampilkan widget kosong
+                return const SizedBox.shrink();
+              },
+            ),
+          ],
+        ),
       ),
     );
   }

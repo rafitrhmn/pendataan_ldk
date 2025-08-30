@@ -51,9 +51,7 @@ class AdminDrawer extends StatelessWidget {
             title: const Text('Kelola Kader'),
             onTap: () {
               Navigator.pop(context); // Tutup drawer dulu
-              GoRouter.of(
-                context,
-              ).push('/kelola-kader'); // Navigasi ke halaman baru
+              GoRouter.of(context).go('/kelola-kader');
             },
           ),
           ListTile(

@@ -87,7 +87,6 @@ class _AddKaderDialogState extends State<AddKaderDialog> {
           password: _passwordController.text,
         ),
       );
-      Navigator.of(context).pop();
     }
   }
 
@@ -240,6 +239,8 @@ class _AddKaderDialogState extends State<AddKaderDialog> {
         TextFormField(
           controller: _passwordController,
           obscureText: !_isPasswordVisible, // Gunakan state, bukan 'true'
+          // TAMBAHKAN BARIS INI: Beri tahu browser ini adalah password baru
+          autofillHints: const [AutofillHints.newPassword],
           decoration: _buildInputDecoration(
             'Password',
             suffixIcon: IconButton(
@@ -267,6 +268,8 @@ class _AddKaderDialogState extends State<AddKaderDialog> {
         TextFormField(
           controller: _confirmPasswordController,
           obscureText: !_isPasswordVisible, // Gunakan state yang sama
+          // TAMBAHKAN BARIS INI: Beri tahu browser ini adalah password baru
+          autofillHints: const [AutofillHints.newPassword],
           decoration: _buildInputDecoration(
             'Ulangi Password',
             // Berikan juga IconButton di sini

@@ -2,6 +2,7 @@ import 'package:app/widgets/admin_drawer.dart';
 import 'package:app/widgets/appbar.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
 class AdminDashboardPage extends StatefulWidget {
   const AdminDashboardPage({super.key});
@@ -35,6 +36,36 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> {
               ),
             ),
             const SizedBox(height: 24),
+
+            // --- TAMBAHKAN TOMBOL INI SEMENTARA UNTUK DEBUGGING ---
+            ElevatedButton(
+              style: ElevatedButton.styleFrom(backgroundColor: Colors.orange),
+              onPressed: () async {
+                print("--- 🔬 Memulai Tes Peran Pengguna ---");
+                try {
+                  // Memanggil fungsi SQL yang baru saja kita buat
+                  final result = await Supabase.instance.client.rpc(
+                    'get_my_role_for_testing',
+                  );
+
+                  print("✅ [HASIL TES PERAN]: $result");
+
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(content: Text('Hasil tes peran: $result')),
+                  );
+                } catch (e) {
+                  print("🚨 [ERROR TES PERAN]: ${e.toString()}");
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(content: Text('Error tes peran: ${e.toString()}')),
+                  );
+                }
+              },
+              child: const Text(
+                'Jalankan Tes Peran',
+                style: TextStyle(color: Colors.white),
+              ),
+            ),
+            // --- AKHIR DARI TOMBOL DEBUGGING ---
 
             // Bagian Ringkasan Statistik
             Text('Ringkasan', style: Theme.of(context).textTheme.titleLarge),
