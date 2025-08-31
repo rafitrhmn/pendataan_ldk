@@ -1,6 +1,10 @@
-import 'package:app/supabase_config.dart';
+import 'package:app/bloc/auth/auth_bloc.dart';
+// import 'package:app/bloc/kader/kader_bloc.dart';
+import 'package:app/bloc/login/login_bloc.dart';
+import 'package:app/setttings/supabase_config.dart';
 import 'package:flutter/material.dart';
-import 'app_router.dart'; // Import konfigurasi router kita
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'setttings/app_router.dart'; // Import konfigurasi router kita
 
 Future<void> main() async {
   // Pastikan Flutter binding sudah siap
@@ -18,15 +22,27 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     // Gunakan MaterialApp.router untuk mengaktifkan go_router
-    return MaterialApp.router(
-      title: 'Aplikasi Flutter Saya',
-      theme: ThemeData(
-        primarySwatch: Colors.blue,
-        visualDensity: VisualDensity.adaptivePlatformDensity,
+    return MultiBlocProvider(
+      providers: [
+        BlocProvider(create: (context) => AuthBloc()),
+        BlocProvider(
+          create: (context) => LoginBloc(
+            // Berikan AuthBloc ke LoginBloc
+            authBloc: context.read<AuthBloc>(),
+          ),
+        ),
+        // BlocProvider(create: (context) => KaderBloc()), // <-- TAMBAHKAN INI
+      ],
+      child: MaterialApp.router(
+        title: 'Aplikasi Flutter Saya',
+        theme: ThemeData(
+          primarySwatch: Colors.blue,
+          visualDensity: VisualDensity.adaptivePlatformDensity,
+        ),
+        // Gunakan routerConfig untuk menghubungkan konfigurasi router
+        routerConfig: router,
+        debugShowCheckedModeBanner: false,
       ),
-      // Gunakan routerConfig untuk menghubungkan konfigurasi router
-      routerConfig: router,
-      debugShowCheckedModeBanner: false,
     );
   }
 }
