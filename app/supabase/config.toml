@@ -355,3 +355,14 @@ entrypoint = "./functions/update-kader/index.ts"
 # Specifies static files to be bundled with the function. Supports glob patterns.
 # For example, if you want to serve static HTML pages in your function:
 # static_files = [ "./functions/update-kader/*.html" ]
+
+[functions.delete-kader]
+enabled = true
+verify_jwt = true
+import_map = "./functions/delete-kader/deno.json"
+# Uncomment to specify a custom file path to the entrypoint.
+# Supported file extensions are: .ts, .js, .mjs, .jsx, .tsx
+entrypoint = "./functions/delete-kader/index.ts"
+# Specifies static files to be bundled with the function. Supports glob patterns.
+# For example, if you want to serve static HTML pages in your function:
+# static_files = [ "./functions/delete-kader/*.html" ]

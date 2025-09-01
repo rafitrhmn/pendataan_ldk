@@ -4,6 +4,7 @@ import 'dart:async';
 import 'package:app/bloc/kader/kader_bloc.dart';
 import 'package:app/bloc/kader/kader_event.dart';
 import 'package:app/bloc/kader/kader_state.dart';
+import 'package:app/models/kader_model.dart';
 import 'package:app/widgets/add_kader_dialog.dart';
 import 'package:app/widgets/admin_drawer.dart';
 import 'package:app/widgets/appbar.dart';
@@ -70,50 +71,91 @@ class __KelolaKaderViewState extends State<_KelolaKaderView> {
     );
   }
 
+  // Method baru di dalam __KelolaKaderViewState
+  void _showDeleteConfirmationDialog(Kader kader) {
+    showDialog(
+      context: context,
+      builder: (dialogContext) => AlertDialog(
+        title: const Text('Hapus Kader'),
+        content: Text(
+          'Apakah Anda yakin ingin menghapus kader bernama "${kader.username}"? Aksi ini tidak dapat dibatalkan.',
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(dialogContext).pop(),
+            child: const Text('Batal'),
+          ),
+          FilledButton(
+            style: FilledButton.styleFrom(backgroundColor: Colors.red),
+            onPressed: () {
+              // Kirim event hapus ke BLoC
+              context.read<KaderBloc>().add(DeleteKader(id: kader.id));
+              Navigator.of(dialogContext).pop(); // Tutup dialog
+            },
+            child: const Text('Hapus'),
+          ),
+        ],
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: Colors.grey[100],
-      appBar: const CustomAppBar(title: 'Kelola Kader'),
-      drawer: const AdminDrawer(),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: BlocBuilder<KaderBloc, KaderState>(
-          builder: (context, state) {
-            if (state is KaderLoading || state is KaderInitial) {
-              return const Center(child: CircularProgressIndicator());
-            } else if (state is KaderLoaded) {
-              if (state.allCadres.isEmpty) {
-                return Center(
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      const Text("Belum ada kaderisasi"),
-                      const SizedBox(height: 16),
-                      ElevatedButton.icon(
-                        icon: const Icon(Icons.add),
-                        label: const Text('Tambah Kader Pertama'),
-                        onPressed: _showAddKaderDialog,
-                      ),
-                    ],
-                  ),
+    return BlocListener<KaderBloc, KaderState>(
+      listener: (context, state) {
+        if (state is KaderDeleteSuccess) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('Kader berhasil dihapus'),
+              backgroundColor: Colors.orange,
+            ),
+          );
+        }
+        // Anda juga bisa menambahkan listener untuk create & update di sini jika mau
+      },
+      child: Scaffold(
+        backgroundColor: Colors.grey[100],
+        appBar: const CustomAppBar(title: 'Kelola Kader'),
+        drawer: const AdminDrawer(),
+        body: Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: BlocBuilder<KaderBloc, KaderState>(
+            builder: (context, state) {
+              if (state is KaderLoading || state is KaderInitial) {
+                return const Center(child: CircularProgressIndicator());
+              } else if (state is KaderLoaded) {
+                if (state.allCadres.isEmpty) {
+                  return Center(
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        const Text("Belum ada kaderisasi"),
+                        const SizedBox(height: 16),
+                        ElevatedButton.icon(
+                          icon: const Icon(Icons.add),
+                          label: const Text('Tambah Kader Pertama'),
+                          onPressed: _showAddKaderDialog,
+                        ),
+                      ],
+                    ),
+                  );
+                }
+                return Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    _buildHeader(state),
+                    const SizedBox(height: 16),
+                    _buildSearchAndFilter(),
+                    const SizedBox(height: 16),
+                    _buildKaderList(state),
+                  ],
                 );
+              } else if (state is KaderError) {
+                return Center(child: Text("Error: ${state.message}"));
               }
-              return Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  _buildHeader(state),
-                  const SizedBox(height: 16),
-                  _buildSearchAndFilter(),
-                  const SizedBox(height: 16),
-                  _buildKaderList(state),
-                ],
-              );
-            } else if (state is KaderError) {
-              return Center(child: Text("Error: ${state.message}"));
-            }
-            return const SizedBox.shrink();
-          },
+              return const SizedBox.shrink();
+            },
+          ),
         ),
       ),
     );
@@ -241,7 +283,7 @@ class __KelolaKaderViewState extends State<_KelolaKaderView> {
                       ),
                     );
                   } else if (value == 'delete') {
-                    // TODO: Implementasi fitur hapus akan ada di sini
+                    _showDeleteConfirmationDialog(kader);
                   }
                 },
                 itemBuilder: (context) => [

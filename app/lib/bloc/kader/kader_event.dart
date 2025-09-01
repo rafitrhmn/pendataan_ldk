@@ -58,3 +58,12 @@ class UpdateKader extends KaderEvent {
   @override
   List<Object> get props => [id, newUsername, newJabatan, newPhone];
 }
+
+class DeleteKader extends KaderEvent {
+  final String id;
+
+  const DeleteKader({required this.id});
+
+  @override
+  List<Object> get props => [id];
+}

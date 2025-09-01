@@ -15,6 +15,7 @@ class KaderBloc extends Bloc<KaderEvent, KaderState> {
     on<SortKader>(_onSortKader);
     on<CreateKaderAccount>(_onCreateKaderAccount);
     on<UpdateKader>(_onUpdateKader);
+    on<DeleteKader>(_onDeleteKader);
   }
 
   Future<void> _onFetchKaderisasi(
@@ -132,6 +133,32 @@ class KaderBloc extends Bloc<KaderEvent, KaderState> {
         // dan memicu FetchKaderisasi. Sangat efisien!
       } else {
         emit(KaderError(response.data?['error'] ?? 'Gagal mengupdate kader'));
+      }
+    } catch (e) {
+      emit(KaderError(e.toString()));
+    }
+  }
+
+  // Method baru di dalam KaderBloc
+  Future<void> _onDeleteKader(
+    DeleteKader event,
+    Emitter<KaderState> emit,
+  ) async {
+    // Kita bisa emit state loading jika ingin menampilkan feedback spesifik
+    // emit(KaderDeleting()); // Opsional
+
+    try {
+      final response = await supabase.functions.invoke(
+        'delete-kader',
+        body: {'id': event.id},
+      );
+
+      if (response.data?['success'] == true) {
+        emit(KaderDeleteSuccess());
+        // Lagi-lagi, kita tidak perlu fetch ulang.
+        // Realtime akan menangani refresh UI secara otomatis!
+      } else {
+        emit(KaderError(response.data?['error'] ?? 'Gagal menghapus kader'));
       }
     } catch (e) {
       emit(KaderError(e.toString()));

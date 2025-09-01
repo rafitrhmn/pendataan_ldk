@@ -54,3 +54,8 @@ class KaderCreated extends KaderState {
 class KaderUpdating extends KaderState {}
 
 class KaderUpdateSuccess extends KaderState {}
+
+// 🔹 State khusus saat hapus akun
+class KaderDeleting extends KaderState {}
+
+class KaderDeleteSuccess extends KaderState {}
