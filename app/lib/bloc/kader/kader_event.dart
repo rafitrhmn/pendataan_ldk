@@ -24,3 +24,20 @@ class SortKader extends KaderEvent {
   @override
   List<Object?> get props => [ascending];
 }
+
+class CreateKaderAccount extends KaderEvent {
+  final String username;
+  final String phone;
+  final String jabatan;
+  final String password;
+
+  const CreateKaderAccount({
+    required this.username,
+    required this.phone,
+    required this.jabatan,
+    required this.password,
+  });
+
+  @override
+  List<Object?> get props => [username, phone, jabatan, password];
+}

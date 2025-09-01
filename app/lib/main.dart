@@ -1,4 +1,5 @@
 import 'package:app/bloc/auth/auth_bloc.dart';
+import 'package:app/bloc/kader/kader_bloc.dart';
 // import 'package:app/bloc/kader/kader_bloc.dart';
 import 'package:app/bloc/login/login_bloc.dart';
 import 'package:app/setttings/supabase_config.dart';
@@ -31,7 +32,7 @@ class MyApp extends StatelessWidget {
             authBloc: context.read<AuthBloc>(),
           ),
         ),
-        // BlocProvider(create: (context) => KaderBloc()), // <-- TAMBAHKAN INI
+        BlocProvider(create: (context) => KaderBloc()), // <-- TAMBAHKAN INI
       ],
       child: MaterialApp.router(
         title: 'Aplikasi Flutter Saya',

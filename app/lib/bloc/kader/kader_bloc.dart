@@ -1,56 +1,3 @@
-// import 'package:flutter_bloc/flutter_bloc.dart';
-// import 'package:supabase_flutter/supabase_flutter.dart';
-// import 'kader_event.dart';
-// import 'kader_state.dart';
-
-// class KaderBloc extends Bloc<KaderEvent, KaderState> {
-//   final supabase = Supabase.instance.client;
-//   RealtimeChannel? _channel;
-
-//   KaderBloc() : super(KaderInitial()) {
-//     on<FetchKaderisasi>(_onFetchKaderisasi);
-//     _subscribeRealtime(); // langsung pas init
-//   }
-
-//   Future<void> _onFetchKaderisasi(
-//     FetchKaderisasi event,
-//     Emitter<KaderState> emit,
-//   ) async {
-//     emit(KaderLoading());
-//     try {
-//       final response = await supabase
-//           .from('profiles')
-//           .select()
-//           .eq('role', 'kaderisasi');
-
-//       final profiles = (response as List).cast<Map<String, dynamic>>();
-//       emit(KaderLoaded(profiles));
-//     } catch (e) {
-//       emit(KaderError(e.toString()));
-//     }
-//   }
-
-//   void _subscribeRealtime() {
-//     _channel = supabase.channel('profiles-channel')
-//       ..onPostgresChanges(
-//         event: PostgresChangeEvent.all, // INSERT, UPDATE, DELETE
-//         schema: 'public',
-//         table: 'profiles',
-//         callback: (payload) {
-//           // setiap ada perubahan → fetch ulang data
-//           add(FetchKaderisasi());
-//         },
-//       )
-//       ..subscribe();
-//   }
-
-//   @override
-//   Future<void> close() {
-//     _channel?.unsubscribe();
-//     return super.close();
-//   }
-// }
-
 import 'dart:async';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
@@ -66,6 +13,8 @@ class KaderBloc extends Bloc<KaderEvent, KaderState> {
     on<FetchKaderisasi>(_onFetchKaderisasi);
     on<SearchKader>(_onSearchKader);
     on<SortKader>(_onSortKader);
+    // Tambah akun kader
+    on<CreateKaderAccount>(_onCreateKaderAccount);
   }
 
   Future<void> _onFetchKaderisasi(
@@ -127,6 +76,35 @@ class KaderBloc extends Bloc<KaderEvent, KaderState> {
         );
 
       emit(current.copyWith(filteredCadres: sorted));
+    }
+  }
+
+  Future<void> _onCreateKaderAccount(
+    CreateKaderAccount event,
+    Emitter<KaderState> emit,
+  ) async {
+    emit(KaderCreating());
+    try {
+      final response = await supabase.functions.invoke(
+        'create-kader',
+        body: {
+          'username': event.username,
+          'phone': event.phone,
+          'jabatan': event.jabatan,
+          'password': event.password,
+        },
+      );
+
+      if (response.data['success'] == true) {
+        emit(KaderCreated(event.username));
+
+        // ✅ Setelah buat akun, langsung fetch ulang list
+        add(FetchKaderisasi());
+      } else {
+        emit(KaderError(response.data['error'] ?? 'Gagal membuat akun kader'));
+      }
+    } catch (e) {
+      emit(KaderError(e.toString()));
     }
   }
 
