@@ -49,3 +49,8 @@ class KaderCreated extends KaderState {
   @override
   List<Object?> get props => [username];
 }
+
+// 🔹 State khusus saat update akun
+class KaderUpdating extends KaderState {}
+
+class KaderUpdateSuccess extends KaderState {}

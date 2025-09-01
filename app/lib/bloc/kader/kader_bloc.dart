@@ -13,8 +13,8 @@ class KaderBloc extends Bloc<KaderEvent, KaderState> {
     on<FetchKaderisasi>(_onFetchKaderisasi);
     on<SearchKader>(_onSearchKader);
     on<SortKader>(_onSortKader);
-    // Tambah akun kader
     on<CreateKaderAccount>(_onCreateKaderAccount);
+    on<UpdateKader>(_onUpdateKader);
   }
 
   Future<void> _onFetchKaderisasi(
@@ -102,6 +102,36 @@ class KaderBloc extends Bloc<KaderEvent, KaderState> {
         add(FetchKaderisasi());
       } else {
         emit(KaderError(response.data['error'] ?? 'Gagal membuat akun kader'));
+      }
+    } catch (e) {
+      emit(KaderError(e.toString()));
+    }
+  }
+
+  // Method baru di dalam KaderBloc
+  Future<void> _onUpdateKader(
+    UpdateKader event,
+    Emitter<KaderState> emit,
+  ) async {
+    emit(KaderUpdating());
+    try {
+      final response = await supabase.functions.invoke(
+        'update-kader',
+        body: {
+          'id': event.id,
+          'username': event.newUsername,
+          'jabatan': event.newJabatan,
+          'no_hp': event.newPhone, // Sesuaikan dengan nama kolom di tabel
+        },
+      );
+
+      if (response.data?['success'] == true) {
+        emit(KaderUpdateSuccess());
+        // CATATAN: Kita tidak perlu fetch ulang di sini!
+        // Listener realtime kita akan otomatis mendeteksi perubahan
+        // dan memicu FetchKaderisasi. Sangat efisien!
+      } else {
+        emit(KaderError(response.data?['error'] ?? 'Gagal mengupdate kader'));
       }
     } catch (e) {
       emit(KaderError(e.toString()));

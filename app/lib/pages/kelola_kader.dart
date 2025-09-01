@@ -7,6 +7,7 @@ import 'package:app/bloc/kader/kader_state.dart';
 import 'package:app/widgets/add_kader_dialog.dart';
 import 'package:app/widgets/admin_drawer.dart';
 import 'package:app/widgets/appbar.dart';
+import 'package:app/widgets/edit_kader_dialog.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -228,7 +229,20 @@ class __KelolaKaderViewState extends State<_KelolaKaderView> {
               subtitle: Text(kader.jabatan ?? 'Jabatan belum diatur'),
               trailing: PopupMenuButton<String>(
                 onSelected: (value) {
-                  // TODO: Implement edit & delete
+                  if (value == 'edit') {
+                    // Kode ini sudah benar.
+                    showDialog(
+                      context: context,
+                      builder: (_) => BlocProvider.value(
+                        // 1. Mencari KaderBloc yang ada di halaman utama.
+                        value: BlocProvider.of<KaderBloc>(context),
+                        // 2. Meneruskannya ke EditKaderDialog dan mengirim data kader.
+                        child: EditKaderDialog(kaderToEdit: kader),
+                      ),
+                    );
+                  } else if (value == 'delete') {
+                    // TODO: Implementasi fitur hapus akan ada di sini
+                  }
                 },
                 itemBuilder: (context) => [
                   const PopupMenuItem(value: 'edit', child: Text('Edit')),

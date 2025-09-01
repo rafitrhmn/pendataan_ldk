@@ -41,3 +41,20 @@ class CreateKaderAccount extends KaderEvent {
   @override
   List<Object?> get props => [username, phone, jabatan, password];
 }
+
+class UpdateKader extends KaderEvent {
+  final String id;
+  final String newUsername;
+  final String newJabatan;
+  final String newPhone;
+
+  const UpdateKader({
+    required this.id,
+    required this.newUsername,
+    required this.newJabatan,
+    required this.newPhone,
+  });
+
+  @override
+  List<Object> get props => [id, newUsername, newJabatan, newPhone];
+}
