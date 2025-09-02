@@ -1,5 +1,3 @@
-// kelola_kader.dart
-
 import 'dart:async';
 import 'package:app/bloc/kader/kader_bloc.dart';
 import 'package:app/bloc/kader/kader_event.dart';
@@ -8,6 +6,7 @@ import 'package:app/models/kader_model.dart';
 import 'package:app/widgets/add_kader_dialog.dart';
 import 'package:app/widgets/admin_drawer.dart';
 import 'package:app/widgets/appbar.dart';
+import 'package:app/widgets/delete_kader_dialog.dart';
 import 'package:app/widgets/edit_kader_dialog.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -71,30 +70,27 @@ class __KelolaKaderViewState extends State<_KelolaKaderView> {
     );
   }
 
-  // Method baru di dalam __KelolaKaderViewState
   void _showDeleteConfirmationDialog(Kader kader) {
     showDialog(
       context: context,
-      builder: (dialogContext) => AlertDialog(
-        title: const Text('Hapus Kader'),
-        content: Text(
-          'Apakah Anda yakin ingin menghapus kader bernama "${kader.username}"? Aksi ini tidak dapat dibatalkan.',
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.of(dialogContext).pop(),
-            child: const Text('Batal'),
-          ),
-          FilledButton(
-            style: FilledButton.styleFrom(backgroundColor: Colors.red),
-            onPressed: () {
-              // Kirim event hapus ke BLoC
-              context.read<KaderBloc>().add(DeleteKader(id: kader.id));
-              Navigator.of(dialogContext).pop(); // Tutup dialog
-            },
-            child: const Text('Hapus'),
-          ),
-        ],
+      builder: (dialogContext) {
+        // BlocProvider.value digunakan untuk 'meneruskan' KaderBloc yang sudah ada
+        // ke dalam dialog baru kita, agar dialog tersebut bisa mengirim event.
+        return BlocProvider.value(
+          value: BlocProvider.of<KaderBloc>(context),
+          child: DeleteKaderDialog(kader: kader),
+        );
+      },
+    );
+  }
+
+  void _showEditKaderDialog(Kader kader) {
+    showDialog(
+      context: context,
+      // Kita tidak butuh 'dialogContext' di sini, jadi bisa pakai '_'
+      builder: (_) => BlocProvider.value(
+        value: BlocProvider.of<KaderBloc>(context),
+        child: EditKaderDialog(kaderToEdit: kader),
       ),
     );
   }
@@ -221,7 +217,7 @@ class __KelolaKaderViewState extends State<_KelolaKaderView> {
                 borderSide: BorderSide.none,
               ),
               filled: true,
-              fillColor: Colors.white,
+              fillColor: Colors.grey[200],
             ),
           ),
         ),
@@ -243,6 +239,33 @@ class __KelolaKaderViewState extends State<_KelolaKaderView> {
     );
   }
 
+  // Helper function untuk membuat icon melingkar dengan border
+  Widget _buildCircularIconButton({
+    required IconData icon,
+    required VoidCallback onPressed,
+  }) {
+    return InkWell(
+      customBorder: const CircleBorder(), // Membuat efek ripple melingkar
+      onTap: onPressed,
+      child: Container(
+        padding: const EdgeInsets.all(6),
+        decoration: BoxDecoration(
+          shape: BoxShape.circle,
+          color: Colors.white,
+          border: Border.all(
+            color: Colors.grey.shade300, // Warna border abu-abu muda
+            width: 1.5,
+          ),
+        ),
+        child: Icon(
+          icon,
+          size: 20,
+          color: Colors.grey.shade700, // Warna ikon abu-abu tua
+        ),
+      ),
+    );
+  }
+
   Widget _buildKaderList(KaderLoaded state) {
     if (state.filteredCadres.isEmpty) {
       return const Expanded(
@@ -251,46 +274,99 @@ class __KelolaKaderViewState extends State<_KelolaKaderView> {
     }
     return Expanded(
       child: ListView.separated(
+        padding: const EdgeInsets.symmetric(vertical: 6),
         itemCount: state.filteredCadres.length,
-        separatorBuilder: (context, index) => const SizedBox(height: 12),
+        separatorBuilder: (context, index) => const SizedBox(height: 16),
         itemBuilder: (context, index) {
           final kader = state.filteredCadres[index];
-          return Card(
-            elevation: 2,
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(12),
+          return Container(
+            padding: EdgeInsets.only(left: 16, right: 16, top: 18, bottom: 18),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(8.0),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.grey.withOpacity(0.15),
+                  spreadRadius: 2,
+                  blurRadius: 8,
+                  offset: const Offset(0, 3),
+                ),
+              ],
             ),
-            child: ListTile(
-              leading: CircleAvatar(
-                child: Text(kader.username[0].toUpperCase()),
-              ),
-              title: Text(
-                kader.username,
-                style: const TextStyle(fontWeight: FontWeight.bold),
-              ),
-              subtitle: Text(kader.jabatan ?? 'Jabatan belum diatur'),
-              trailing: PopupMenuButton<String>(
-                onSelected: (value) {
-                  if (value == 'edit') {
-                    // Kode ini sudah benar.
-                    showDialog(
-                      context: context,
-                      builder: (_) => BlocProvider.value(
-                        // 1. Mencari KaderBloc yang ada di halaman utama.
-                        value: BlocProvider.of<KaderBloc>(context),
-                        // 2. Meneruskannya ke EditKaderDialog dan mengirim data kader.
-                        child: EditKaderDialog(kaderToEdit: kader),
+            child: Column(
+              children: [
+                // Bagian Atas: Foto, Nama, Jabatan, dan Tombol
+                Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    // Foto Profil
+                    CircleAvatar(
+                      radius: 24,
+
+                      child: Text(kader.username[0].toUpperCase()),
+                    ),
+                    const SizedBox(width: 12),
+                    // Nama dan Jabatan
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            kader.username,
+                            style: const TextStyle(
+                              fontWeight: FontWeight.bold,
+                              fontSize: 16,
+                            ),
+                          ),
+                          const SizedBox(height: 5),
+                          Row(
+                            children: [
+                              Text(
+                                'Hp: ${kader.noHp ?? 'No HP belum diatur'}',
+                                style: TextStyle(
+                                  color: Colors.grey[600],
+                                  fontSize: 14,
+                                ),
+                              ),
+                              Text(
+                                ' | ',
+                                style: TextStyle(
+                                  color: Colors.grey[600],
+                                  fontSize: 14,
+                                ),
+                              ),
+                              Text(
+                                kader.jabatan ?? 'Jabatan belum diatur',
+                                style: TextStyle(
+                                  color: Colors.grey[600],
+                                  fontSize: 14,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ],
                       ),
-                    );
-                  } else if (value == 'delete') {
-                    _showDeleteConfirmationDialog(kader);
-                  }
-                },
-                itemBuilder: (context) => [
-                  const PopupMenuItem(value: 'edit', child: Text('Edit')),
-                  const PopupMenuItem(value: 'delete', child: Text('Hapus')),
-                ],
-              ),
+                    ),
+                    const SizedBox(width: 12),
+                    // Kolom Kanan: Tombol Aksi (Icon Edit & Hapus)
+                    _buildCircularIconButton(
+                      icon: Icons.edit_outlined, // Icon pensil untuk Edit
+                      onPressed: () {
+                        _showEditKaderDialog(kader);
+                      },
+                    ),
+                    const SizedBox(width: 8),
+                    _buildCircularIconButton(
+                      icon:
+                          Icons.delete_outline, // Icon tong sampah untuk Hapus
+                      onPressed: () {
+                        // Panggil dialog konfirmasi hapus Anda di sini
+                        _showDeleteConfirmationDialog(kader);
+                      },
+                    ),
+                  ],
+                ),
+              ],
             ),
           );
         },
