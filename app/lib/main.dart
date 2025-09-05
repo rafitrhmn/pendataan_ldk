@@ -1,10 +1,11 @@
 import 'package:app/bloc/auth/auth_bloc.dart';
-// import 'package:app/bloc/kader/kader_bloc.dart';
+import 'package:app/bloc/kader/kader_bloc.dart';
 import 'package:app/bloc/login/login_bloc.dart';
+import 'package:app/bloc/mentor/mentor_bloc.dart';
 import 'package:app/setttings/supabase_config.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'setttings/app_router.dart'; // Import konfigurasi router kita
+import 'setttings/app_router.dart';
 
 Future<void> main() async {
   // Pastikan Flutter binding sudah siap
@@ -31,7 +32,8 @@ class MyApp extends StatelessWidget {
             authBloc: context.read<AuthBloc>(),
           ),
         ),
-        // BlocProvider(create: (context) => KaderBloc()), // <-- TAMBAHKAN INI
+        BlocProvider(create: (context) => KaderBloc()), // <-- TAMBAHKAN INI
+        BlocProvider(create: (context) => MentorBloc()),
       ],
       child: MaterialApp.router(
         title: 'Aplikasi Flutter Saya',

@@ -58,7 +58,8 @@ class AdminDrawer extends StatelessWidget {
             leading: const Icon(Icons.school_outlined),
             title: const Text('Kelola Mentor'),
             onTap: () {
-              // TODO: Navigasi ke halaman Kelola Mentor
+              Navigator.pop(context); // Tutup drawer dulu
+              GoRouter.of(context).go('/kelola-mentor');
             },
           ),
           ListTile(

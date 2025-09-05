@@ -1,41 +1,42 @@
 import 'dart:async';
-import 'package:app/bloc/kader/kader_bloc.dart';
-import 'package:app/bloc/kader/kader_event.dart';
-import 'package:app/bloc/kader/kader_state.dart';
-import 'package:app/models/kader_model.dart';
-import 'package:app/widgets/kader/add_kader_dialog.dart';
+import 'package:app/bloc/mentor/mentor_bloc.dart'; // DIUBAH
+import 'package:app/bloc/mentor/mentor_event.dart'; // DIUBAH
+import 'package:app/bloc/mentor/mentor_state.dart'; // DIUBAH
+import 'package:app/models/mentor_model.dart'; // DIUBAH
 import 'package:app/widgets/admin_drawer.dart';
 import 'package:app/widgets/appbar.dart';
-import 'package:app/widgets/kader/delete_kader_dialog.dart';
-import 'package:app/widgets/kader/edit_kader_dialog.dart';
+import 'package:app/widgets/mentor/add_mentor_dialog.dart';
+import 'package:app/widgets/mentor/delete_mentor_dialog.dart';
+import 'package:app/widgets/mentor/edit_mentor.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../widgets/stat_card.dart';
 
-class KelolaKader extends StatelessWidget {
-  const KelolaKader({Key? key}) : super(key: key);
+// DIUBAH: Nama class dari KelolaKader -> KelolaMentor
+class KelolaMentor extends StatelessWidget {
+  const KelolaMentor({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    // REKOMENDASI 1: Gunakan BlocProvider untuk membuat dan menyediakan KaderBloc
-    // BLoC akan dibuat saat widget ini dibangun dan ditutup otomatis saat tidak dibutuhkan.
     return BlocProvider(
-      create: (context) => KaderBloc()..add(FetchKaderisasi()),
-      child: const _KelolaKaderView(), // Pecah UI ke widget terpisah
+      // DIUBAH: Menggunakan MentorBloc dan event FetchMentors
+      create: (context) => MentorBloc()..add(FetchMentors()),
+      child: const _KelolaMentorView(),
     );
   }
 }
 
-// Widget ini berisi UI utama dan bisa mengakses BLoC dari atas
-class _KelolaKaderView extends StatefulWidget {
-  const _KelolaKaderView({Key? key}) : super(key: key);
+// DIUBAH: Nama class dari _KelolaKaderView -> _KelolaMentorView
+class _KelolaMentorView extends StatefulWidget {
+  const _KelolaMentorView({Key? key}) : super(key: key);
 
   @override
-  State<_KelolaKaderView> createState() => __KelolaKaderViewState();
+  State<_KelolaMentorView> createState() => __KelolaMentorViewState();
 }
 
-class __KelolaKaderViewState extends State<_KelolaKaderView> {
+// DIUBAH: Nama class dari __KelolaKaderViewState -> __KelolaMentorViewState
+class __KelolaMentorViewState extends State<_KelolaMentorView> {
   final TextEditingController _searchController = TextEditingController();
   Timer? _debounce;
   bool _isSortAscending = true;
@@ -47,90 +48,95 @@ class __KelolaKaderViewState extends State<_KelolaKaderView> {
     super.dispose();
   }
 
-  // Fungsi debounce untuk optimasi pencarian
   void _onSearchChanged(String query) {
     if (_debounce?.isActive ?? false) _debounce!.cancel();
     _debounce = Timer(const Duration(milliseconds: 500), () {
-      context.read<KaderBloc>().add(SearchKader(query));
+      // DIUBAH: Mengirim event SearchMentors
+      context.read<MentorBloc>().add(SearchMentors(query));
     });
   }
 
-  // Helper untuk menampilkan dialog dengan benar
-  void _showAddKaderDialog() {
+  // DIUBAH: Semua fungsi dialog disesuaikan untuk Mentor
+  void _showAddMentorDialog() {
     showDialog(
       context: context,
       builder: (_) {
-        // 'context' utama (dari halaman) sudah memiliki KaderBloc
-        // BlocProvider.value akan meneruskannya ke context dialog
         return BlocProvider.value(
-          value: BlocProvider.of<KaderBloc>(context),
-          child: const AddKaderDialog(),
+          value: BlocProvider.of<MentorBloc>(context),
+          child: const AddMentorDialog(), // DIUBAH
         );
       },
     );
   }
 
-  void _showDeleteConfirmationDialog(Kader kader) {
+  void _showDeleteConfirmationDialog(MentorModel mentor) {
+    // DIUBAH
     showDialog(
       context: context,
       builder: (dialogContext) {
-        // BlocProvider.value digunakan untuk 'meneruskan' KaderBloc yang sudah ada
-        // ke dalam dialog baru kita, agar dialog tersebut bisa mengirim event.
         return BlocProvider.value(
-          value: BlocProvider.of<KaderBloc>(context),
-          child: DeleteKaderDialog(kader: kader),
+          value: BlocProvider.of<MentorBloc>(context),
+          child: DeleteMentorDialog(mentor: mentor), // DIUBAH
         );
       },
     );
   }
 
-  void _showEditKaderDialog(Kader kader) {
+  void _showEditMentorDialog(MentorModel mentor) {
+    // DIUBAH
     showDialog(
       context: context,
-      // Kita tidak butuh 'dialogContext' di sini, jadi bisa pakai '_'
       builder: (_) => BlocProvider.value(
-        value: BlocProvider.of<KaderBloc>(context),
-        child: EditKaderDialog(kaderToEdit: kader),
+        value: BlocProvider.of<MentorBloc>(context),
+        child: EditMentorDialog(mentorToEdit: mentor), // DIUBAH
       ),
     );
   }
 
   @override
   Widget build(BuildContext context) {
-    return BlocListener<KaderBloc, KaderState>(
+    // DIUBAH: Menggunakan MentorBloc dan MentorState
+    return BlocListener<MentorBloc, MentorState>(
       listener: (context, state) {
-        if (state is KaderDeleteSuccess) {
+        // DIUBAH: State menjadi MentorDeleteSuccess
+        if (state is MentorDeleteSuccess) {
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(
-              content: Text('Kader berhasil dihapus'),
+              // DIUBAH: Teks notifikasi
+              content: Text('Mentor berhasil dihapus'),
               backgroundColor: Colors.orange,
             ),
           );
         }
-        // Anda juga bisa menambahkan listener untuk create & update di sini jika mau
       },
       child: Scaffold(
         backgroundColor: Colors.grey[100],
-        appBar: const CustomAppBar(title: 'Kelola Kader'),
+        // DIUBAH: Judul AppBar
+        appBar: const CustomAppBar(title: 'Kelola Mentor'),
         drawer: const AdminDrawer(),
         body: Padding(
           padding: const EdgeInsets.all(16.0),
-          child: BlocBuilder<KaderBloc, KaderState>(
+          // DIUBAH: Menggunakan MentorBloc dan MentorState
+          child: BlocBuilder<MentorBloc, MentorState>(
             builder: (context, state) {
-              if (state is KaderLoading || state is KaderInitial) {
+              // DIUBAH: State menjadi MentorLoading, MentorInitial
+              if (state is MentorLoading || state is MentorInitial) {
                 return const Center(child: CircularProgressIndicator());
-              } else if (state is KaderLoaded) {
-                if (state.allCadres.isEmpty) {
+              }
+              // DIUBAH: State menjadi MentorLoaded
+              else if (state is MentorLoaded) {
+                if (state.allMentors.isEmpty) {
+                  // DIUBAH
                   return Center(
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        const Text("Belum ada kaderisasi"),
+                        const Text("Belum ada data mentor"), // DIUBAH
                         const SizedBox(height: 16),
                         ElevatedButton.icon(
                           icon: const Icon(Icons.add),
-                          label: const Text('Tambah Kader Pertama'),
-                          onPressed: _showAddKaderDialog,
+                          label: const Text('Tambah Mentor Pertama'), // DIUBAH
+                          onPressed: _showAddMentorDialog,
                         ),
                       ],
                     ),
@@ -143,10 +149,12 @@ class __KelolaKaderViewState extends State<_KelolaKaderView> {
                     const SizedBox(height: 16),
                     _buildSearchAndFilter(),
                     const SizedBox(height: 16),
-                    _buildKaderList(state),
+                    _buildMentorList(state), // DIUBAH
                   ],
                 );
-              } else if (state is KaderError) {
+              }
+              // DIUBAH: State menjadi MentorError
+              else if (state is MentorError) {
                 return Center(child: Text("Error: ${state.message}"));
               }
               return const SizedBox.shrink();
@@ -157,13 +165,14 @@ class __KelolaKaderViewState extends State<_KelolaKaderView> {
     );
   }
 
-  Widget _buildHeader(KaderLoaded state) {
+  Widget _buildHeader(MentorLoaded state) {
+    // DIUBAH
     return Row(
       children: [
         Expanded(
           child: StatCard(
-            title: 'Total Kaderisasi',
-            value: state.allCadres.length.toString(),
+            title: 'Total Mentor', // DIUBAH
+            value: state.allMentors.length.toString(), // DIUBAH
           ),
         ),
         const SizedBox(width: 10),
@@ -173,7 +182,7 @@ class __KelolaKaderViewState extends State<_KelolaKaderView> {
             borderRadius: BorderRadius.circular(8.0),
             elevation: 2,
             child: InkWell(
-              onTap: _showAddKaderDialog, // Panggil helper
+              onTap: _showAddMentorDialog,
               borderRadius: BorderRadius.circular(8.0),
               child: Container(
                 height: 92,
@@ -185,7 +194,7 @@ class __KelolaKaderViewState extends State<_KelolaKaderView> {
                       const Icon(Icons.add, size: 28, color: Colors.white),
                       const SizedBox(height: 8),
                       Text(
-                        'Tambah Kaderisasi',
+                        'Tambah Mentor', // DIUBAH
                         style: GoogleFonts.openSans(
                           color: Colors.white,
                           fontWeight: FontWeight.w600,
@@ -208,9 +217,9 @@ class __KelolaKaderViewState extends State<_KelolaKaderView> {
         Expanded(
           child: TextField(
             controller: _searchController,
-            onChanged: _onSearchChanged, // Optimasi dengan debounce
+            onChanged: _onSearchChanged,
             decoration: InputDecoration(
-              hintText: 'Cari nama kader...',
+              hintText: 'Cari nama mentor...', // DIUBAH
               prefixIcon: const Icon(Icons.search),
               border: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(8),
@@ -224,11 +233,11 @@ class __KelolaKaderViewState extends State<_KelolaKaderView> {
         const SizedBox(width: 8),
         IconButton(
           onPressed: () {
-            // Logika untuk toggle sort
             setState(() {
               _isSortAscending = !_isSortAscending;
             });
-            context.read<KaderBloc>().add(SortKader(_isSortAscending));
+            // DIUBAH: Mengirim event SortMentors
+            context.read<MentorBloc>().add(SortMentors(_isSortAscending));
           },
           icon: Icon(
             _isSortAscending ? Icons.arrow_downward : Icons.arrow_upward,
@@ -239,46 +248,43 @@ class __KelolaKaderViewState extends State<_KelolaKaderView> {
     );
   }
 
-  // Helper function untuk membuat icon melingkar dengan border
   Widget _buildCircularIconButton({
     required IconData icon,
     required VoidCallback onPressed,
   }) {
+    // Tidak ada perubahan di sini, ini adalah widget generik
     return InkWell(
-      customBorder: const CircleBorder(), // Membuat efek ripple melingkar
+      customBorder: const CircleBorder(),
       onTap: onPressed,
       child: Container(
         padding: const EdgeInsets.all(6),
         decoration: BoxDecoration(
           shape: BoxShape.circle,
           color: Colors.white,
-          border: Border.all(
-            color: Colors.grey.shade300, // Warna border abu-abu muda
-            width: 1.5,
-          ),
+          border: Border.all(color: Colors.grey.shade300, width: 1.5),
         ),
-        child: Icon(
-          icon,
-          size: 20,
-          color: Colors.grey.shade700, // Warna ikon abu-abu tua
-        ),
+        child: Icon(icon, size: 20, color: Colors.grey.shade700),
       ),
     );
   }
 
-  Widget _buildKaderList(KaderLoaded state) {
-    if (state.filteredCadres.isEmpty) {
+  // DIUBAH: Nama fungsi dari _buildKaderList -> _buildMentorList
+  Widget _buildMentorList(MentorLoaded state) {
+    // DIUBAH: Menggunakan filteredMentors
+    if (state.filteredMentors.isEmpty) {
       return const Expanded(
-        child: Center(child: Text('Data kader tidak ditemukan.')),
+        child: Center(child: Text('Data mentor tidak ditemukan.')), // DIUBAH
       );
     }
     return Expanded(
       child: ListView.separated(
         padding: const EdgeInsets.symmetric(vertical: 6),
-        itemCount: state.filteredCadres.length,
+        // DIUBAH: Menggunakan filteredMentors
+        itemCount: state.filteredMentors.length,
         separatorBuilder: (context, index) => const SizedBox(height: 16),
         itemBuilder: (context, index) {
-          final kader = state.filteredCadres[index];
+          // DIUBAH: Tipe data menjadi MentorModel
+          final mentor = state.filteredMentors[index];
           return Container(
             padding: EdgeInsets.only(left: 16, right: 16, top: 18, bottom: 18),
             decoration: BoxDecoration(
@@ -295,24 +301,21 @@ class __KelolaKaderViewState extends State<_KelolaKaderView> {
             ),
             child: Column(
               children: [
-                // Bagian Atas: Foto, Nama, Jabatan, dan Tombol
                 Row(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    // Foto Profil
                     CircleAvatar(
                       radius: 24,
-
-                      child: Text(kader.username[0].toUpperCase()),
+                      // DIUBAH: Menggunakan data mentor
+                      child: Text(mentor.username[0].toUpperCase()),
                     ),
                     const SizedBox(width: 12),
-                    // Nama dan Jabatan
                     Expanded(
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            kader.username,
+                            mentor.username, // DIUBAH
                             style: const TextStyle(
                               fontWeight: FontWeight.bold,
                               fontSize: 16,
@@ -322,7 +325,7 @@ class __KelolaKaderViewState extends State<_KelolaKaderView> {
                           Row(
                             children: [
                               Text(
-                                'Hp: ${kader.noHp ?? 'No HP belum diatur'}',
+                                'Hp: ${mentor.noHp ?? 'No HP belum diatur'}', // DIUBAH
                                 style: TextStyle(
                                   color: Colors.grey[600],
                                   fontSize: 14,
@@ -336,7 +339,8 @@ class __KelolaKaderViewState extends State<_KelolaKaderView> {
                                 ),
                               ),
                               Text(
-                                kader.jabatan ?? 'Jabatan belum diatur',
+                                mentor.jabatan ??
+                                    'Jabatan belum diatur', // DIUBAH
                                 style: TextStyle(
                                   color: Colors.grey[600],
                                   fontSize: 14,
@@ -348,20 +352,17 @@ class __KelolaKaderViewState extends State<_KelolaKaderView> {
                       ),
                     ),
                     const SizedBox(width: 12),
-                    // Kolom Kanan: Tombol Aksi (Icon Edit & Hapus)
                     _buildCircularIconButton(
-                      icon: Icons.edit_outlined, // Icon pensil untuk Edit
+                      icon: Icons.edit_outlined,
                       onPressed: () {
-                        _showEditKaderDialog(kader);
+                        _showEditMentorDialog(mentor); // DIUBAH
                       },
                     ),
                     const SizedBox(width: 8),
                     _buildCircularIconButton(
-                      icon:
-                          Icons.delete_outline, // Icon tong sampah untuk Hapus
+                      icon: Icons.delete_outline,
                       onPressed: () {
-                        // Panggil dialog konfirmasi hapus Anda di sini
-                        _showDeleteConfirmationDialog(kader);
+                        _showDeleteConfirmationDialog(mentor); // DIUBAH
                       },
                     ),
                   ],

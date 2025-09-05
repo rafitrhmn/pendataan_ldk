@@ -1,4 +1,8 @@
+import 'package:app/bloc/kader/kader_bloc.dart';
+import 'package:app/bloc/kader/kader_event.dart';
+import 'package:app/bloc/kader/kader_state.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 class AddKaderDialog extends StatefulWidget {
@@ -77,52 +81,79 @@ class _AddKaderDialogState extends State<AddKaderDialog> {
 
   void _createAccount() {
     if (_formKey.currentState!.validate()) {
-      // context.read<KaderBloc>().add(
-      //   CreateKaderAccount(
-      //     username: _usernameController.text,
-      //     phone: _phoneController.text.replaceAll(' ', '').replaceAll('-', ''),
-      //     jabatan: _jabatanController.text,
-      //     password: _passwordController.text,
-      //   ),
-      // );
+      // 🔽 BARIS INI KITA AKTIFKAN 🔽
+      context.read<KaderBloc>().add(
+        CreateKaderAccount(
+          username: _usernameController.text,
+          phone: _phoneController.text.replaceAll(' ', '').replaceAll('-', ''),
+          jabatan: _jabatanController.text,
+          password: _passwordController.text,
+        ),
+      );
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    return Dialog(
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12.0)),
-      backgroundColor: Colors.white,
-      child: SingleChildScrollView(
-        child: Padding(
-          padding: const EdgeInsets.all(24.0),
-          child: Form(
-            key: _formKey,
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                // Header (Judul & Tombol Close)
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Text(
-                      'Tambah data kaderisasi',
-                      style: GoogleFonts.openSans(
-                        fontSize: 18,
-                        fontWeight: FontWeight.bold,
+    return BlocListener<KaderBloc, KaderState>(
+      listener: (context, state) {
+        if (state is KaderCreated) {
+          // Jika sukses, tutup dialog
+          Navigator.of(context).pop();
+          // Tampilkan pesan sukses
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text('Akun untuk ${state.username} berhasil dibuat!'),
+              backgroundColor: Colors.green,
+            ),
+          );
+        } else if (state is KaderError) {
+          // Jika error, tutup dialog juga (opsional) lalu tampilkan pesan
+          // Navigator.of(context).pop(); // Boleh ditutup atau tidak, sesuai selera
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text('Error: ${state.message}'),
+              backgroundColor: Colors.red,
+            ),
+          );
+        }
+      },
+      child: Dialog(
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(12.0),
+        ),
+        backgroundColor: Colors.white,
+        child: SingleChildScrollView(
+          child: Padding(
+            padding: const EdgeInsets.all(24.0),
+            child: Form(
+              key: _formKey,
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  // Header (Judul & Tombol Close)
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(
+                        'Tambah data kaderisasi',
+                        style: GoogleFonts.openSans(
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
+                        ),
                       ),
-                    ),
-                    IconButton(
-                      icon: const Icon(Icons.close),
-                      onPressed: () => Navigator.of(context).pop(),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 24),
+                      IconButton(
+                        icon: const Icon(Icons.close),
+                        onPressed: () => Navigator.of(context).pop(),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 24),
 
-                // Tampilkan konten sesuai langkah saat ini
-                if (_currentStep == 0) _buildStep1() else _buildStep2(),
-              ],
+                  // Tampilkan konten sesuai langkah saat ini
+                  if (_currentStep == 0) _buildStep1() else _buildStep2(),
+                ],
+              ),
             ),
           ),
         ),
@@ -306,18 +337,60 @@ class _AddKaderDialogState extends State<AddKaderDialog> {
               ),
             ),
             const SizedBox(width: 16),
+            // Expanded(
+            //   child: ElevatedButton(
+            //     onPressed: _createAccount,
+            //     style: ElevatedButton.styleFrom(
+            //       minimumSize: const Size(0, 50),
+            //       backgroundColor: Colors.blue[600],
+            //       foregroundColor: Colors.white,
+            //       shape: RoundedRectangleBorder(
+            //         borderRadius: BorderRadius.circular(10),
+            //       ),
+            //     ),
+            //     child: const Text('Buat Akun'),
+            //   ),
+            // ),
             Expanded(
-              child: ElevatedButton(
-                onPressed: _createAccount,
-                style: ElevatedButton.styleFrom(
-                  minimumSize: const Size(0, 50),
-                  backgroundColor: Colors.blue[600],
-                  foregroundColor: Colors.white,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(10),
-                  ),
-                ),
-                child: const Text('Buat Akun'),
+              child: BlocBuilder<KaderBloc, KaderState>(
+                // 👈 Bungkus dengan BlocBuilder
+                builder: (context, state) {
+                  // Jika state adalah KaderCreating, tampilkan loading
+                  if (state is KaderCreating) {
+                    return ElevatedButton(
+                      onPressed: null, // Non-aktifkan tombol saat loading
+                      style: ElevatedButton.styleFrom(
+                        minimumSize: const Size(0, 50),
+                        backgroundColor: Colors.grey, // Ubah warna jadi abu-abu
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                      ),
+                      child: const SizedBox(
+                        height: 24,
+                        width: 24,
+                        child: CircularProgressIndicator(
+                          color: Colors.white,
+                          strokeWidth: 3,
+                        ),
+                      ),
+                    );
+                  }
+
+                  // Jika tidak loading, tampilkan tombol seperti biasa
+                  return ElevatedButton(
+                    onPressed: _createAccount,
+                    style: ElevatedButton.styleFrom(
+                      minimumSize: const Size(0, 50),
+                      backgroundColor: Colors.blue[600],
+                      foregroundColor: Colors.white,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                    ),
+                    child: const Text('Buat Akun'),
+                  );
+                },
               ),
             ),
           ],

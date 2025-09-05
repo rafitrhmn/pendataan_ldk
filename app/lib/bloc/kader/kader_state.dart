@@ -38,3 +38,24 @@ class KaderError extends KaderState {
   @override
   List<Object?> get props => [message];
 }
+
+// 🔹 State khusus saat buat akun
+class KaderCreating extends KaderState {}
+
+class KaderCreated extends KaderState {
+  final String username;
+  const KaderCreated(this.username);
+
+  @override
+  List<Object?> get props => [username];
+}
+
+// 🔹 State khusus saat update akun
+class KaderUpdating extends KaderState {}
+
+class KaderUpdateSuccess extends KaderState {}
+
+// 🔹 State khusus saat hapus akun
+class KaderDeleting extends KaderState {}
+
+class KaderDeleteSuccess extends KaderState {}
