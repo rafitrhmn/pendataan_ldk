@@ -1,6 +1,7 @@
 import 'package:app/bloc/auth/auth_bloc.dart';
 import 'package:app/bloc/kader/kader_bloc.dart';
 import 'package:app/bloc/login/login_bloc.dart';
+import 'package:app/bloc/mentee/mentee_bloc.dart';
 import 'package:app/bloc/mentor/mentor_bloc.dart';
 import 'package:app/setttings/supabase_config.dart';
 import 'package:flutter/material.dart';
@@ -34,6 +35,7 @@ class MyApp extends StatelessWidget {
         ),
         BlocProvider(create: (context) => KaderBloc()), // <-- TAMBAHKAN INI
         BlocProvider(create: (context) => MentorBloc()),
+        BlocProvider(create: (context) => MenteeBloc()),
       ],
       child: MaterialApp.router(
         title: 'Aplikasi Flutter Saya',

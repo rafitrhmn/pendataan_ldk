@@ -1,6 +1,7 @@
 // Konfigurasi GoRouter
 import 'package:app/pages/dashbod_admin.dart';
 import 'package:app/pages/kelola_kader.dart';
+import 'package:app/pages/kelola_mentee.dart';
 import 'package:app/pages/kelola_mentor.dart';
 // import 'package:app/pages/kelola_kader.dart';
 import 'package:app/pages/login.dart';
@@ -38,6 +39,10 @@ final GoRouter router = GoRouter(
     GoRoute(
       path: '/kelola-mentor',
       builder: (context, state) => const KelolaMentor(),
+    ),
+    GoRoute(
+      path: '/kelola-mentee',
+      builder: (context, state) => const KelolaMenteePage(),
     ),
   ],
 );

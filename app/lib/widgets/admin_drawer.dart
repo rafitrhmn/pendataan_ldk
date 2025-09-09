@@ -66,7 +66,8 @@ class AdminDrawer extends StatelessWidget {
             leading: const Icon(Icons.face_retouching_natural_outlined),
             title: const Text('Kelola Mantee'),
             onTap: () {
-              // TODO: Navigasi ke halaman Kelola Mantee
+              Navigator.pop(context); // Tutup drawer dulu
+              GoRouter.of(context).go('/kelola-mentee');
             },
           ),
           ListTile(
