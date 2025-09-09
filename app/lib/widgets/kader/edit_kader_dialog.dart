@@ -233,7 +233,10 @@ class _EditKaderDialogState extends State<EditKaderDialog> {
                                     borderRadius: BorderRadius.circular(10),
                                   ),
                                 ),
-                                child: const Text('Simpan Perubahan'),
+                                child: const Text(
+                                  'Simpan Perubahan',
+                                  textAlign: TextAlign.center,
+                                ),
                               );
                             },
                           ),

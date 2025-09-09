@@ -8,6 +8,7 @@ import 'package:app/widgets/admin_drawer.dart';
 import 'package:app/widgets/appbar.dart';
 import 'package:app/widgets/kader/delete_kader_dialog.dart';
 import 'package:app/widgets/kader/edit_kader_dialog.dart';
+import 'package:app/widgets/kader/view_kader_dialog.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -53,6 +54,13 @@ class __KelolaKaderViewState extends State<_KelolaKaderView> {
     _debounce = Timer(const Duration(milliseconds: 500), () {
       context.read<KaderBloc>().add(SearchKader(query));
     });
+  }
+
+  void _showViewKaderDialog(Kader kader) {
+    showDialog(
+      context: context,
+      builder: (_) => ViewKaderDialog(kader: kader),
+    );
   }
 
   // Helper untuk menampilkan dialog dengan benar
@@ -266,6 +274,8 @@ class __KelolaKaderViewState extends State<_KelolaKaderView> {
     );
   }
 
+  // Lokasi: file kelola_kader_page.dart -> class __KelolaKaderViewState
+
   Widget _buildKaderList(KaderLoaded state) {
     if (state.filteredCadres.isEmpty) {
       return const Expanded(
@@ -279,94 +289,106 @@ class __KelolaKaderViewState extends State<_KelolaKaderView> {
         separatorBuilder: (context, index) => const SizedBox(height: 16),
         itemBuilder: (context, index) {
           final kader = state.filteredCadres[index];
-          return Container(
-            padding: EdgeInsets.only(left: 16, right: 16, top: 18, bottom: 18),
-            decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(8.0),
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.grey.withOpacity(0.15),
-                  spreadRadius: 2,
-                  blurRadius: 8,
-                  offset: const Offset(0, 3),
-                ),
-              ],
-            ),
-            child: Column(
-              children: [
-                // Bagian Atas: Foto, Nama, Jabatan, dan Tombol
-                Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    // Foto Profil
-                    CircleAvatar(
-                      radius: 24,
-
-                      child: Text(kader.username[0].toUpperCase()),
-                    ),
-                    const SizedBox(width: 12),
-                    // Nama dan Jabatan
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            kader.username,
-                            style: const TextStyle(
-                              fontWeight: FontWeight.bold,
-                              fontSize: 16,
-                            ),
+          return InkWell(
+            onTap: () => _showViewKaderDialog(kader), // Aksi saat item diketuk
+            borderRadius: BorderRadius.circular(8.0),
+            child: Container(
+              padding: const EdgeInsets.all(
+                16,
+              ), // Padding diubah sedikit agar simetris
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(8.0),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.grey.withOpacity(0.15),
+                    spreadRadius: 2,
+                    blurRadius: 8,
+                    offset: const Offset(0, 3),
+                  ),
+                ],
+              ),
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  CircleAvatar(
+                    radius: 24,
+                    child: Text(kader.username[0].toUpperCase()),
+                  ),
+                  const SizedBox(width: 12),
+                  // ================== PERBAIKAN UTAMA DI SINI ==================
+                  Expanded(
+                    // 1. Bungkus kolom teks dengan Expanded
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          kader.username,
+                          style: const TextStyle(
+                            fontWeight: FontWeight.bold,
+                            fontSize: 16,
                           ),
-                          const SizedBox(height: 5),
-                          Row(
-                            children: [
-                              Text(
-                                'Hp: ${kader.noHp ?? 'No HP belum diatur'}',
+                        ),
+                        const SizedBox(height: 5),
+                        Row(
+                          children: [
+                            // 2. Bungkus setiap Text dengan Flexible
+                            Flexible(
+                              child: Text(
+                                'Hp: ${kader.noHp ?? 'N/A'}',
                                 style: TextStyle(
                                   color: Colors.grey[600],
                                   fontSize: 14,
                                 ),
+                                overflow: TextOverflow
+                                    .ellipsis, // Tambahkan ellipsis jika teks terlalu panjang
                               ),
-                              Text(
-                                ' | ',
+                            ),
+                            Padding(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 8.0,
+                              ),
+                              child: Text(
+                                '|',
                                 style: TextStyle(
-                                  color: Colors.grey[600],
+                                  color: Colors.grey[400],
                                   fontSize: 14,
                                 ),
                               ),
-                              Text(
+                            ),
+                            Flexible(
+                              child: Text(
                                 kader.jabatan ?? 'Jabatan belum diatur',
                                 style: TextStyle(
                                   color: Colors.grey[600],
                                   fontSize: 14,
                                 ),
+                                overflow: TextOverflow
+                                    .ellipsis, // Tambahkan ellipsis jika teks terlalu panjang
                               ),
-                            ],
-                          ),
-                        ],
-                      ),
+                            ),
+                          ],
+                        ),
+                      ],
                     ),
-                    const SizedBox(width: 12),
-                    // Kolom Kanan: Tombol Aksi (Icon Edit & Hapus)
-                    _buildCircularIconButton(
-                      icon: Icons.edit_outlined, // Icon pensil untuk Edit
-                      onPressed: () {
-                        _showEditKaderDialog(kader);
-                      },
-                    ),
-                    const SizedBox(width: 8),
-                    _buildCircularIconButton(
-                      icon:
-                          Icons.delete_outline, // Icon tong sampah untuk Hapus
-                      onPressed: () {
-                        // Panggil dialog konfirmasi hapus Anda di sini
-                        _showDeleteConfirmationDialog(kader);
-                      },
-                    ),
-                  ],
-                ),
-              ],
+                  ),
+                  // ==========================================================
+                  const SizedBox(width: 12),
+                  _buildCircularIconButton(
+                    icon: Icons.edit_outlined,
+                    onPressed: () {
+                      _showEditKaderDialog(kader);
+                    },
+                  ),
+                  const SizedBox(width: 8),
+                  _buildCircularIconButton(
+                    icon: Icons.delete_outline,
+                    onPressed: () {
+                      _showDeleteConfirmationDialog(kader);
+                    },
+                  ),
+                ],
+              ),
             ),
           );
         },

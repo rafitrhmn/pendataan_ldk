@@ -135,11 +135,14 @@ class _AddKaderDialogState extends State<AddKaderDialog> {
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      Text(
-                        'Tambah data kaderisasi',
-                        style: GoogleFonts.openSans(
-                          fontSize: 18,
-                          fontWeight: FontWeight.bold,
+                      Expanded(
+                        child: Text(
+                          'Tambah data kaderisasi',
+                          style: GoogleFonts.openSans(
+                            fontSize: 18,
+                            fontWeight: FontWeight.bold,
+                          ),
+                          softWrap: true,
                         ),
                       ),
                       IconButton(
@@ -337,20 +340,7 @@ class _AddKaderDialogState extends State<AddKaderDialog> {
               ),
             ),
             const SizedBox(width: 16),
-            // Expanded(
-            //   child: ElevatedButton(
-            //     onPressed: _createAccount,
-            //     style: ElevatedButton.styleFrom(
-            //       minimumSize: const Size(0, 50),
-            //       backgroundColor: Colors.blue[600],
-            //       foregroundColor: Colors.white,
-            //       shape: RoundedRectangleBorder(
-            //         borderRadius: BorderRadius.circular(10),
-            //       ),
-            //     ),
-            //     child: const Text('Buat Akun'),
-            //   ),
-            // ),
+
             Expanded(
               child: BlocBuilder<KaderBloc, KaderState>(
                 // 👈 Bungkus dengan BlocBuilder
@@ -388,7 +378,7 @@ class _AddKaderDialogState extends State<AddKaderDialog> {
                         borderRadius: BorderRadius.circular(10),
                       ),
                     ),
-                    child: const Text('Buat Akun'),
+                    child: const Text('Buat Akun', textAlign: TextAlign.center),
                   );
                 },
               ),
