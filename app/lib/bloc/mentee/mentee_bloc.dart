@@ -88,7 +88,7 @@ class MenteeBloc extends Bloc<MenteeEvent, MenteeState> {
           'no_hp': event.noHp,
         },
       );
-      emit(MenteeSuccess());
+      emit(MenteeCreateSuccess());
       // DIHAPUS: add(FetchMentees()); - Realtime akan menanganinya
     } catch (e) {
       emit(MenteeError(e.toString()));
@@ -113,7 +113,7 @@ class MenteeBloc extends Bloc<MenteeEvent, MenteeState> {
           'no_hp': event.noHp,
         },
       );
-      emit(MenteeSuccess());
+      emit(MenteeUpdateSuccess());
       // DIHAPUS: add(FetchMentees());
     } catch (e) {
       emit(MenteeError(e.toString()));
@@ -126,7 +126,7 @@ class MenteeBloc extends Bloc<MenteeEvent, MenteeState> {
   ) async {
     try {
       await supabase.functions.invoke('delete-mentee', body: {'id': event.id});
-      emit(MenteeSuccess());
+      emit(MenteeDeleteSuccess());
       // DIHAPUS: add(FetchMentees());
     } catch (e) {
       emit(MenteeError(e.toString()));

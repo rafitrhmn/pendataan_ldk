@@ -48,4 +48,8 @@ class MenteeError extends MenteeState {
 // Aksi spesifik untuk feedback UI yang lebih baik
 class MenteeSubmitting extends MenteeState {} // Untuk Create & Update
 
-class MenteeSuccess extends MenteeState {} // Untuk Create, Update, Delete
+class MenteeCreateSuccess extends MenteeState {}
+
+class MenteeUpdateSuccess extends MenteeState {}
+
+class MenteeDeleteSuccess extends MenteeState {}

@@ -96,8 +96,27 @@ class _EditMenteeDialogState extends State<EditMenteeDialog> {
   Widget build(BuildContext context) {
     return BlocListener<MenteeBloc, MenteeState>(
       listener: (context, state) {
-        if (state is MenteeSuccess) {
+        // Kondisi saat aksi BERHASIL
+        if (state is MenteeUpdateSuccess) {
+          // 1. Tutup dialog
           Navigator.of(context).pop();
+          // 2. Tampilkan notifikasi sukses
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('Data mentee berhasil disimpan!'),
+              backgroundColor: Colors.green,
+            ),
+          );
+        }
+        // Kondisi saat aksi GAGAL
+        else if (state is MenteeError) {
+          // Tampilkan notifikasi error
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text('Error: ${state.message}'),
+              backgroundColor: Colors.red,
+            ),
+          );
         }
       },
       child: Dialog(
@@ -320,7 +339,10 @@ class _EditMenteeDialogState extends State<EditMenteeDialog> {
                                   borderRadius: BorderRadius.circular(10),
                                 ),
                               ),
-                              child: const Text('Simpan Perubahan'),
+                              child: const Text(
+                                'Simpan Perubahan',
+                                textAlign: TextAlign.center,
+                              ),
                             );
                           },
                         ),

@@ -72,7 +72,7 @@ class _AddMenteeDialogState extends State<AddMenteeDialog> {
   Widget build(BuildContext context) {
     return BlocListener<MenteeBloc, MenteeState>(
       listener: (context, state) {
-        if (state is MenteeSuccess) {
+        if (state is MenteeCreateSuccess) {
           Navigator.of(context).pop();
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(
@@ -106,11 +106,14 @@ class _AddMenteeDialogState extends State<AddMenteeDialog> {
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      Text(
-                        'Tambah Mentee Baru',
-                        style: GoogleFonts.openSans(
-                          fontSize: 18,
-                          fontWeight: FontWeight.bold,
+                      Expanded(
+                        child: Text(
+                          'Tambah Mentee Baru',
+                          style: GoogleFonts.openSans(
+                            fontSize: 18,
+                            fontWeight: FontWeight.bold,
+                          ),
+                          softWrap: true,
                         ),
                       ),
                       IconButton(

@@ -1,5 +1,3 @@
-// lib/pages/kelola_mentee_page.dart
-
 import 'dart:async';
 import 'package:app/bloc/mentee/mentee_bloc.dart';
 import 'package:app/bloc/mentee/mentee_event.dart';
@@ -10,6 +8,7 @@ import 'package:app/widgets/appbar.dart';
 import 'package:app/widgets/mentee/add_mentee_dialog.dart';
 import 'package:app/widgets/mentee/delete_mentee_dialog.dart';
 import 'package:app/widgets/mentee/edit_mentee_dialog.dart';
+import 'package:app/widgets/mentee/view_mentee_dialog.dart';
 import 'package:app/widgets/stat_card.dart'; // Pastikan path ini benar
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -53,6 +52,13 @@ class _KelolaMenteeViewState extends State<_KelolaMenteeView> {
     });
   }
 
+  void _showViewMenteeDialog(Mentee mentee) {
+    showDialog(
+      context: context,
+      builder: (_) => ViewMenteeDialog(mentee: mentee),
+    );
+  }
+
   void _showAddMenteeDialog() {
     showDialog(
       context: context,
@@ -91,7 +97,22 @@ class _KelolaMenteeViewState extends State<_KelolaMenteeView> {
       drawer: const AdminDrawer(),
       body: BlocListener<MenteeBloc, MenteeState>(
         listener: (context, state) {
-          // ... (listener tidak berubah) ...
+          if (state is MenteeDeleteSuccess) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(
+                content: Text('Mentee berhasil dihapus'),
+                backgroundColor: Colors.orange, // Warna oranye untuk delete
+              ),
+            );
+          } else if (state is MenteeError) {
+            // Anda bisa juga menangani error umum di sini
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text(state.message),
+                backgroundColor: Colors.red,
+              ),
+            );
+          }
         },
         child: Padding(
           padding: const EdgeInsets.all(16.0),
@@ -248,60 +269,65 @@ class _KelolaMenteeViewState extends State<_KelolaMenteeView> {
           separatorBuilder: (context, index) => const SizedBox(height: 16),
           itemBuilder: (context, index) {
             final mentee = state.filteredMentees[index];
-            return Container(
-              padding: const EdgeInsets.all(16),
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(8.0),
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.grey.withOpacity(0.15),
-                    spreadRadius: 2,
-                    blurRadius: 8,
-                    offset: const Offset(0, 3),
-                  ),
-                ],
-              ),
-              child: Row(
-                children: [
-                  CircleAvatar(
-                    radius: 24,
-                    child: Text(mentee.namaLengkap[0].toUpperCase()),
-                  ),
-                  const SizedBox(width: 12),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          mentee.namaLengkap,
-                          style: const TextStyle(
-                            fontWeight: FontWeight.bold,
-                            fontSize: 16,
-                          ),
-                        ),
-                        const SizedBox(height: 5),
-                        Text(
-                          '${mentee.prodi} | Angkatan ${mentee.angkatan}',
-                          style: TextStyle(
-                            color: Colors.grey[600],
-                            fontSize: 14,
-                          ),
-                        ),
-                      ],
+            return InkWell(
+              onTap: () =>
+                  _showViewMenteeDialog(mentee), // Aksi saat item diketuk
+              borderRadius: BorderRadius.circular(8.0),
+              child: Container(
+                padding: const EdgeInsets.all(16),
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(8.0),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.grey.withOpacity(0.15),
+                      spreadRadius: 2,
+                      blurRadius: 8,
+                      offset: const Offset(0, 3),
                     ),
-                  ),
-                  const SizedBox(width: 12),
-                  _buildCircularIconButton(
-                    icon: Icons.edit_outlined,
-                    onPressed: () => _showEditMenteeDialog(mentee),
-                  ),
-                  const SizedBox(width: 8),
-                  _buildCircularIconButton(
-                    icon: Icons.delete_outline,
-                    onPressed: () => _showDeleteConfirmationDialog(mentee),
-                  ),
-                ],
+                  ],
+                ),
+                child: Row(
+                  children: [
+                    CircleAvatar(
+                      radius: 24,
+                      child: Text(mentee.namaLengkap[0].toUpperCase()),
+                    ),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            mentee.namaLengkap,
+                            style: const TextStyle(
+                              fontWeight: FontWeight.bold,
+                              fontSize: 16,
+                            ),
+                          ),
+                          const SizedBox(height: 5),
+                          Text(
+                            '${mentee.prodi} | Angkatan ${mentee.angkatan}',
+                            style: TextStyle(
+                              color: Colors.grey[600],
+                              fontSize: 14,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    const SizedBox(width: 12),
+                    _buildCircularIconButton(
+                      icon: Icons.edit_outlined,
+                      onPressed: () => _showEditMenteeDialog(mentee),
+                    ),
+                    const SizedBox(width: 8),
+                    _buildCircularIconButton(
+                      icon: Icons.delete_outline,
+                      onPressed: () => _showDeleteConfirmationDialog(mentee),
+                    ),
+                  ],
+                ),
               ),
             );
           },
