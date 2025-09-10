@@ -59,3 +59,12 @@ class KaderUpdateSuccess extends KaderState {}
 class KaderDeleting extends KaderState {}
 
 class KaderDeleteSuccess extends KaderState {}
+
+class KaderUsernameChecking extends KaderState {}
+
+class KaderUsernameAvailable extends KaderState {}
+
+class KaderUsernameTaken extends KaderState {
+  final String message;
+  const KaderUsernameTaken(this.message);
+}

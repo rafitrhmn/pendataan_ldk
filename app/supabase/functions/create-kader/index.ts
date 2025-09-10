@@ -18,7 +18,7 @@ serve(async (req) => {
   }
 
   try {
-    // 1. Ambil data yang dikirim dari Flutter (username, phone, dll.)
+    // 1. Ambil data yang dikirim dari Flutter
     const { username, phone, jabatan, password } = await req.json()
 
     // Validasi input sederhana
@@ -31,14 +31,28 @@ serve(async (req) => {
       Deno.env.get('SUPABASE_URL') ?? '',
       Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
     )
+
+    // ================== BLOK VALIDASI USERNAME BARU ==================
+    // Cek dulu apakah username sudah ada di tabel profiles
+    const { data: existingProfile } = await supabaseAdmin
+      .from('profiles')
+      .select('username')
+      .eq('username', username)
+      .single();
+
+    // Jika 'existingProfile' tidak null, berarti username sudah ada.
+    // Hentikan proses dan kirim pesan error.
+    if (existingProfile) {
+      throw new Error('Username sudah digunakan. Silakan pilih username lain.');
+    }
+    // ================================================================
     
-    // 3. Buat user baru di sistem otentikasi (auth.users)
+    // 3. Jika username tersedia, lanjutkan buat user baru di sistem otentikasi
     const email = `${username.toLowerCase().replace(/\s+/g, '')}@alfaateh.com`;
 
     const { data: authData, error: authError } = await supabaseAdmin.auth.admin.createUser({
       email: email,
       password: password,
-      // ▼ PERUBAHAN 1: Baris 'phone' kita hapus dari sini karena tidak disimpan di auth.users
       email_confirm: true,
     })
 
@@ -56,8 +70,7 @@ serve(async (req) => {
         username: username,
         jabatan: jabatan,
         role: 'kaderisasi',
-        // ▼ PERUBAHAN 2: Menyimpan nomor HP ke kolom 'no_hp'
-        no_hp: phone, 
+        no_hp: phone, 
       })
 
     if (profileError) {
@@ -72,20 +85,20 @@ serve(async (req) => {
     })
 
   } catch (err: unknown) {
-    let errorMessage = 'Terjadi kesalahan yang tidak diketahui';
-    
-    if (err instanceof Error) {
-      errorMessage = err.message;
-    } else if (typeof err === 'string') {
-      errorMessage = err;
-    }
+    // Blok catch ini akan menangani error dari validasi username
+    let errorMessage = 'Terjadi kesalahan yang tidak diketahui';
+    if (err instanceof Error) {
+      errorMessage = err.message;
+    } else if (typeof err === 'string') {
+      errorMessage = err;
+    }
 
-    return new Response(JSON.stringify({ 
-      success: false, 
-      error: errorMessage 
-    }), {
-      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-      status: 400,
-    })
-  }
+    return new Response(JSON.stringify({ 
+      success: false, 
+      error: errorMessage 
+    }), {
+      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      status: 400,
+    })
+  }
 })
