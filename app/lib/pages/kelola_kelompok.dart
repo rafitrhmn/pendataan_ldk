@@ -50,7 +50,8 @@ class _KelolaKelompokViewState extends State<_KelolaKelompokView> {
   void _onSearchChanged(String query) {
     if (_debounce?.isActive ?? false) _debounce!.cancel();
     _debounce = Timer(const Duration(milliseconds: 500), () {
-      // NOTE: Anda perlu menambahkan event SearchKelompok di BLoC jika ingin fitur search aktif
+      //  AKTIFKAN FUNGSI INI
+      context.read<KelompokBloc>().add(SearchKelompok(query));
     });
   }
 
@@ -139,7 +140,7 @@ class _KelolaKelompokViewState extends State<_KelolaKelompokView> {
         Expanded(
           child: StatCard(
             title: 'Total Kelompok',
-            value: state.kelompok.length.toString(),
+            value: state.allKelompok.length.toString(),
           ),
         ),
         const SizedBox(width: 10),
@@ -193,24 +194,29 @@ class _KelolaKelompokViewState extends State<_KelolaKelompokView> {
                 borderSide: BorderSide.none,
               ),
               filled: true,
-              fillColor: Colors.white,
+              fillColor: Colors.grey[200],
             ),
           ),
         ),
         const SizedBox(width: 8),
         IconButton(
           onPressed: () {
-            // TODO: Implement Sort
+            setState(() {
+              _isSortAscending = !_isSortAscending;
+            });
+            context.read<KelompokBloc>().add(SortKelompok(_isSortAscending));
           },
-          icon: const Icon(Icons.sort),
-          tooltip: 'Urutkan',
+          icon: Icon(
+            _isSortAscending ? Icons.arrow_downward : Icons.arrow_upward,
+          ),
+          tooltip: _isSortAscending ? 'Urutkan Z-A' : 'Urutkan A-Z',
         ),
       ],
     );
   }
 
   Widget _buildKelompokList(KelompokLoaded state) {
-    if (state.kelompok.isEmpty) {
+    if (state.filteredKelompok.isEmpty) {
       return const Expanded(
         child: Center(child: Text('Belum ada data kelompok.')),
       );
@@ -218,14 +224,15 @@ class _KelolaKelompokViewState extends State<_KelolaKelompokView> {
     return Expanded(
       child: RefreshIndicator(
         onRefresh: () async {
+          _searchController.clear(); // Hapus teks pencarian saat refresh
           context.read<KelompokBloc>().add(FetchKelompok());
         },
         child: ListView.separated(
           padding: const EdgeInsets.symmetric(vertical: 6),
-          itemCount: state.kelompok.length,
+          itemCount: state.filteredKelompok.length,
           separatorBuilder: (context, index) => const SizedBox(height: 16),
           itemBuilder: (context, index) {
-            final kelompok = state.kelompok[index];
+            final kelompok = state.filteredKelompok[index];
             return Container(
               padding: const EdgeInsets.all(16),
               decoration: BoxDecoration(

@@ -14,8 +14,28 @@ class KelompokInitial extends KelompokState {}
 class KelompokLoading extends KelompokState {}
 
 class KelompokLoaded extends KelompokState {
-  final List<Kelompok> kelompok;
-  const KelompokLoaded(this.kelompok);
+  final List<Kelompok> allKelompok; // Data asli dari database
+  final List<Kelompok>
+  filteredKelompok; // Data yang ditampilkan (hasil filter/search/sort)
+
+  const KelompokLoaded({
+    required this.allKelompok,
+    required this.filteredKelompok,
+  });
+
+  // Method copyWith untuk mempermudah update state
+  KelompokLoaded copyWith({
+    List<Kelompok>? allKelompok,
+    List<Kelompok>? filteredKelompok,
+  }) {
+    return KelompokLoaded(
+      allKelompok: allKelompok ?? this.allKelompok,
+      filteredKelompok: filteredKelompok ?? this.filteredKelompok,
+    );
+  }
+
+  @override
+  List<Object?> get props => [allKelompok, filteredKelompok];
 }
 
 class KelompokError extends KelompokState {
@@ -27,3 +47,24 @@ class KelompokError extends KelompokState {
 class KelompokSubmitting extends KelompokState {}
 
 class KelompokSuccess extends KelompokState {}
+
+// class KelompokLoaded extends KelompokState {
+//   final List<Kelompok> allKelompok;     // Data asli dari database
+//   final List<Kelompok> filteredKelompok; // Data yang ditampilkan (hasil filter/search/sort)
+  
+//   const KelompokLoaded({required this.allKelompok, required this.filteredKelompok});
+
+//   // Method copyWith untuk mempermudah update state
+//   KelompokLoaded copyWith({
+//     List<Kelompok>? allKelompok,
+//     List<Kelompok>? filteredKelompok,
+//   }) {
+//     return KelompokLoaded(
+//       allKelompok: allKelompok ?? this.allKelompok,
+//       filteredKelompok: filteredKelompok ?? this.filteredKelompok,
+//     );
+//   }
+
+//   @override
+//   List<Object?> get props => [allKelompok, filteredKelompok];
+// }

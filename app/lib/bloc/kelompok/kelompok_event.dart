@@ -38,3 +38,13 @@ class DeleteKelompok extends KelompokEvent {
   final String id;
   const DeleteKelompok({required this.id});
 }
+
+class SearchKelompok extends KelompokEvent {
+  final String query;
+  const SearchKelompok(this.query);
+}
+
+class SortKelompok extends KelompokEvent {
+  final bool ascending;
+  const SortKelompok(this.ascending);
+}

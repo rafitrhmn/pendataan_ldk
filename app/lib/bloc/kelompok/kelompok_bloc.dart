@@ -16,6 +16,8 @@ class KelompokBloc extends Bloc<KelompokEvent, KelompokState> {
     on<CreateKelompok>(_onCreateKelompok);
     on<UpdateKelompok>(_onUpdateKelompok);
     on<DeleteKelompok>(_onDeleteKelompok);
+    on<SearchKelompok>(_onSearchKelompok); //  TAMBAHKAN INI
+    on<SortKelompok>(_onSortKelompok); //  TAMBAHKAN INI
   }
 
   Future<void> _onFetchKelompok(
@@ -32,8 +34,12 @@ class KelompokBloc extends Bloc<KelompokEvent, KelompokState> {
       final kelompokList = (data as List)
           .map((e) => Kelompok.fromJson(e))
           .toList();
-      emit(KelompokLoaded(kelompokList));
-
+      emit(
+        KelompokLoaded(
+          allKelompok: kelompokList,
+          filteredKelompok: kelompokList,
+        ),
+      );
       // Hanya subscribe sekali saja saat pertama kali fetch berhasil
       _subscription ??= supabase
           .channel('public:kelompok') // Channel spesifik untuk tabel kelompok
@@ -49,6 +55,35 @@ class KelompokBloc extends Bloc<KelompokEvent, KelompokState> {
           .subscribe();
     } catch (e) {
       emit(KelompokError(e.toString()));
+    }
+  }
+
+  //  TAMBAHKAN METHOD BARU UNTUK SEARCH
+  void _onSearchKelompok(SearchKelompok event, Emitter<KelompokState> emit) {
+    if (state is KelompokLoaded) {
+      final current = state as KelompokLoaded;
+      final filtered = current.allKelompok
+          .where(
+            (kelompok) => kelompok.namaKelompok.toLowerCase().contains(
+              event.query.toLowerCase(),
+            ),
+          )
+          .toList();
+      emit(current.copyWith(filteredKelompok: filtered));
+    }
+  }
+
+  //  TAMBAHKAN METHOD BARU UNTUK SORT
+  void _onSortKelompok(SortKelompok event, Emitter<KelompokState> emit) {
+    if (state is KelompokLoaded) {
+      final current = state as KelompokLoaded;
+      final sorted = [...current.filteredKelompok]
+        ..sort(
+          (a, b) => event.ascending
+              ? a.namaKelompok.compareTo(b.namaKelompok)
+              : b.namaKelompok.compareTo(a.namaKelompok),
+        );
+      emit(current.copyWith(filteredKelompok: sorted));
     }
   }
 
