@@ -71,6 +71,18 @@ class AdminDrawer extends StatelessWidget {
             },
           ),
           ListTile(
+            leading: const Icon(
+              Icons.hub_outlined,
+            ), // Ikon yang cocok untuk kelompok
+            title: const Text('Kelola Kelompok'),
+            onTap: () {
+              Navigator.pop(context);
+              GoRouter.of(
+                context,
+              ).go('/kelola-kelompok'); // Arahkan ke route baru
+            },
+          ),
+          ListTile(
             leading: const Icon(Icons.book_outlined),
             title: const Text('Kelola PAI'),
             onTap: () {
