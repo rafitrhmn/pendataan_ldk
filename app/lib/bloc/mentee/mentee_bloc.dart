@@ -18,6 +18,8 @@ class MenteeBloc extends Bloc<MenteeEvent, MenteeState> {
     on<DeleteMentee>(_onDeleteMentee);
     on<SearchMentees>(_onSearchMentees); // BARIS BARU: Menambahkan event search
     on<SortMentees>(_onSortMentees);
+    on<FetchUnassignedMentees>(_onFetchUnassignedMentees);
+    on<AssignMenteeToKelompok>(_onAssignMenteeToKelompok);
   }
 
   Future<void> _onFetchMentees(
@@ -154,6 +156,40 @@ class MenteeBloc extends Bloc<MenteeEvent, MenteeState> {
             );
 
       emit(current.copyWith(filteredMentees: sorted));
+    }
+  }
+
+  Future<void> _onFetchUnassignedMentees(
+    FetchUnassignedMentees event,
+    Emitter<MenteeState> emit,
+  ) async {
+    emit(MenteeLoading());
+    try {
+      final data = await supabase
+          .from('mentee')
+          .select()
+          .isFilter('kelompok_id', null);
+
+      final mentees = (data as List).map((e) => Mentee.fromJson(e)).toList();
+      emit(UnassignedMenteesLoaded(mentees));
+    } catch (e) {
+      emit(MenteeError(e.toString()));
+    }
+  }
+
+  Future<void> _onAssignMenteeToKelompok(
+    AssignMenteeToKelompok event,
+    Emitter<MenteeState> emit,
+  ) async {
+    emit(MenteeSubmitting());
+    try {
+      await supabase.functions.invoke(
+        'assign-mentee-to-kelompok',
+        body: {'mentee_id': event.menteeId, 'kelompok_id': event.kelompokId},
+      );
+      emit(MenteeAssignSuccess());
+    } catch (e) {
+      emit(MenteeError(e.toString()));
     }
   }
 }

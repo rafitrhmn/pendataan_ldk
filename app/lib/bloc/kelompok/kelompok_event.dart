@@ -48,3 +48,8 @@ class SortKelompok extends KelompokEvent {
   final bool ascending;
   const SortKelompok(this.ascending);
 }
+
+class FetchKelompokDetail extends KelompokEvent {
+  final String id;
+  const FetchKelompokDetail(this.id);
+}

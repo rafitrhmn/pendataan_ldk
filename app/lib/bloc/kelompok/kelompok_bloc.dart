@@ -1,6 +1,7 @@
 // lib/bloc/kelompok/kelompok_bloc.dart
 
 import 'package:app/models/kelompok_model.dart';
+import 'package:app/models/mentee_model.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'kelompok_event.dart';
@@ -16,8 +17,9 @@ class KelompokBloc extends Bloc<KelompokEvent, KelompokState> {
     on<CreateKelompok>(_onCreateKelompok);
     on<UpdateKelompok>(_onUpdateKelompok);
     on<DeleteKelompok>(_onDeleteKelompok);
-    on<SearchKelompok>(_onSearchKelompok); //  TAMBAHKAN INI
-    on<SortKelompok>(_onSortKelompok); //  TAMBAHKAN INI
+    on<SearchKelompok>(_onSearchKelompok);
+    on<SortKelompok>(_onSortKelompok);
+    on<FetchKelompokDetail>(_onFetchKelompokDetail);
   }
 
   Future<void> _onFetchKelompok(
@@ -53,6 +55,36 @@ class KelompokBloc extends Bloc<KelompokEvent, KelompokState> {
             },
           )
           .subscribe();
+    } catch (e) {
+      emit(KelompokError(e.toString()));
+    }
+  }
+
+  Future<void> _onFetchKelompokDetail(
+    FetchKelompokDetail event,
+    Emitter<KelompokState> emit,
+  ) async {
+    emit(KelompokDetailLoading());
+    try {
+      // 1. Ambil data detail kelompok (seperti sebelumnya)
+      final kelompokData = await supabase
+          .from('kelompok')
+          .select('*, profiles(id, username)')
+          .eq('id', event.id)
+          .single();
+      final kelompok = Kelompok.fromJson(kelompokData);
+
+      // 2. Ambil daftar mentee yang ada di kelompok ini
+      final menteeData = await supabase
+          .from('mentee')
+          .select()
+          .eq('kelompok_id', event.id);
+      final mentees = (menteeData as List)
+          .map((e) => Mentee.fromJson(e))
+          .toList();
+
+      // 3. Kirim kedua data tersebut dalam satu state
+      emit(KelompokDetailLoaded(kelompok: kelompok, mentees: mentees));
     } catch (e) {
       emit(KelompokError(e.toString()));
     }

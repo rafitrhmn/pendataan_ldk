@@ -13,6 +13,7 @@ import 'package:app/widgets/kelompok/edit_kelompok_dialog.dart';
 import 'package:app/widgets/stat_card.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 class KelolaKelompokPage extends StatelessWidget {
@@ -233,66 +234,73 @@ class _KelolaKelompokViewState extends State<_KelolaKelompokView> {
           separatorBuilder: (context, index) => const SizedBox(height: 16),
           itemBuilder: (context, index) {
             final kelompok = state.filteredKelompok[index];
-            return Container(
-              padding: const EdgeInsets.all(16),
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(8.0),
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.grey.withOpacity(0.15),
-                    spreadRadius: 2,
-                    blurRadius: 8,
-                    offset: const Offset(0, 3),
-                  ),
-                ],
-              ),
-              child: Row(
-                children: [
-                  CircleAvatar(radius: 24, child: Icon(Icons.hub_outlined)),
-                  const SizedBox(width: 12),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          kelompok.namaKelompok,
-                          style: const TextStyle(
-                            fontWeight: FontWeight.bold,
-                            fontSize: 16,
+            return InkWell(
+              onTap: () {
+                //  UBAH AKSI DI SINI: Navigasi ke halaman detail
+                GoRouter.of(context).go('/kelola-kelompok/${kelompok.id}');
+              },
+              // borderRadius: BorderRadius.circular(8.0),
+              child: Container(
+                padding: const EdgeInsets.all(16),
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(8.0),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.grey.withOpacity(0.15),
+                      spreadRadius: 2,
+                      blurRadius: 8,
+                      offset: const Offset(0, 3),
+                    ),
+                  ],
+                ),
+                child: Row(
+                  children: [
+                    CircleAvatar(radius: 24, child: Icon(Icons.hub_outlined)),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            kelompok.namaKelompok,
+                            style: const TextStyle(
+                              fontWeight: FontWeight.bold,
+                              fontSize: 16,
+                            ),
                           ),
-                        ),
-                        const SizedBox(height: 5),
-                        Text(
-                          // Menampilkan nama mentor dari data join
-                          'Mentor: ${kelompok.mentor?.username ?? 'Belum diatur'}',
-                          style: TextStyle(
-                            color: Colors.grey[600],
-                            fontSize: 14,
+                          const SizedBox(height: 5),
+                          Text(
+                            // Menampilkan nama mentor dari data join
+                            'Mentor: ${kelompok.mentor?.username ?? 'Belum diatur'}',
+                            style: TextStyle(
+                              color: Colors.grey[600],
+                              fontSize: 14,
+                            ),
+                            overflow: TextOverflow.ellipsis,
                           ),
-                          overflow: TextOverflow.ellipsis,
+                        ],
+                      ),
+                    ),
+                    PopupMenuButton<String>(
+                      onSelected: (value) {
+                        if (value == 'edit') {
+                          //  PANGGIL METHOD DI SINI
+                          _showEditKelompokDialog(kelompok);
+                        } else if (value == 'delete') {
+                          _showDeleteConfirmationDialog(kelompok);
+                        }
+                      },
+                      itemBuilder: (context) => [
+                        const PopupMenuItem(value: 'edit', child: Text('Edit')),
+                        const PopupMenuItem(
+                          value: 'delete',
+                          child: Text('Hapus'),
                         ),
                       ],
                     ),
-                  ),
-                  PopupMenuButton<String>(
-                    onSelected: (value) {
-                      if (value == 'edit') {
-                        //  PANGGIL METHOD DI SINI
-                        _showEditKelompokDialog(kelompok);
-                      } else if (value == 'delete') {
-                        _showDeleteConfirmationDialog(kelompok);
-                      }
-                    },
-                    itemBuilder: (context) => [
-                      const PopupMenuItem(value: 'edit', child: Text('Edit')),
-                      const PopupMenuItem(
-                        value: 'delete',
-                        child: Text('Hapus'),
-                      ),
-                    ],
-                  ),
-                ],
+                  ],
+                ),
               ),
             );
           },
