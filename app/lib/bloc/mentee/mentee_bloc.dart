@@ -20,6 +20,7 @@ class MenteeBloc extends Bloc<MenteeEvent, MenteeState> {
     on<SortMentees>(_onSortMentees);
     on<FetchUnassignedMentees>(_onFetchUnassignedMentees);
     on<AssignMenteeToKelompok>(_onAssignMenteeToKelompok);
+    on<RemoveMenteeFromKelompok>(_onRemoveMenteeFromKelompok);
   }
 
   Future<void> _onFetchMentees(
@@ -188,6 +189,24 @@ class MenteeBloc extends Bloc<MenteeEvent, MenteeState> {
         body: {'mentee_id': event.menteeId, 'kelompok_id': event.kelompokId},
       );
       emit(MenteeAssignSuccess());
+    } catch (e) {
+      emit(MenteeError(e.toString()));
+    }
+  }
+
+  Future<void> _onRemoveMenteeFromKelompok(
+    RemoveMenteeFromKelompok event,
+    Emitter<MenteeState> emit,
+  ) async {
+    emit(
+      MenteeSubmitting(),
+    ); // Kita bisa gunakan state submitting yang sudah ada
+    try {
+      await supabase.functions.invoke(
+        'remove-mentee-from-kelompok',
+        body: {'mentee_id': event.menteeId},
+      );
+      emit(MenteeRemoveSuccess());
     } catch (e) {
       emit(MenteeError(e.toString()));
     }

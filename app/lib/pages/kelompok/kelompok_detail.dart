@@ -4,6 +4,7 @@ import 'package:app/bloc/kelompok/kelompok_bloc.dart';
 import 'package:app/bloc/kelompok/kelompok_event.dart';
 import 'package:app/bloc/kelompok/kelompok_state.dart';
 import 'package:app/bloc/mentee/mentee_bloc.dart';
+import 'package:app/bloc/mentee/mentee_event.dart';
 import 'package:app/bloc/mentee/mentee_state.dart';
 import 'package:app/models/kelompok_model.dart';
 import 'package:app/models/mentee_model.dart';
@@ -43,6 +44,35 @@ class _KelompokDetailPageState extends State<KelompokDetailPage> {
     );
   }
 
+  void _showRemoveConfirmationDialog(Mentee mentee) {
+    showDialog(
+      context: context,
+      builder: (dialogContext) => AlertDialog(
+        title: const Text('Keluarkan Anggota'),
+        content: Text(
+          'Apakah Anda yakin ingin mengeluarkan "${mentee.namaLengkap}" dari kelompok ini?',
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(dialogContext).pop(),
+            child: const Text('Batal'),
+          ),
+          FilledButton(
+            style: FilledButton.styleFrom(backgroundColor: Colors.orange),
+            onPressed: () {
+              // Kirim event ke MenteeBloc
+              context.read<MenteeBloc>().add(
+                RemoveMenteeFromKelompok(menteeId: mentee.id),
+              );
+              Navigator.of(dialogContext).pop();
+            },
+            child: const Text('Keluarkan'),
+          ),
+        ],
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -59,8 +89,18 @@ class _KelompokDetailPageState extends State<KelompokDetailPage> {
       body: BlocListener<MenteeBloc, MenteeState>(
         // Listener untuk Aksi dari MenteeBloc (misal: setelah berhasil assign)
         listener: (context, state) {
-          if (state is MenteeAssignSuccess) {
-            // Jika berhasil assign, refresh data detail kelompok
+          if (state is MenteeAssignSuccess || state is MenteeRemoveSuccess) {
+            // Jika berhasil assign ATAU remove, refresh data detail kelompok
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text(
+                  state is MenteeAssignSuccess
+                      ? 'Mentee berhasil ditambahkan!'
+                      : 'Mentee berhasil dikeluarkan.',
+                ),
+                backgroundColor: Colors.green,
+              ),
+            );
             context.read<KelompokBloc>().add(
               FetchKelompokDetail(widget.kelompokId),
             );
@@ -84,8 +124,7 @@ class _KelompokDetailPageState extends State<KelompokDetailPage> {
                 child: ListView(
                   padding: const EdgeInsets.all(16.0),
                   children: [
-                    // Kartu Detail Kelompok
-                    _buildKelompokDetailCard(kelompok),
+                    _buildKelompokDetailCard(kelompok, mentees),
                     const SizedBox(height: 24),
 
                     // Header Daftar Anggota
@@ -137,7 +176,7 @@ class _KelompokDetailPageState extends State<KelompokDetailPage> {
   }
 
   // Widget untuk kartu detail kelompok
-  Widget _buildKelompokDetailCard(Kelompok kelompok) {
+  Widget _buildKelompokDetailCard(Kelompok kelompok, List<Mentee> mentees) {
     return Card(
       elevation: 4,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
@@ -160,6 +199,12 @@ class _KelompokDetailPageState extends State<KelompokDetailPage> {
             _buildDetailRow(
               label: 'Jadwal Pertemuan',
               value: kelompok.jadwalPertemuan,
+            ),
+            const Divider(height: 24),
+            _buildDetailRow(
+              label: 'Total Anggota',
+              value:
+                  '${mentees.length} Mentee', // Ambil jumlah dari list mentees
             ),
           ],
         ),
@@ -189,7 +234,7 @@ class _KelompokDetailPageState extends State<KelompokDetailPage> {
             trailing: IconButton(
               icon: const Icon(Icons.remove_circle_outline, color: Colors.red),
               onPressed: () {
-                // TODO: Implementasi logika untuk mengeluarkan mentee dari kelompok
+                _showRemoveConfirmationDialog(mentee);
               },
               tooltip: 'Keluarkan dari kelompok',
             ),

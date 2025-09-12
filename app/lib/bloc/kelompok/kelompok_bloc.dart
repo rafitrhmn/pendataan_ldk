@@ -30,7 +30,8 @@ class KelompokBloc extends Bloc<KelompokEvent, KelompokState> {
     try {
       final data = await supabase
           .from('kelompok')
-          .select('*, profiles(id, username)')
+          // Ambil semua dari kelompok, beberapa dari profiles, dan hitung mentee
+          .select('*, profiles(id, username), mentee(count)')
           .order('created_at', ascending: false);
 
       final kelompokList = (data as List)

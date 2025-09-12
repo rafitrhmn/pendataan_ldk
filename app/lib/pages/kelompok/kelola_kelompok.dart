@@ -279,6 +279,15 @@ class _KelolaKelompokViewState extends State<_KelolaKelompokView> {
                             ),
                             overflow: TextOverflow.ellipsis,
                           ),
+                          const SizedBox(height: 5),
+                          Text(
+                            '${kelompok.jumlahMentee} Anggota', // Tampilkan jumlah mentee
+                            style: TextStyle(
+                              color: Colors.blue[700],
+                              fontSize: 13,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
                         ],
                       ),
                     ),

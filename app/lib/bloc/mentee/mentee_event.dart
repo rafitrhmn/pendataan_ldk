@@ -79,3 +79,8 @@ class AssignMenteeToKelompok extends MenteeEvent {
     required this.kelompokId,
   });
 }
+
+class RemoveMenteeFromKelompok extends MenteeEvent {
+  final String menteeId;
+  const RemoveMenteeFromKelompok({required this.menteeId});
+}

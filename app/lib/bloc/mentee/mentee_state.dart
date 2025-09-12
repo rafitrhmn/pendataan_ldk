@@ -55,3 +55,5 @@ class UnassignedMenteesLoaded extends MenteeState {
 }
 
 class MenteeAssignSuccess extends MenteeState {}
+
+class MenteeRemoveSuccess extends MenteeState {}
