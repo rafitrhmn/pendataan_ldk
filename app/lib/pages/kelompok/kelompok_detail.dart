@@ -73,13 +73,21 @@ class _KelompokDetailPageState extends State<KelompokDetailPage> {
     );
   }
 
+  //  BUAT METHOD BARU UNTUK KEMBALI SAMBIL MEMBERI SINYAL
+  void _signalRefreshAndPop() {
+    // Kembali ke halaman sebelumnya dan kirim nilai 'true'
+    if (context.canPop()) {
+      GoRouter.of(context).pop(true);
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         leading: IconButton(
           icon: const Icon(Icons.arrow_back),
-          onPressed: () => GoRouter.of(context).pop(),
+          onPressed: _signalRefreshAndPop,
         ),
         title: const Text('Detail Kelompok'),
         backgroundColor: Colors.blue[600],

@@ -24,17 +24,13 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // Gunakan MaterialApp.router untuk mengaktifkan go_router
     return MultiBlocProvider(
       providers: [
         BlocProvider(create: (context) => AuthBloc()),
         BlocProvider(
-          create: (context) => LoginBloc(
-            // Berikan AuthBloc ke LoginBloc
-            authBloc: context.read<AuthBloc>(),
-          ),
+          create: (context) => LoginBloc(authBloc: context.read<AuthBloc>()),
         ),
-        BlocProvider(create: (context) => KaderBloc()), // <-- TAMBAHKAN INI
+        BlocProvider(create: (context) => KaderBloc()),
         BlocProvider(create: (context) => MentorBloc()),
         BlocProvider(create: (context) => MenteeBloc()),
         BlocProvider(create: (context) => KelompokBloc()),
@@ -45,7 +41,6 @@ class MyApp extends StatelessWidget {
           primarySwatch: Colors.blue,
           visualDensity: VisualDensity.adaptivePlatformDensity,
         ),
-        // Gunakan routerConfig untuk menghubungkan konfigurasi router
         routerConfig: router,
         debugShowCheckedModeBanner: false,
       ),

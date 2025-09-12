@@ -42,7 +42,7 @@ class _AddMenteeToKelompokDialogState extends State<AddMenteeToKelompokDialog> {
     return BlocListener<MenteeBloc, MenteeState>(
       listener: (context, state) {
         if (state is MenteeAssignSuccess) {
-          Navigator.of(context).pop();
+          Navigator.of(context).pop(true);
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(
               content: Text('Mentee berhasil ditambahkan ke kelompok!'),

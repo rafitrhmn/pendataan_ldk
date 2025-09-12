@@ -235,9 +235,15 @@ class _KelolaKelompokViewState extends State<_KelolaKelompokView> {
           itemBuilder: (context, index) {
             final kelompok = state.filteredKelompok[index];
             return InkWell(
-              onTap: () {
+              onTap: () async {
                 //  UBAH AKSI DI SINI: Navigasi ke halaman detail
-                GoRouter.of(context).go('/kelola-kelompok/${kelompok.id}');
+                final result = await GoRouter.of(
+                  context,
+                ).push<bool>('/kelola-kelompok/${kelompok.id}');
+                // Jika hasilnya adalah 'true', panggil event FetchKelompok
+                if (result == true && mounted) {
+                  context.read<KelompokBloc>().add(FetchKelompok());
+                }
               },
               // borderRadius: BorderRadius.circular(8.0),
               child: Container(
