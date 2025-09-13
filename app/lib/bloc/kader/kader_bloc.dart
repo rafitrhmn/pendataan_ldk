@@ -16,6 +16,7 @@ class KaderBloc extends Bloc<KaderEvent, KaderState> {
     on<CreateKaderAccount>(_onCreateKaderAccount);
     on<UpdateKader>(_onUpdateKader);
     on<DeleteKader>(_onDeleteKader);
+    on<CheckKaderUsername>(_onCheckKaderUsername);
   }
 
   Future<void> _onFetchKaderisasi(
@@ -162,6 +163,42 @@ class KaderBloc extends Bloc<KaderEvent, KaderState> {
       }
     } catch (e) {
       emit(KaderError(e.toString()));
+    }
+  }
+
+  /// Lokasi: lib/bloc/kader/kader_bloc.dart
+
+  Future<void> _onCheckKaderUsername(
+    CheckKaderUsername event,
+    Emitter<KaderState> emit,
+  ) async {
+    if (event.username.isEmpty) {
+      emit(KaderInitial());
+      return;
+    }
+
+    emit(KaderUsernameChecking());
+    try {
+      //  PERBAIKAN DI SINI: Hapus 'final response ='
+      await supabase
+          .from('profiles')
+          .select('id')
+          .eq('username', event.username)
+          .single();
+
+      // Jika baris di atas berhasil tanpa error, berarti data ditemukan.
+      // Artinya username sudah diambil.
+      emit(const KaderUsernameTaken('Username ini sudah digunakan.'));
+    } on PostgrestException catch (e) {
+      // Jika Supabase melempar error 'PGRST116' (no rows found),
+      // berarti username TERSEDIA.
+      if (e.code == 'PGRST116') {
+        emit(KaderUsernameAvailable());
+      } else {
+        emit(KaderUsernameTaken(e.message)); // Error lain dari Supabase
+      }
+    } catch (e) {
+      emit(KaderUsernameTaken(e.toString())); // Error umum (misal: jaringan)
     }
   }
 

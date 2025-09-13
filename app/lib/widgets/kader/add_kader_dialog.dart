@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:app/bloc/kader/kader_bloc.dart';
 import 'package:app/bloc/kader/kader_event.dart';
 import 'package:app/bloc/kader/kader_state.dart';
@@ -21,6 +23,7 @@ class _AddKaderDialogState extends State<AddKaderDialog> {
   final _jabatanController = TextEditingController();
   final _passwordController = TextEditingController();
   final _confirmPasswordController = TextEditingController();
+  Timer? _debounce; //  TAMBAHKAN INI untuk debounce
 
   // Variabel untuk mengontrol langkah/halaman mana yang aktif
   int _currentStep = 0;
@@ -29,13 +32,34 @@ class _AddKaderDialogState extends State<AddKaderDialog> {
   bool _isPasswordVisible = false;
 
   @override
+  void initState() {
+    super.initState();
+    // Tambahkan listener untuk debounce pengecekan username
+    _usernameController.addListener(_onUsernameChanged);
+  }
+
+  @override
   void dispose() {
+    _debounce?.cancel();
+    _usernameController.removeListener(_onUsernameChanged);
     _usernameController.dispose();
     _phoneController.dispose();
     _jabatanController.dispose();
     _passwordController.dispose();
     _confirmPasswordController.dispose();
     super.dispose();
+  }
+
+  // Fungsi untuk debounce pengecekan username
+  void _onUsernameChanged() {
+    if (_debounce?.isActive ?? false) _debounce!.cancel();
+    _debounce = Timer(const Duration(milliseconds: 700), () {
+      if (_usernameController.text.isNotEmpty) {
+        context.read<KaderBloc>().add(
+          CheckKaderUsername(_usernameController.text),
+        );
+      }
+    });
   }
 
   // 2. Ubah helper method agar bisa menerima widget, bukan hanya IconData
@@ -108,8 +132,6 @@ class _AddKaderDialogState extends State<AddKaderDialog> {
             ),
           );
         } else if (state is KaderError) {
-          // Jika error, tutup dialog juga (opsional) lalu tampilkan pesan
-          // Navigator.of(context).pop(); // Boleh ditutup atau tidak, sesuai selera
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
               content: Text('Error: ${state.message}'),
@@ -135,11 +157,14 @@ class _AddKaderDialogState extends State<AddKaderDialog> {
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      Text(
-                        'Tambah data kaderisasi',
-                        style: GoogleFonts.openSans(
-                          fontSize: 18,
-                          fontWeight: FontWeight.bold,
+                      Expanded(
+                        child: Text(
+                          'Tambah data kaderisasi',
+                          style: GoogleFonts.openSans(
+                            fontSize: 18,
+                            fontWeight: FontWeight.bold,
+                          ),
+                          softWrap: true,
                         ),
                       ),
                       IconButton(
@@ -165,19 +190,60 @@ class _AddKaderDialogState extends State<AddKaderDialog> {
   Widget _buildStep1() {
     return Column(
       children: [
-        TextFormField(
-          controller: _usernameController,
-          decoration: _buildInputDecoration(
-            'Username',
-            suffixIcon: Icon(
+        BlocBuilder<KaderBloc, KaderState>(
+          builder: (context, state) {
+            Widget? suffixIcon = Icon(
               Icons.person_outline,
               color: Colors.black.withOpacity(0.5),
-            ),
-          ),
-          validator: (value) {
-            if (value == null || value.isEmpty)
-              return 'Username tidak boleh kosong';
-            return null;
+            );
+
+            if (state is KaderUsernameChecking) {
+              suffixIcon = const Padding(
+                padding: EdgeInsets.all(14.0),
+                child: SizedBox(
+                  height: 20,
+                  width: 20,
+                  child: CircularProgressIndicator(strokeWidth: 2.5),
+                ),
+              );
+            } else if (state is KaderUsernameTaken) {
+              suffixIcon = const Icon(Icons.error_outline, color: Colors.red);
+            } else if (state is KaderUsernameAvailable) {
+              suffixIcon = const Icon(
+                Icons.check_circle_outline,
+                color: Colors.green,
+              );
+            }
+            return Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                TextFormField(
+                  controller: _usernameController,
+                  decoration: _buildInputDecoration(
+                    'Username',
+                    suffixIcon: suffixIcon,
+                  ), // .copyWith(errorText) DIHAPUS dari sini
+                  validator: (value) {
+                    if (value == null || value.isEmpty) {
+                      return 'Username tidak boleh kosong';
+                    }
+                    return null;
+                  },
+                ),
+                // BARU: Menampilkan pesan error sebagai widget Text terpisah
+                if (state is KaderUsernameTaken)
+                  Padding(
+                    padding: const EdgeInsets.only(top: 6.0, left: 12.0),
+                    child: Text(
+                      state.message,
+                      style: TextStyle(
+                        color: Theme.of(context).colorScheme.error,
+                        fontSize: 12,
+                      ),
+                    ),
+                  ),
+              ],
+            );
           },
         ),
         const SizedBox(height: 16),
@@ -337,20 +403,7 @@ class _AddKaderDialogState extends State<AddKaderDialog> {
               ),
             ),
             const SizedBox(width: 16),
-            // Expanded(
-            //   child: ElevatedButton(
-            //     onPressed: _createAccount,
-            //     style: ElevatedButton.styleFrom(
-            //       minimumSize: const Size(0, 50),
-            //       backgroundColor: Colors.blue[600],
-            //       foregroundColor: Colors.white,
-            //       shape: RoundedRectangleBorder(
-            //         borderRadius: BorderRadius.circular(10),
-            //       ),
-            //     ),
-            //     child: const Text('Buat Akun'),
-            //   ),
-            // ),
+
             Expanded(
               child: BlocBuilder<KaderBloc, KaderState>(
                 // 👈 Bungkus dengan BlocBuilder
@@ -388,7 +441,7 @@ class _AddKaderDialogState extends State<AddKaderDialog> {
                         borderRadius: BorderRadius.circular(10),
                       ),
                     ),
-                    child: const Text('Buat Akun'),
+                    child: const Text('Buat Akun', textAlign: TextAlign.center),
                   );
                 },
               ),

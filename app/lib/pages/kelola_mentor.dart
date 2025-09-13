@@ -3,11 +3,13 @@ import 'package:app/bloc/mentor/mentor_bloc.dart'; // DIUBAH
 import 'package:app/bloc/mentor/mentor_event.dart'; // DIUBAH
 import 'package:app/bloc/mentor/mentor_state.dart'; // DIUBAH
 import 'package:app/models/mentor_model.dart'; // DIUBAH
+import 'package:app/utils/icon_style.dart';
 import 'package:app/widgets/admin_drawer.dart';
 import 'package:app/widgets/appbar.dart';
 import 'package:app/widgets/mentor/add_mentor_dialog.dart';
 import 'package:app/widgets/mentor/delete_mentor_dialog.dart';
 import 'package:app/widgets/mentor/edit_mentor.dart';
+import 'package:app/widgets/mentor/view_mentor_dialog.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -54,6 +56,13 @@ class __KelolaMentorViewState extends State<_KelolaMentorView> {
       // DIUBAH: Mengirim event SearchMentors
       context.read<MentorBloc>().add(SearchMentors(query));
     });
+  }
+
+  void _showViewMentorDialog(MentorModel mentor) {
+    showDialog(
+      context: context,
+      builder: (_) => ViewMentorDialog(mentor: mentor),
+    );
   }
 
   // DIUBAH: Semua fungsi dialog disesuaikan untuk Mentor
@@ -248,45 +257,21 @@ class __KelolaMentorViewState extends State<_KelolaMentorView> {
     );
   }
 
-  Widget _buildCircularIconButton({
-    required IconData icon,
-    required VoidCallback onPressed,
-  }) {
-    // Tidak ada perubahan di sini, ini adalah widget generik
-    return InkWell(
-      customBorder: const CircleBorder(),
-      onTap: onPressed,
-      child: Container(
-        padding: const EdgeInsets.all(6),
-        decoration: BoxDecoration(
-          shape: BoxShape.circle,
-          color: Colors.white,
-          border: Border.all(color: Colors.grey.shade300, width: 1.5),
-        ),
-        child: Icon(icon, size: 20, color: Colors.grey.shade700),
-      ),
-    );
-  }
-
-  // DIUBAH: Nama fungsi dari _buildKaderList -> _buildMentorList
   Widget _buildMentorList(MentorLoaded state) {
-    // DIUBAH: Menggunakan filteredMentors
     if (state.filteredMentors.isEmpty) {
       return const Expanded(
-        child: Center(child: Text('Data mentor tidak ditemukan.')), // DIUBAH
+        child: Center(child: Text('Data mentor tidak ditemukan.')),
       );
     }
     return Expanded(
       child: ListView.separated(
         padding: const EdgeInsets.symmetric(vertical: 6),
-        // DIUBAH: Menggunakan filteredMentors
         itemCount: state.filteredMentors.length,
         separatorBuilder: (context, index) => const SizedBox(height: 16),
         itemBuilder: (context, index) {
-          // DIUBAH: Tipe data menjadi MentorModel
           final mentor = state.filteredMentors[index];
           return Container(
-            padding: EdgeInsets.only(left: 16, right: 16, top: 18, bottom: 18),
+            padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(
               color: Colors.white,
               borderRadius: BorderRadius.circular(8.0),
@@ -299,73 +284,77 @@ class __KelolaMentorViewState extends State<_KelolaMentorView> {
                 ),
               ],
             ),
-            child: Column(
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    CircleAvatar(
-                      radius: 24,
-                      // DIUBAH: Menggunakan data mentor
-                      child: Text(mentor.username[0].toUpperCase()),
-                    ),
-                    const SizedBox(width: 12),
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      // Baris 1: Username
+                      Text(
+                        mentor.username,
+                        style: const TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 16,
+                        ),
+                      ),
+                      const SizedBox(height: 6),
+
+                      // Baris 2: Nomor HP
+                      Row(
                         children: [
-                          Text(
-                            mentor.username, // DIUBAH
-                            style: const TextStyle(
-                              fontWeight: FontWeight.bold,
-                              fontSize: 16,
-                            ),
+                          Icon(
+                            Icons.phone_outlined,
+                            color: Colors.grey[600],
+                            size: 16,
                           ),
-                          const SizedBox(height: 5),
-                          Row(
-                            children: [
-                              Text(
-                                'Hp: ${mentor.noHp ?? 'No HP belum diatur'}', // DIUBAH
-                                style: TextStyle(
-                                  color: Colors.grey[600],
-                                  fontSize: 14,
-                                ),
-                              ),
-                              Text(
-                                ' | ',
-                                style: TextStyle(
-                                  color: Colors.grey[600],
-                                  fontSize: 14,
-                                ),
-                              ),
-                              Text(
-                                mentor.jabatan ??
-                                    'Jabatan belum diatur', // DIUBAH
-                                style: TextStyle(
-                                  color: Colors.grey[600],
-                                  fontSize: 14,
-                                ),
-                              ),
-                            ],
+                          const SizedBox(width: 6),
+                          Text(
+                            mentor.noHp ?? 'No HP belum diatur',
+                            style: TextStyle(
+                              color: Colors.grey[700],
+                              fontSize: 14,
+                            ),
                           ),
                         ],
                       ),
-                    ),
-                    const SizedBox(width: 12),
-                    _buildCircularIconButton(
-                      icon: Icons.edit_outlined,
-                      onPressed: () {
-                        _showEditMentorDialog(mentor); // DIUBAH
-                      },
-                    ),
-                    const SizedBox(width: 8),
-                    _buildCircularIconButton(
-                      icon: Icons.delete_outline,
-                      onPressed: () {
-                        _showDeleteConfirmationDialog(mentor); // DIUBAH
-                      },
-                    ),
-                  ],
+                      const SizedBox(height: 4),
+
+                      // Baris 3: Jabatan
+                      Row(
+                        children: [
+                          Icon(
+                            Icons.work_outline,
+                            color: Colors.grey[600],
+                            size: 16,
+                          ),
+                          const SizedBox(width: 6),
+                          Text(
+                            mentor.jabatan ?? 'Jabatan belum diatur',
+                            style: TextStyle(
+                              color: Colors.grey[700],
+                              fontSize: 14,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+                ),
+
+                // ==========================================================
+                const SizedBox(width: 8),
+                CircularIconButton(
+                  icon: Icons.edit_outlined,
+                  onPressed: () => _showEditMentorDialog(mentor),
+                  tooltip: 'Edit Mentor',
+                ),
+                const SizedBox(width: 8),
+                CircularIconButton(
+                  icon: Icons.delete_outline,
+                  onPressed: () => _showDeleteConfirmationDialog(mentor),
+                  tooltip: 'Hapus Mentor',
                 ),
               ],
             ),

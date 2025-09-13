@@ -129,11 +129,14 @@ class _AddMentorDialogState extends State<AddMentorDialog> {
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      Text(
-                        'Tambah Data Mentor', // DIUBAH
-                        style: GoogleFonts.openSans(
-                          fontSize: 18,
-                          fontWeight: FontWeight.bold,
+                      Expanded(
+                        child: Text(
+                          'Tambah Data Mentor', // DIUBAH
+                          style: GoogleFonts.openSans(
+                            fontSize: 18,
+                            fontWeight: FontWeight.bold,
+                          ),
+                          softWrap: true,
                         ),
                       ),
                       IconButton(
@@ -352,7 +355,7 @@ class _AddMentorDialogState extends State<AddMentorDialog> {
                         borderRadius: BorderRadius.circular(10),
                       ),
                     ),
-                    child: const Text('Buat Akun'),
+                    child: const Text('Buat Akun', textAlign: TextAlign.center),
                   );
                 },
               ),

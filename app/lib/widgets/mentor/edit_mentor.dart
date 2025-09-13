@@ -225,7 +225,10 @@ class _EditMentorDialogState extends State<EditMentorDialog> {
                                 borderRadius: BorderRadius.circular(10),
                               ),
                             ),
-                            child: const Text('Simpan Perubahan'),
+                            child: const Text(
+                              'Simpan Perubahan',
+                              textAlign: TextAlign.center,
+                            ),
                           );
                         },
                       ),
