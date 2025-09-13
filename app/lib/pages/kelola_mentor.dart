@@ -3,6 +3,7 @@ import 'package:app/bloc/mentor/mentor_bloc.dart'; // DIUBAH
 import 'package:app/bloc/mentor/mentor_event.dart'; // DIUBAH
 import 'package:app/bloc/mentor/mentor_state.dart'; // DIUBAH
 import 'package:app/models/mentor_model.dart'; // DIUBAH
+import 'package:app/utils/icon_style.dart';
 import 'package:app/widgets/admin_drawer.dart';
 import 'package:app/widgets/appbar.dart';
 import 'package:app/widgets/mentor/add_mentor_dialog.dart';
@@ -256,28 +257,6 @@ class __KelolaMentorViewState extends State<_KelolaMentorView> {
     );
   }
 
-  Widget _buildCircularIconButton({
-    required IconData icon,
-    required VoidCallback onPressed,
-  }) {
-    // Tidak ada perubahan di sini, ini adalah widget generik
-    return InkWell(
-      customBorder: const CircleBorder(),
-      onTap: onPressed,
-      child: Container(
-        padding: const EdgeInsets.all(6),
-        decoration: BoxDecoration(
-          shape: BoxShape.circle,
-          color: Colors.white,
-          border: Border.all(color: Colors.grey.shade300, width: 1.5),
-        ),
-        child: Icon(icon, size: 20, color: Colors.grey.shade700),
-      ),
-    );
-  }
-
-  // Lokasi: file kelola_mentor_page.dart -> class __KelolaMentorViewState
-
   Widget _buildMentorList(MentorLoaded state) {
     if (state.filteredMentors.isEmpty) {
       return const Expanded(
@@ -291,102 +270,93 @@ class __KelolaMentorViewState extends State<_KelolaMentorView> {
         separatorBuilder: (context, index) => const SizedBox(height: 16),
         itemBuilder: (context, index) {
           final mentor = state.filteredMentors[index];
-          return InkWell(
-            onTap: () => _showViewMentorDialog(mentor),
-            borderRadius: BorderRadius.circular(8.0),
-            child: Container(
-              padding: const EdgeInsets.all(16),
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(8.0),
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.grey.withOpacity(0.15),
-                    spreadRadius: 2,
-                    blurRadius: 8,
-                    offset: const Offset(0, 3),
-                  ),
-                ],
-              ),
-              child: Row(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  CircleAvatar(
-                    radius: 24,
-                    child: Text(mentor.username[0].toUpperCase()),
-                  ),
-                  const SizedBox(width: 12),
-                  // ================== PERBAIKAN UTAMA DI SINI ==================
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          mentor.username,
-                          style: const TextStyle(
-                            fontWeight: FontWeight.bold,
-                            fontSize: 16,
+          return Container(
+            padding: const EdgeInsets.all(16),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(8.0),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.grey.withOpacity(0.15),
+                  spreadRadius: 2,
+                  blurRadius: 8,
+                  offset: const Offset(0, 3),
+                ),
+              ],
+            ),
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      // Baris 1: Username
+                      Text(
+                        mentor.username,
+                        style: const TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 16,
+                        ),
+                      ),
+                      const SizedBox(height: 6),
+
+                      // Baris 2: Nomor HP
+                      Row(
+                        children: [
+                          Icon(
+                            Icons.phone_outlined,
+                            color: Colors.grey[600],
+                            size: 16,
                           ),
-                        ),
-                        const SizedBox(height: 5),
-                        Row(
-                          children: [
-                            // 1. Bungkus Text dengan Flexible
-                            Flexible(
-                              child: Text(
-                                'Hp: ${mentor.noHp ?? 'N/A'}',
-                                style: TextStyle(
-                                  color: Colors.grey[600],
-                                  fontSize: 14,
-                                ),
-                                overflow: TextOverflow.ellipsis,
-                              ),
+                          const SizedBox(width: 6),
+                          Text(
+                            mentor.noHp ?? 'No HP belum diatur',
+                            style: TextStyle(
+                              color: Colors.grey[700],
+                              fontSize: 14,
                             ),
-                            Padding(
-                              padding: const EdgeInsets.symmetric(
-                                horizontal: 8.0,
-                              ),
-                              child: Text(
-                                '|',
-                                style: TextStyle(
-                                  color: Colors.grey[400],
-                                  fontSize: 14,
-                                ),
-                              ),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 4),
+
+                      // Baris 3: Jabatan
+                      Row(
+                        children: [
+                          Icon(
+                            Icons.work_outline,
+                            color: Colors.grey[600],
+                            size: 16,
+                          ),
+                          const SizedBox(width: 6),
+                          Text(
+                            mentor.jabatan ?? 'Jabatan belum diatur',
+                            style: TextStyle(
+                              color: Colors.grey[700],
+                              fontSize: 14,
                             ),
-                            // 2. Bungkus Text kedua juga dengan Flexible
-                            Flexible(
-                              child: Text(
-                                mentor.jabatan ?? 'Jabatan belum diatur',
-                                style: TextStyle(
-                                  color: Colors.grey[600],
-                                  fontSize: 14,
-                                ),
-                                overflow: TextOverflow.ellipsis,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ],
-                    ),
+                          ),
+                        ],
+                      ),
+                    ],
                   ),
-                  // ==========================================================
-                  const SizedBox(width: 12),
-                  _buildCircularIconButton(
-                    icon: Icons.edit_outlined,
-                    onPressed: () {
-                      _showEditMentorDialog(mentor);
-                    },
-                  ),
-                  const SizedBox(width: 8),
-                  _buildCircularIconButton(
-                    icon: Icons.delete_outline,
-                    onPressed: () {
-                      _showDeleteConfirmationDialog(mentor);
-                    },
-                  ),
-                ],
-              ),
+                ),
+
+                // ==========================================================
+                const SizedBox(width: 8),
+                CircularIconButton(
+                  icon: Icons.edit_outlined,
+                  onPressed: () => _showEditMentorDialog(mentor),
+                  tooltip: 'Edit Mentor',
+                ),
+                const SizedBox(width: 8),
+                CircularIconButton(
+                  icon: Icons.delete_outline,
+                  onPressed: () => _showDeleteConfirmationDialog(mentor),
+                  tooltip: 'Hapus Mentor',
+                ),
+              ],
             ),
           );
         },

@@ -3,6 +3,7 @@ import 'package:app/bloc/kader/kader_bloc.dart';
 import 'package:app/bloc/kader/kader_event.dart';
 import 'package:app/bloc/kader/kader_state.dart';
 import 'package:app/models/kader_model.dart';
+import 'package:app/utils/icon_style.dart';
 import 'package:app/widgets/kader/add_kader_dialog.dart';
 import 'package:app/widgets/admin_drawer.dart';
 import 'package:app/widgets/appbar.dart';
@@ -56,12 +57,12 @@ class __KelolaKaderViewState extends State<_KelolaKaderView> {
     });
   }
 
-  void _showViewKaderDialog(Kader kader) {
-    showDialog(
-      context: context,
-      builder: (_) => ViewKaderDialog(kader: kader),
-    );
-  }
+  // void _showViewKaderDialog(Kader kader) {
+  //   showDialog(
+  //     context: context,
+  //     builder: (_) => ViewKaderDialog(kader: kader),
+  //   );
+  // }
 
   // Helper untuk menampilkan dialog dengan benar
   void _showAddKaderDialog() {
@@ -247,35 +248,6 @@ class __KelolaKaderViewState extends State<_KelolaKaderView> {
     );
   }
 
-  // Helper function untuk membuat icon melingkar dengan border
-  Widget _buildCircularIconButton({
-    required IconData icon,
-    required VoidCallback onPressed,
-  }) {
-    return InkWell(
-      customBorder: const CircleBorder(), // Membuat efek ripple melingkar
-      onTap: onPressed,
-      child: Container(
-        padding: const EdgeInsets.all(6),
-        decoration: BoxDecoration(
-          shape: BoxShape.circle,
-          color: Colors.white,
-          border: Border.all(
-            color: Colors.grey.shade300, // Warna border abu-abu muda
-            width: 1.5,
-          ),
-        ),
-        child: Icon(
-          icon,
-          size: 20,
-          color: Colors.grey.shade700, // Warna ikon abu-abu tua
-        ),
-      ),
-    );
-  }
-
-  // Lokasi: file kelola_kader_page.dart -> class __KelolaKaderViewState
-
   Widget _buildKaderList(KaderLoaded state) {
     if (state.filteredCadres.isEmpty) {
       return const Expanded(
@@ -289,106 +261,95 @@ class __KelolaKaderViewState extends State<_KelolaKaderView> {
         separatorBuilder: (context, index) => const SizedBox(height: 16),
         itemBuilder: (context, index) {
           final kader = state.filteredCadres[index];
-          return InkWell(
-            onTap: () => _showViewKaderDialog(kader), // Aksi saat item diketuk
-            borderRadius: BorderRadius.circular(8.0),
-            child: Container(
-              padding: const EdgeInsets.all(
-                16,
-              ), // Padding diubah sedikit agar simetris
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(8.0),
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.grey.withOpacity(0.15),
-                    spreadRadius: 2,
-                    blurRadius: 8,
-                    offset: const Offset(0, 3),
-                  ),
-                ],
-              ),
-              child: Row(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  CircleAvatar(
-                    radius: 24,
-                    child: Text(kader.username[0].toUpperCase()),
-                  ),
-                  const SizedBox(width: 12),
-                  // ================== PERBAIKAN UTAMA DI SINI ==================
-                  Expanded(
-                    // 1. Bungkus kolom teks dengan Expanded
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          kader.username,
-                          style: const TextStyle(
-                            fontWeight: FontWeight.bold,
-                            fontSize: 16,
+          return Container(
+            padding: const EdgeInsets.all(
+              16,
+            ), // Padding diubah sedikit agar simetris
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(8.0),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.grey.withOpacity(0.15),
+                  spreadRadius: 2,
+                  blurRadius: 8,
+                  offset: const Offset(0, 3),
+                ),
+              ],
+            ),
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Expanded(
+                  // 1. Bungkus kolom teks dengan Expanded
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      // Baris 1: Username
+                      Text(
+                        kader.username,
+                        style: const TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 16,
+                        ),
+                      ),
+                      const SizedBox(height: 6),
+
+                      // Baris 2: Nomor HP
+                      Row(
+                        children: [
+                          Icon(
+                            Icons.phone_outlined,
+                            color: Colors.grey[600],
+                            size: 16,
                           ),
-                        ),
-                        const SizedBox(height: 5),
-                        Row(
-                          children: [
-                            // 2. Bungkus setiap Text dengan Flexible
-                            Flexible(
-                              child: Text(
-                                'Hp: ${kader.noHp ?? 'N/A'}',
-                                style: TextStyle(
-                                  color: Colors.grey[600],
-                                  fontSize: 14,
-                                ),
-                                overflow: TextOverflow
-                                    .ellipsis, // Tambahkan ellipsis jika teks terlalu panjang
-                              ),
+                          const SizedBox(width: 6),
+                          Text(
+                            kader.noHp ?? 'No HP belum diatur',
+                            style: TextStyle(
+                              color: Colors.grey[700],
+                              fontSize: 14,
                             ),
-                            Padding(
-                              padding: const EdgeInsets.symmetric(
-                                horizontal: 8.0,
-                              ),
-                              child: Text(
-                                '|',
-                                style: TextStyle(
-                                  color: Colors.grey[400],
-                                  fontSize: 14,
-                                ),
-                              ),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 4),
+
+                      // Baris 3: Jabatan
+                      Row(
+                        children: [
+                          Icon(
+                            Icons.work_outline,
+                            color: Colors.grey[600],
+                            size: 16,
+                          ),
+                          const SizedBox(width: 6),
+                          Text(
+                            kader.jabatan ?? 'Jabatan belum diatur',
+                            style: TextStyle(
+                              color: Colors.grey[700],
+                              fontSize: 14,
                             ),
-                            Flexible(
-                              child: Text(
-                                kader.jabatan ?? 'Jabatan belum diatur',
-                                style: TextStyle(
-                                  color: Colors.grey[600],
-                                  fontSize: 14,
-                                ),
-                                overflow: TextOverflow
-                                    .ellipsis, // Tambahkan ellipsis jika teks terlalu panjang
-                              ),
-                            ),
-                          ],
-                        ),
-                      ],
-                    ),
+                          ),
+                        ],
+                      ),
+                    ],
                   ),
-                  // ==========================================================
-                  const SizedBox(width: 12),
-                  _buildCircularIconButton(
-                    icon: Icons.edit_outlined,
-                    onPressed: () {
-                      _showEditKaderDialog(kader);
-                    },
-                  ),
-                  const SizedBox(width: 8),
-                  _buildCircularIconButton(
-                    icon: Icons.delete_outline,
-                    onPressed: () {
-                      _showDeleteConfirmationDialog(kader);
-                    },
-                  ),
-                ],
-              ),
+                ),
+
+                const SizedBox(width: 8),
+                CircularIconButton(
+                  icon: Icons.edit_outlined,
+                  onPressed: () => _showEditKaderDialog(kader),
+                  tooltip: 'Edit Kader',
+                ),
+                const SizedBox(width: 8),
+                CircularIconButton(
+                  icon: Icons.delete_outline,
+                  onPressed: () => _showDeleteConfirmationDialog(kader),
+                  tooltip: 'Hapus Kader',
+                ),
+              ],
             ),
           );
         },

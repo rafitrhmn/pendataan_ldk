@@ -3,6 +3,7 @@ import 'package:app/bloc/mentee/mentee_bloc.dart';
 import 'package:app/bloc/mentee/mentee_event.dart';
 import 'package:app/bloc/mentee/mentee_state.dart';
 import 'package:app/models/mentee_model.dart';
+import 'package:app/utils/icon_style.dart';
 import 'package:app/widgets/admin_drawer.dart';
 import 'package:app/widgets/appbar.dart';
 import 'package:app/widgets/mentee/add_mentee_dialog.dart';
@@ -230,27 +231,6 @@ class _KelolaMenteeViewState extends State<_KelolaMenteeView> {
     );
   }
 
-  // GAYA BARU: Helper untuk tombol aksi melingkar (diambil dari Mentor)
-  Widget _buildCircularIconButton({
-    required IconData icon,
-    required VoidCallback onPressed,
-  }) {
-    return InkWell(
-      customBorder: const CircleBorder(),
-      onTap: onPressed,
-      child: Container(
-        padding: const EdgeInsets.all(6),
-        decoration: BoxDecoration(
-          shape: BoxShape.circle,
-          color: Colors.white,
-          border: Border.all(color: Colors.grey.shade300, width: 1.5),
-        ),
-        child: Icon(icon, size: 20, color: Colors.grey.shade700),
-      ),
-    );
-  }
-
-  // GAYA BARU: Tampilan daftar yang disesuaikan dengan gaya Mentor
   Widget _buildMenteeList(MenteeLoaded state) {
     if (state.filteredMentees.isEmpty) {
       return const Expanded(
@@ -270,8 +250,7 @@ class _KelolaMenteeViewState extends State<_KelolaMenteeView> {
           itemBuilder: (context, index) {
             final mentee = state.filteredMentees[index];
             return InkWell(
-              onTap: () =>
-                  _showViewMenteeDialog(mentee), // Aksi saat item diketuk
+              onTap: () => _showViewMenteeDialog(mentee),
               borderRadius: BorderRadius.circular(8.0),
               child: Container(
                 padding: const EdgeInsets.all(16),
@@ -288,16 +267,13 @@ class _KelolaMenteeViewState extends State<_KelolaMenteeView> {
                   ],
                 ),
                 child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    CircleAvatar(
-                      radius: 24,
-                      child: Text(mentee.namaLengkap[0].toUpperCase()),
-                    ),
-                    const SizedBox(width: 12),
                     Expanded(
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
+                          // Baris 1: Nama Lengkap
                           Text(
                             mentee.namaLengkap,
                             style: const TextStyle(
@@ -305,26 +281,67 @@ class _KelolaMenteeViewState extends State<_KelolaMenteeView> {
                               fontSize: 16,
                             ),
                           ),
-                          const SizedBox(height: 5),
-                          Text(
-                            '${mentee.prodi} | Angkatan ${mentee.angkatan}',
-                            style: TextStyle(
-                              color: Colors.grey[600],
-                              fontSize: 14,
-                            ),
+                          const SizedBox(height: 6),
+
+                          // Baris 2: Program Studi
+                          Row(
+                            children: [
+                              Icon(
+                                Icons.school_outlined,
+                                color: Colors.grey[600],
+                                size: 16,
+                              ),
+                              const SizedBox(width: 6),
+                              Text(
+                                mentee.prodi,
+                                style: TextStyle(
+                                  color: Colors.grey[700],
+                                  fontSize: 14,
+                                ),
+                              ),
+                            ],
+                          ),
+                          const SizedBox(height: 4),
+
+                          // Baris 3: Angkatan
+                          Row(
+                            children: [
+                              Icon(
+                                Icons.calendar_today_outlined,
+                                color: Colors.grey[600],
+                                size: 16,
+                              ),
+                              const SizedBox(width: 6),
+                              Text(
+                                'Angkatan ${mentee.angkatan}',
+                                style: TextStyle(
+                                  color: Colors.grey[700],
+                                  fontSize: 14,
+                                ),
+                              ),
+                            ],
                           ),
                         ],
                       ),
                     ),
+                    // ==========================================================
                     const SizedBox(width: 12),
-                    _buildCircularIconButton(
-                      icon: Icons.edit_outlined,
-                      onPressed: () => _showEditMenteeDialog(mentee),
+                    CircularIconButton(
+                      icon: Icons.visibility_outlined,
+                      onPressed: () => _showViewMenteeDialog(mentee),
+                      tooltip: 'Lihat Detail',
                     ),
                     const SizedBox(width: 8),
-                    _buildCircularIconButton(
+                    CircularIconButton(
+                      icon: Icons.edit_outlined,
+                      onPressed: () => _showEditMenteeDialog(mentee),
+                      tooltip: 'Edit Mentee',
+                    ),
+                    const SizedBox(width: 8),
+                    CircularIconButton(
                       icon: Icons.delete_outline,
                       onPressed: () => _showDeleteConfirmationDialog(mentee),
+                      tooltip: 'Hapus Mentee',
                     ),
                   ],
                 ),
