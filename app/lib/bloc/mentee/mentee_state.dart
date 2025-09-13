@@ -13,11 +13,6 @@ class MenteeInitial extends MenteeState {}
 
 class MenteeLoading extends MenteeState {}
 
-// class MenteeLoaded extends MenteeState {
-//   final List<Mentee> mentees;
-//   const MenteeLoaded(this.mentees);
-// }
-
 class MenteeLoaded extends MenteeState {
   final List<Mentee> allMentees; // Data asli dari database
   final List<Mentee>
@@ -53,3 +48,12 @@ class MenteeCreateSuccess extends MenteeState {}
 class MenteeUpdateSuccess extends MenteeState {}
 
 class MenteeDeleteSuccess extends MenteeState {}
+
+class UnassignedMenteesLoaded extends MenteeState {
+  final List<Mentee> mentees;
+  const UnassignedMenteesLoaded(this.mentees);
+}
+
+class MenteeAssignSuccess extends MenteeState {}
+
+class MenteeRemoveSuccess extends MenteeState {}

@@ -1,5 +1,6 @@
 import 'package:app/bloc/auth/auth_bloc.dart';
 import 'package:app/bloc/kader/kader_bloc.dart';
+import 'package:app/bloc/kelompok/kelompok_bloc.dart';
 import 'package:app/bloc/login/login_bloc.dart';
 import 'package:app/bloc/mentee/mentee_bloc.dart';
 import 'package:app/bloc/mentor/mentor_bloc.dart';
@@ -23,19 +24,16 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // Gunakan MaterialApp.router untuk mengaktifkan go_router
     return MultiBlocProvider(
       providers: [
         BlocProvider(create: (context) => AuthBloc()),
         BlocProvider(
-          create: (context) => LoginBloc(
-            // Berikan AuthBloc ke LoginBloc
-            authBloc: context.read<AuthBloc>(),
-          ),
+          create: (context) => LoginBloc(authBloc: context.read<AuthBloc>()),
         ),
-        BlocProvider(create: (context) => KaderBloc()), // <-- TAMBAHKAN INI
+        BlocProvider(create: (context) => KaderBloc()),
         BlocProvider(create: (context) => MentorBloc()),
         BlocProvider(create: (context) => MenteeBloc()),
+        BlocProvider(create: (context) => KelompokBloc()),
       ],
       child: MaterialApp.router(
         title: 'Aplikasi Flutter Saya',
@@ -43,7 +41,6 @@ class MyApp extends StatelessWidget {
           primarySwatch: Colors.blue,
           visualDensity: VisualDensity.adaptivePlatformDensity,
         ),
-        // Gunakan routerConfig untuk menghubungkan konfigurasi router
         routerConfig: router,
         debugShowCheckedModeBanner: false,
       ),

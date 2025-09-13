@@ -1,8 +1,10 @@
 // Konfigurasi GoRouter
 import 'package:app/pages/dashbod_admin.dart';
 import 'package:app/pages/kelola_kader.dart';
+import 'package:app/pages/kelompok/kelola_kelompok.dart';
 import 'package:app/pages/kelola_mentee.dart';
 import 'package:app/pages/kelola_mentor.dart';
+import 'package:app/pages/kelompok/kelompok_detail.dart';
 // import 'package:app/pages/kelola_kader.dart';
 import 'package:app/pages/login.dart';
 import 'package:app/pages/profile_admin.dart';
@@ -43,6 +45,22 @@ final GoRouter router = GoRouter(
     GoRoute(
       path: '/kelola-mentee',
       builder: (context, state) => const KelolaMenteePage(),
+    ),
+    GoRoute(
+      path: '/kelola-kelompok',
+      builder: (context, state) => const KelolaKelompokPage(),
+      // Tambahkan sub-rute untuk halaman detail
+      routes: [
+        GoRoute(
+          path: ':id', // ':' menandakan 'id' adalah parameter dinamis
+          builder: (context, state) {
+            // Ambil nilai 'id' dari URL yang dikirim
+            final kelompokId = state.pathParameters['id']!;
+            // Kirim id tersebut ke halaman detail
+            return KelompokDetailPage(kelompokId: kelompokId);
+          },
+        ),
+      ],
     ),
   ],
 );

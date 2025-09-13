@@ -68,3 +68,19 @@ class SortMentees extends MenteeEvent {
   @override
   List<Object?> get props => [ascending];
 }
+
+class FetchUnassignedMentees extends MenteeEvent {}
+
+class AssignMenteeToKelompok extends MenteeEvent {
+  final String menteeId;
+  final String kelompokId;
+  const AssignMenteeToKelompok({
+    required this.menteeId,
+    required this.kelompokId,
+  });
+}
+
+class RemoveMenteeFromKelompok extends MenteeEvent {
+  final String menteeId;
+  const RemoveMenteeFromKelompok({required this.menteeId});
+}

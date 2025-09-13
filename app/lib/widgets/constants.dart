@@ -17,4 +17,14 @@ class AppConstants {
   );
 
   static const List<String> gender = ['Laki-laki', 'Perempuan'];
+
+  static const List<String> hariPertemuan = [
+    'Senin',
+    'Selasa',
+    'Rabu',
+    'Kamis',
+    'Jumat',
+    'Sabtu',
+    'Minggu',
+  ];
 }
