@@ -9,6 +9,7 @@ import 'package:app/bloc/mentee/mentee_state.dart';
 import 'package:app/models/kelompok_model.dart';
 import 'package:app/models/mentee_model.dart';
 import 'package:app/widgets/kelompok/add_mentee_to_kelompok.dart';
+import 'package:app/widgets/mentee/view_mentee_dialog.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
@@ -79,6 +80,14 @@ class _KelompokDetailPageState extends State<KelompokDetailPage> {
     if (context.canPop()) {
       GoRouter.of(context).pop(true);
     }
+  }
+
+  // Buat helper untuk menampilkan dialog detail mentee
+  void _showViewMenteeDialog(Mentee mentee) {
+    showDialog(
+      context: context,
+      builder: (_) => ViewMenteeDialog(mentee: mentee),
+    );
   }
 
   @override
@@ -235,16 +244,22 @@ class _KelompokDetailPageState extends State<KelompokDetailPage> {
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(10),
           ),
-          child: ListTile(
-            leading: CircleAvatar(child: Text(mentee.namaLengkap[0])),
-            title: Text(mentee.namaLengkap),
-            subtitle: Text(mentee.prodi),
-            trailing: IconButton(
-              icon: const Icon(Icons.remove_circle_outline, color: Colors.red),
-              onPressed: () {
-                _showRemoveConfirmationDialog(mentee);
-              },
-              tooltip: 'Keluarkan dari kelompok',
+          child: InkWell(
+            onTap: () => _showViewMenteeDialog(mentee),
+            child: ListTile(
+              // leading: CircleAvatar(child: Text(mentee.namaLengkap[0])),
+              title: Text(mentee.namaLengkap),
+              subtitle: Text(mentee.prodi),
+              trailing: IconButton(
+                icon: const Icon(
+                  Icons.remove_circle_outline,
+                  color: Colors.red,
+                ),
+                onPressed: () {
+                  _showRemoveConfirmationDialog(mentee);
+                },
+                tooltip: 'Keluarkan dari kelompok',
+              ),
             ),
           ),
         );

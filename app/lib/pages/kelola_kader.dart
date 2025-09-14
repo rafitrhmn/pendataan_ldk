@@ -9,7 +9,6 @@ import 'package:app/widgets/admin_drawer.dart';
 import 'package:app/widgets/appbar.dart';
 import 'package:app/widgets/kader/delete_kader_dialog.dart';
 import 'package:app/widgets/kader/edit_kader_dialog.dart';
-import 'package:app/widgets/kader/view_kader_dialog.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -56,13 +55,6 @@ class __KelolaKaderViewState extends State<_KelolaKaderView> {
       context.read<KaderBloc>().add(SearchKader(query));
     });
   }
-
-  // void _showViewKaderDialog(Kader kader) {
-  //   showDialog(
-  //     context: context,
-  //     builder: (_) => ViewKaderDialog(kader: kader),
-  //   );
-  // }
 
   // Helper untuk menampilkan dialog dengan benar
   void _showAddKaderDialog() {
