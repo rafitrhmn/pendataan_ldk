@@ -5,6 +5,7 @@ import 'package:app/bloc/laporan/laporan_state.dart';
 import 'package:app/pages/dashbod_admin.dart';
 import 'package:app/pages/kelola_kader.dart';
 import 'package:app/pages/kelompok/add_laporan_pertemuan.dart';
+import 'package:app/pages/kelompok/edit_laporan_page.dart';
 import 'package:app/pages/kelompok/kelola_kelompok.dart';
 import 'package:app/pages/kelola_mentee.dart';
 import 'package:app/pages/kelola_mentor.dart';
@@ -113,6 +114,21 @@ final GoRouter router = GoRouter(
             kelompokId: kelompokState.kelompok.id,
             mentees: kelompokState.mentees,
             pertemuanKe: pertemuanKe,
+          ),
+        );
+      },
+    ),
+    GoRoute(
+      path: '/laporan/edit/:pertemuanId',
+      builder: (context, state) {
+        // Terima data yang dikirim via 'extra'
+        final data = state.extra as Map<String, dynamic>;
+        return BlocProvider.value(
+          value: context.read<LaporanBloc>(),
+          child: EditLaporanPage(
+            pertemuan: data['pertemuan'],
+            laporanMentees: data['laporanMentees'],
+            allMenteesInKelompok: data['allMenteesInKelompok'],
           ),
         );
       },

@@ -39,3 +39,5 @@ class LaporanDetailLoaded extends LaporanState {
     required this.laporanMentees,
   });
 }
+
+class LaporanUpdateSuccess extends LaporanState {}

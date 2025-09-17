@@ -1,5 +1,7 @@
 // lib/pages/laporan/laporan_detail_page.dart
 
+import 'package:app/bloc/kelompok/kelompok_bloc.dart';
+import 'package:app/bloc/kelompok/kelompok_state.dart';
 import 'package:app/bloc/laporan/laporan_bloc.dart';
 import 'package:app/bloc/laporan/laporan_event.dart';
 import 'package:app/bloc/laporan/laporan_state.dart';
@@ -98,6 +100,69 @@ class _LaporanDetailPageState extends State<LaporanDetailPage> {
           }
 
           return const Center(child: Text('Terjadi kesalahan'));
+        },
+      ),
+      bottomNavigationBar: BlocBuilder<LaporanBloc, LaporanState>(
+        builder: (context, state) {
+          // Hanya tampilkan tombol jika data sudah dimuat
+          if (state is LaporanDetailLoaded) {
+            return Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: Row(
+                children: [
+                  Expanded(
+                    child: OutlinedButton.icon(
+                      icon: const Icon(Icons.edit_outlined),
+                      label: const Text('Edit'),
+                      onPressed: () async {
+                        final kelompokState = context
+                            .read<KelompokBloc>()
+                            .state;
+                        if (kelompokState is KelompokDetailLoaded) {
+                          // 2. Tunggu hasil dari halaman edit
+                          final result = await context.push<bool>(
+                            '/laporan/edit/${state.pertemuan.id}',
+                            extra: {
+                              'pertemuan': state.pertemuan,
+                              'laporanMentees': state.laporanMentees,
+                              'allMenteesInKelompok': kelompokState.mentees,
+                            },
+                          );
+
+                          // 3. Jika hasilnya true, tampilkan SnackBar & refresh
+                          if (result == true && mounted) {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(
+                                content: Text('Laporan berhasil diperbarui!'),
+                                backgroundColor: Colors.green,
+                              ),
+                            );
+                            // Refresh data di halaman ini
+                            context.read<LaporanBloc>().add(
+                              FetchLaporanDetail(widget.pertemuanId),
+                            );
+                          }
+                        }
+                      },
+                    ),
+                  ),
+                  const SizedBox(width: 10),
+                  // Expanded(
+                  //   child: ElevatedButton.icon(
+                  //     icon: const Icon(Icons.delete_outline),
+                  //     label: const Text('Hapus'),
+                  //     // onPressed: () => _showDeleteConfirmation(context, state),
+                  //     // style: ElevatedButton.styleFrom(
+                  //     //   backgroundColor: Colors.red[700],
+                  //     // ),
+                  //   ),
+                  // ),
+                ],
+              ),
+            );
+          }
+          // Sembunyikan tombol jika state bukan ...Loaded
+          return const SizedBox.shrink();
         },
       ),
     );

@@ -34,3 +34,23 @@ class FetchLaporanDetail extends LaporanEvent {
   final String pertemuanId;
   const FetchLaporanDetail(this.pertemuanId);
 }
+
+// lib/bloc/laporan/laporan_event.dart
+
+class UpdateLaporanPertemuan extends LaporanEvent {
+  final String pertemuanId;
+  final DateTime tanggal;
+  final String? tempat;
+  final String? catatan;
+  final String? fotoUrl;
+  final List<Map<String, dynamic>> laporanMentees;
+
+  const UpdateLaporanPertemuan({
+    required this.pertemuanId,
+    required this.tanggal,
+    this.tempat,
+    this.catatan,
+    this.fotoUrl,
+    required this.laporanMentees,
+  });
+}

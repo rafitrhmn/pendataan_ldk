@@ -13,6 +13,7 @@ class LaporanBloc extends Bloc<LaporanEvent, LaporanState> {
     on<FetchRiwayatPertemuan>(_onFetchRiwayatPertemuan);
     on<CreateLaporanPertemuan>(_onCreateLaporanPertemuan);
     on<FetchLaporanDetail>(_onFetchLaporanDetail);
+    on<UpdateLaporanPertemuan>(_onUpdateLaporanPertemuan);
   }
 
   Future<void> _onFetchRiwayatPertemuan(
@@ -114,6 +115,29 @@ class LaporanBloc extends Bloc<LaporanEvent, LaporanState> {
           laporanMentees: laporanMentees,
         ),
       );
+    } catch (e) {
+      emit(LaporanError(e.toString()));
+    }
+  }
+
+  Future<void> _onUpdateLaporanPertemuan(
+    UpdateLaporanPertemuan event,
+    Emitter<LaporanState> emit,
+  ) async {
+    emit(LaporanSubmitting());
+    try {
+      await supabase.functions.invoke(
+        'update-laporan',
+        body: {
+          'pertemuan_id': event.pertemuanId,
+          'tanggal': event.tanggal.toIso8601String(),
+          'tempat': event.tempat,
+          'catatan': event.catatan,
+          'foto_url': event.fotoUrl,
+          'laporan_mentees': event.laporanMentees,
+        },
+      );
+      emit(LaporanUpdateSuccess());
     } catch (e) {
       emit(LaporanError(e.toString()));
     }
