@@ -50,6 +50,7 @@ class LaporanBloc extends Bloc<LaporanEvent, LaporanState> {
       emit(LaporanError(e.toString()));
     }
   }
+  // lib/bloc/laporan/laporan_bloc.dart
 
   Future<void> _onCreateLaporanPertemuan(
     CreateLaporanPertemuan event,
@@ -57,20 +58,28 @@ class LaporanBloc extends Bloc<LaporanEvent, LaporanState> {
   ) async {
     emit(LaporanSubmitting());
     try {
-      await supabase.functions.invoke(
-        'create-laporan-pertemuan',
-        body: {
-          'kelompok_id': event.kelompokId,
-          'tanggal': event.tanggal.toIso8601String(),
-          'tempat': event.tempat,
-          'catatan': event.catatan,
-          // 'foto_url': event.fotoUrl, // DIHAPUS
-          'laporan_mentees': event.laporanMentees,
-        },
-      );
+      final body = {
+        'kelompok_id': event.kelompokId,
+        'tanggal': event.tanggal.toIso8601String(),
+        'tempat': event.tempat,
+        'catatan': event.catatan,
+        'foto_url': event.fotoUrl,
+        'laporan_mentees': event.laporanMentees,
+      };
+
+      // ================== TAMBAHKAN DEBUG DI SINI ==================
+      print('--- [DEBUG BLOC] Mengirim body ke Edge Function: ---');
+      print(body);
+      // =============================================================
+
+      await supabase.functions.invoke('create-laporan-pertemuan', body: body);
       emit(LaporanSubmitSuccess());
     } catch (e) {
-      LaporanError(e.toString());
+      // ================== TAMBAHKAN DEBUG DI SINI ==================
+      print('--- [ERROR BLOC] Terjadi kesalahan saat invoke function: ---');
+      print(e);
+      // =============================================================
+      emit(LaporanError(e.toString()));
     }
   }
 

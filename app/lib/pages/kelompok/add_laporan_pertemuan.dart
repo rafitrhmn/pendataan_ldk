@@ -1,3 +1,4 @@
+import 'dart:io';
 import 'package:app/bloc/laporan/laporan_bloc.dart';
 import 'package:app/bloc/laporan/laporan_event.dart';
 import 'package:app/bloc/laporan/laporan_state.dart';
@@ -6,7 +7,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
 class AddLaporanPage extends StatefulWidget {
   final String kelompokId;
@@ -29,7 +32,9 @@ class _AddLaporanPageState extends State<AddLaporanPage> {
   final _catatanController = TextEditingController();
   final _tempatController = TextEditingController();
   DateTime _selectedDate = DateTime.now();
-  // File? _selectedImage;
+  // DIUBAH: Simpan data gambar sebagai bytes dan nama file
+  Uint8List? _selectedImageBytes;
+  String? _selectedImageName;
 
   // Map untuk menyimpan state laporan dari setiap mentee
   late final Map<String, Map<String, dynamic>> _laporanMentees;
@@ -53,6 +58,7 @@ class _AddLaporanPageState extends State<AddLaporanPage> {
   @override
   void dispose() {
     _catatanController.dispose();
+    _tempatController.dispose();
     // Penting: dispose semua controller yang dibuat secara dinamis
     _laporanMentees.forEach((_, value) {
       (value['sholat_wajib'] as TextEditingController).dispose();
@@ -72,8 +78,51 @@ class _AddLaporanPageState extends State<AddLaporanPage> {
     if (date != null) setState(() => _selectedDate = date);
   }
 
+  Future<void> _pickImage() async {
+    final pickedFile = await ImagePicker().pickImage(
+      source: ImageSource.gallery,
+      imageQuality: 60,
+    );
+    if (pickedFile != null) {
+      // DIUBAH: Baca gambar sebagai bytes
+      final bytes = await pickedFile.readAsBytes();
+      setState(() {
+        _selectedImageBytes = bytes;
+        _selectedImageName = pickedFile.name;
+      });
+    }
+  }
+
   Future<void> _submitLaporan() async {
     if (!_formKey.currentState!.validate()) return;
+    String? imageUrl;
+
+    if (_selectedImageBytes != null && _selectedImageName != null) {
+      // Buat nama file unik di server
+      final fileName =
+          '${DateTime.now().millisecondsSinceEpoch}_$_selectedImageName';
+      try {
+        // DIUBAH: Gunakan .uploadBinary() untuk mengunggah bytes
+        await Supabase.instance.client.storage
+            .from('foto_pertemuan')
+            .uploadBinary(fileName, _selectedImageBytes!);
+
+        imageUrl = Supabase.instance.client.storage
+            .from('foto_pertemuan')
+            .getPublicUrl(fileName);
+      } catch (e) {
+        print('--- ERROR SAAT UNGGAH FOTO ---');
+        print(e); // Tampilkan error mentah di Debug Console
+        if (!mounted) return;
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Gagal mengunggah foto: $e'),
+            backgroundColor: Colors.red,
+          ),
+        );
+        return;
+      }
+    }
 
     // 2. Kumpulkan data laporan dari mentee yang hadir
     final laporanList = _laporanMentees.values
@@ -101,6 +150,18 @@ class _AddLaporanPageState extends State<AddLaporanPage> {
         })
         .toList();
 
+    final dataUntukDikirim = {
+      'kelompokId': widget.kelompokId,
+      'tanggal': _selectedDate,
+      'tempat': _tempatController.text,
+      'catatan': _catatanController.text,
+      'fotoUrl': imageUrl,
+      'laporanMentees': laporanList,
+    };
+
+    print('--- [DEBUG UI] Mengirim data ke BLoC: ---');
+    print(dataUntukDikirim);
+
     // 3. Kirim event ke BLoC
     if (mounted) {
       context.read<LaporanBloc>().add(
@@ -109,7 +170,7 @@ class _AddLaporanPageState extends State<AddLaporanPage> {
           tanggal: _selectedDate,
           catatan: _catatanController.text,
           tempat: _tempatController.text,
-          // fotoUrl: imageUrl,
+          fotoUrl: imageUrl,
           laporanMentees: laporanList,
         ),
       );
@@ -214,6 +275,30 @@ class _AddLaporanPageState extends State<AddLaporanPage> {
               ),
             ),
             const SizedBox(height: 16),
+            Row(
+              children: [
+                Container(
+                  width: 60,
+                  height: 60,
+                  decoration: BoxDecoration(
+                    color: Colors.grey[200],
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  // DIUBAH: Gunakan Image.memory untuk menampilkan preview
+                  child: _selectedImageBytes != null
+                      ? Image.memory(_selectedImageBytes!, fit: BoxFit.cover)
+                      : const Icon(Icons.photo, size: 30, color: Colors.grey),
+                ),
+                const SizedBox(width: 10),
+                Expanded(
+                  child: ElevatedButton.icon(
+                    onPressed: _pickImage,
+                    icon: const Icon(Icons.upload_file),
+                    label: const Text('Unggah Foto (Opsional)'),
+                  ),
+                ),
+              ],
+            ),
           ],
         ),
       ),

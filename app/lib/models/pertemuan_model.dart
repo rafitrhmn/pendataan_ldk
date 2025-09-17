@@ -1,13 +1,13 @@
-import 'package:equatable/equatable.dart';
-
 // lib/models/pertemuan_model.dart
+
+import 'package:equatable/equatable.dart';
 
 class Pertemuan extends Equatable {
   final String id;
   final String kelompokId;
   final DateTime tanggal;
   final String? tempat;
-  // final String? fotoUrl; // DIHAPUS
+  final String? fotoUrl; //  TAMBAHKAN KEMBALI
   final String? catatan;
   final DateTime createdAt;
 
@@ -16,7 +16,7 @@ class Pertemuan extends Equatable {
     required this.kelompokId,
     required this.tanggal,
     this.tempat,
-    // this.fotoUrl, // DIHAPUS
+    this.fotoUrl, //  TAMBAHKAN KEMBALI
     this.catatan,
     required this.createdAt,
   });
@@ -27,7 +27,7 @@ class Pertemuan extends Equatable {
       kelompokId: json['kelompok_id'],
       tanggal: DateTime.parse(json['tanggal']),
       tempat: json['tempat'],
-      // fotoUrl: json['foto_url'], // DIHAPUS
+      fotoUrl: json['foto_url'], //  TAMBAHKAN KEMBALI
       catatan: json['catatan'],
       createdAt: DateTime.parse(json['created_at']),
     );
@@ -39,7 +39,8 @@ class Pertemuan extends Equatable {
     kelompokId,
     tanggal,
     tempat,
+    fotoUrl,
     catatan,
     createdAt,
-  ]; // DIHAPUS: fotoUrl
+  ]; //  TAMBAHKAN KEMBALI
 }
