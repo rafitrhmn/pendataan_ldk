@@ -340,7 +340,9 @@ class _KelompokDetailPageState extends State<KelompokDetailPage> {
                   ),
                   trailing: const Icon(Icons.chevron_right),
                   onTap: () {
-                    /* TODO: Navigasi ke detail laporan */
+                    context.push(
+                      '/kelola-kelompok/${widget.kelompokId}/laporan/${pertemuan.id}',
+                    );
                   },
                 ),
               );

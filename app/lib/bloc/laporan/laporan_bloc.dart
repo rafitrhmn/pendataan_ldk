@@ -1,3 +1,4 @@
+import 'package:app/models/laporan_mentee_model.dart';
 import 'package:app/models/pertemuan_model.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
@@ -11,6 +12,7 @@ class LaporanBloc extends Bloc<LaporanEvent, LaporanState> {
   LaporanBloc() : super(LaporanInitial()) {
     on<FetchRiwayatPertemuan>(_onFetchRiwayatPertemuan);
     on<CreateLaporanPertemuan>(_onCreateLaporanPertemuan);
+    on<FetchLaporanDetail>(_onFetchLaporanDetail);
   }
 
   Future<void> _onFetchRiwayatPertemuan(
@@ -79,6 +81,40 @@ class LaporanBloc extends Bloc<LaporanEvent, LaporanState> {
       print('--- [ERROR BLOC] Terjadi kesalahan saat invoke function: ---');
       print(e);
       // =============================================================
+      emit(LaporanError(e.toString()));
+    }
+  }
+
+  Future<void> _onFetchLaporanDetail(
+    FetchLaporanDetail event,
+    Emitter<LaporanState> emit,
+  ) async {
+    emit(LaporanDetailLoading());
+    try {
+      // 1. Ambil detail pertemuan
+      final pertemuanData = await supabase
+          .from('pertemuan')
+          .select()
+          .eq('id', event.pertemuanId)
+          .single();
+      final pertemuan = Pertemuan.fromJson(pertemuanData);
+
+      // 2. Ambil semua laporan mentee yang terhubung, beserta data mentee-nya
+      final laporanData = await supabase
+          .from('laporan_mentee')
+          .select('*, mentee(*)') // Join dengan tabel mentee
+          .eq('pertemuan_id', event.pertemuanId);
+      final laporanMentees = (laporanData as List)
+          .map((e) => LaporanMentee.fromJson(e))
+          .toList();
+
+      emit(
+        LaporanDetailLoaded(
+          pertemuan: pertemuan,
+          laporanMentees: laporanMentees,
+        ),
+      );
+    } catch (e) {
       emit(LaporanError(e.toString()));
     }
   }

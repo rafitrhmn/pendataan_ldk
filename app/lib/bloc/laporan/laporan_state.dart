@@ -1,3 +1,4 @@
+import 'package:app/models/laporan_mentee_model.dart';
 import 'package:app/models/pertemuan_model.dart';
 import 'package:equatable/equatable.dart';
 
@@ -26,3 +27,15 @@ class LaporanError extends LaporanState {
 class LaporanSubmitting extends LaporanState {}
 
 class LaporanSubmitSuccess extends LaporanState {}
+
+class LaporanDetailLoading extends LaporanState {}
+
+class LaporanDetailLoaded extends LaporanState {
+  final Pertemuan pertemuan;
+  final List<LaporanMentee> laporanMentees;
+
+  const LaporanDetailLoaded({
+    required this.pertemuan,
+    required this.laporanMentees,
+  });
+}

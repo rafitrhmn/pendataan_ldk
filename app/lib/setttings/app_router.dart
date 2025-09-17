@@ -9,6 +9,7 @@ import 'package:app/pages/kelompok/kelola_kelompok.dart';
 import 'package:app/pages/kelola_mentee.dart';
 import 'package:app/pages/kelola_mentor.dart';
 import 'package:app/pages/kelompok/kelompok_detail.dart';
+import 'package:app/pages/kelompok/laporan_detail_page.dart';
 // import 'package:app/pages/kelola_kader.dart';
 import 'package:app/pages/login.dart';
 import 'package:app/pages/profile_admin.dart';
@@ -64,6 +65,28 @@ final GoRouter router = GoRouter(
             // Kirim id tersebut ke halaman detail
             return KelompokDetailPageWrapper(kelompokId: kelompokId);
           },
+        ),
+
+        // Di dalam konfigurasi GoRouter Anda
+        GoRoute(
+          path: ':id',
+          builder: (context, state) => KelompokDetailPageWrapper(
+            kelompokId: state.pathParameters['id']!,
+          ),
+          //  TAMBAHKAN SUB-ROUTE INI
+          routes: [
+            GoRoute(
+              path:
+                  'laporan/:pertemuanId', // path: /kelola-kelompok/{id}/laporan/{pertemuanId}
+              builder: (context, state) {
+                final pertemuanId = state.pathParameters['pertemuanId']!;
+                return BlocProvider.value(
+                  value: context.read<LaporanBloc>(),
+                  child: LaporanDetailPage(pertemuanId: pertemuanId),
+                );
+              },
+            ),
+          ],
         ),
       ],
     ),

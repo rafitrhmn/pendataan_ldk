@@ -12,8 +12,6 @@ class FetchRiwayatPertemuan extends LaporanEvent {
   const FetchRiwayatPertemuan(this.kelompokId);
 }
 
-// lib/bloc/laporan/laporan_event.dart
-
 class CreateLaporanPertemuan extends LaporanEvent {
   final String kelompokId;
   final DateTime tanggal;
@@ -30,4 +28,9 @@ class CreateLaporanPertemuan extends LaporanEvent {
     this.fotoUrl, //  TAMBAHKAN KEMBALI
     required this.laporanMentees,
   });
+}
+
+class FetchLaporanDetail extends LaporanEvent {
+  final String pertemuanId;
+  const FetchLaporanDetail(this.pertemuanId);
 }
