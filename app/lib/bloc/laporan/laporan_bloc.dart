@@ -14,6 +14,7 @@ class LaporanBloc extends Bloc<LaporanEvent, LaporanState> {
     on<CreateLaporanPertemuan>(_onCreateLaporanPertemuan);
     on<FetchLaporanDetail>(_onFetchLaporanDetail);
     on<UpdateLaporanPertemuan>(_onUpdateLaporanPertemuan);
+    on<DeleteLaporanPertemuan>(_onDeleteLaporanPertemuan);
   }
 
   Future<void> _onFetchRiwayatPertemuan(
@@ -138,6 +139,22 @@ class LaporanBloc extends Bloc<LaporanEvent, LaporanState> {
         },
       );
       emit(LaporanUpdateSuccess());
+    } catch (e) {
+      emit(LaporanError(e.toString()));
+    }
+  }
+
+  Future<void> _onDeleteLaporanPertemuan(
+    DeleteLaporanPertemuan event,
+    Emitter<LaporanState> emit,
+  ) async {
+    emit(LaporanSubmitting()); // Tampilkan loading
+    try {
+      await supabase.functions.invoke(
+        'delete-laporan',
+        body: {'pertemuan_id': event.pertemuanId},
+      );
+      emit(LaporanDeleteSuccess());
     } catch (e) {
       emit(LaporanError(e.toString()));
     }

@@ -54,3 +54,8 @@ class UpdateLaporanPertemuan extends LaporanEvent {
     required this.laporanMentees,
   });
 }
+
+class DeleteLaporanPertemuan extends LaporanEvent {
+  final String pertemuanId;
+  const DeleteLaporanPertemuan(this.pertemuanId);
+}

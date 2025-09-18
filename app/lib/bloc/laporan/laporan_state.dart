@@ -41,3 +41,5 @@ class LaporanDetailLoaded extends LaporanState {
 }
 
 class LaporanUpdateSuccess extends LaporanState {}
+
+class LaporanDeleteSuccess extends LaporanState {}

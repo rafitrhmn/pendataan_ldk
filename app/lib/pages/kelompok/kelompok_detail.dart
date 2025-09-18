@@ -134,7 +134,7 @@ class _KelompokDetailPageState extends State<KelompokDetailPage> {
                           ? 'Mentee berhasil ditambahkan!'
                           : 'Mentee berhasil dikeluarkan.',
                     ),
-                    backgroundColor: Colors.green,
+                    backgroundColor: const Color.fromARGB(255, 89, 123, 90),
                   ),
                 );
                 // Refresh data detail kelompok (termasuk daftar anggota)
@@ -339,10 +339,23 @@ class _KelompokDetailPageState extends State<KelompokDetailPage> {
                     'Pertemuan ${DateFormat('d MMMM yyyy').format(pertemuan.tanggal)}',
                   ),
                   trailing: const Icon(Icons.chevron_right),
-                  onTap: () {
-                    context.push(
+                  onTap: () async {
+                    final result = await context.push<bool>(
                       '/kelola-kelompok/${widget.kelompokId}/laporan/${pertemuan.id}',
                     );
+
+                    // 3. Jika hasilnya 'true', tampilkan SnackBar & refresh
+                    if (result == true && mounted) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(
+                          content: Text('Aksi pada laporan berhasil!'),
+                          backgroundColor: Colors.green,
+                        ),
+                      );
+                      context.read<LaporanBloc>().add(
+                        FetchRiwayatPertemuan(widget.kelompokId),
+                      );
+                    }
                   },
                 ),
               );

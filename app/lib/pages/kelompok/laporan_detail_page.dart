@@ -19,6 +19,35 @@ class LaporanDetailPage extends StatefulWidget {
 }
 
 class _LaporanDetailPageState extends State<LaporanDetailPage> {
+  // Helper untuk dialog konfirmasi hapus
+  void _showDeleteConfirmation() {
+    showDialog(
+      context: context,
+      builder: (dialogContext) => AlertDialog(
+        title: const Text('Hapus Laporan'),
+        content: const Text(
+          'Apakah Anda yakin? Laporan yang dihapus tidak dapat dipulihkan.',
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(dialogContext).pop(),
+            child: const Text('Batal'),
+          ),
+          FilledButton(
+            style: FilledButton.styleFrom(backgroundColor: Colors.red),
+            onPressed: () {
+              context.read<LaporanBloc>().add(
+                DeleteLaporanPertemuan(widget.pertemuanId),
+              );
+              Navigator.of(dialogContext).pop();
+            },
+            child: const Text('Hapus'),
+          ),
+        ],
+      ),
+    );
+  }
+
   @override
   void initState() {
     super.initState();
@@ -27,143 +56,177 @@ class _LaporanDetailPageState extends State<LaporanDetailPage> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: const Text('Detail Laporan')),
-      body: BlocBuilder<LaporanBloc, LaporanState>(
-        builder: (context, state) {
-          if (state is LaporanDetailLoading || state is LaporanInitial) {
-            return const Center(child: CircularProgressIndicator());
-          }
-
-          if (state is LaporanDetailLoaded) {
-            final pertemuan = state.pertemuan;
-            final laporanMentees = state.laporanMentees;
-            return ListView(
-              padding: const EdgeInsets.all(16),
-              children: [
-                // Info Umum Pertemuan
-                Card(
-                  child: Padding(
-                    padding: const EdgeInsets.all(16),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          'Pertemuan ${DateFormat('d MMMM yyyy').format(pertemuan.tanggal)}',
-                          style: const TextStyle(
-                            fontSize: 18,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                        const Divider(height: 20),
-                        if (pertemuan.tempat != null)
-                          Text('Tempat: ${pertemuan.tempat}'),
-                        if (pertemuan.catatan != null)
-                          Text('Catatan: ${pertemuan.catatan}'),
-                        if (pertemuan.fotoUrl != null) ...[
-                          const SizedBox(height: 10),
-                          Image.network(pertemuan.fotoUrl!),
-                        ],
-                      ],
-                    ),
-                  ),
-                ),
-                const SizedBox(height: 24),
-                const Text(
-                  'Laporan Keaktifan Anggota',
-                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-                ),
-                const SizedBox(height: 10),
-
-                // Daftar Laporan Mentee
-                ...laporanMentees.map((laporan) {
-                  return Card(
-                    child: ListTile(
-                      leading: CircleAvatar(
-                        child: Text(laporan.mentee?.namaLengkap[0] ?? '?'),
-                      ),
-                      title: Text(
-                        laporan.mentee?.namaLengkap ?? 'Nama tidak ditemukan',
-                      ),
-                      subtitle: Text(
-                        'Sholat: ${laporan.sholatWajib}, Dhuha: ${laporan.sholatDhuha}, Tilawah: ${laporan.tilawahQuran} lbr',
-                      ),
-                    ),
-                  );
-                }),
-              ],
-            );
-          }
-
-          if (state is LaporanError) {
-            return Center(child: Text('Gagal memuat: ${state.message}'));
-          }
-
-          return const Center(child: Text('Terjadi kesalahan'));
-        },
-      ),
-      bottomNavigationBar: BlocBuilder<LaporanBloc, LaporanState>(
-        builder: (context, state) {
-          // Hanya tampilkan tombol jika data sudah dimuat
-          if (state is LaporanDetailLoaded) {
-            return Padding(
-              padding: const EdgeInsets.all(16.0),
-              child: Row(
-                children: [
-                  Expanded(
-                    child: OutlinedButton.icon(
-                      icon: const Icon(Icons.edit_outlined),
-                      label: const Text('Edit'),
-                      onPressed: () async {
-                        final kelompokState = context
-                            .read<KelompokBloc>()
-                            .state;
-                        if (kelompokState is KelompokDetailLoaded) {
-                          // 2. Tunggu hasil dari halaman edit
-                          final result = await context.push<bool>(
-                            '/laporan/edit/${state.pertemuan.id}',
-                            extra: {
-                              'pertemuan': state.pertemuan,
-                              'laporanMentees': state.laporanMentees,
-                              'allMenteesInKelompok': kelompokState.mentees,
-                            },
-                          );
-
-                          // 3. Jika hasilnya true, tampilkan SnackBar & refresh
-                          if (result == true && mounted) {
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              const SnackBar(
-                                content: Text('Laporan berhasil diperbarui!'),
-                                backgroundColor: Colors.green,
-                              ),
-                            );
-                            // Refresh data di halaman ini
-                            context.read<LaporanBloc>().add(
-                              FetchLaporanDetail(widget.pertemuanId),
-                            );
-                          }
-                        }
-                      },
-                    ),
-                  ),
-                  const SizedBox(width: 10),
-                  // Expanded(
-                  //   child: ElevatedButton.icon(
-                  //     icon: const Icon(Icons.delete_outline),
-                  //     label: const Text('Hapus'),
-                  //     // onPressed: () => _showDeleteConfirmation(context, state),
-                  //     // style: ElevatedButton.styleFrom(
-                  //     //   backgroundColor: Colors.red[700],
-                  //     // ),
-                  //   ),
-                  // ),
-                ],
+    return BlocListener<LaporanBloc, LaporanState>(
+      listener: (context, state) {
+        if (state is LaporanUpdateSuccess || state is LaporanDeleteSuccess) {
+          // Kirim sinyal 'true' untuk refresh halaman daftar sebelumnya
+          context.pop(true);
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(
+                state is LaporanUpdateSuccess
+                    ? 'Laporan berhasil diperbarui!'
+                    : 'Laporan berhasil dihapus!',
               ),
-            );
-          }
-          // Sembunyikan tombol jika state bukan ...Loaded
-          return const SizedBox.shrink();
-        },
+              backgroundColor: state is LaporanUpdateSuccess
+                  ? Colors.green
+                  : Colors.orange,
+            ),
+          );
+        } else if (state is LaporanError) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text('Error: ${state.message}'),
+              backgroundColor: Colors.red,
+            ),
+          );
+        }
+      },
+
+      child: Scaffold(
+        appBar: AppBar(title: const Text('Detail Laporan')),
+        body: BlocBuilder<LaporanBloc, LaporanState>(
+          buildWhen: (previous, current) {
+            // Abaikan semua state aksi: submitting, update success, dan delete success
+            return current is! LaporanSubmitting &&
+                current is! LaporanUpdateSuccess &&
+                current is! LaporanDeleteSuccess;
+          },
+          builder: (context, state) {
+            if (state is LaporanDetailLoading || state is LaporanInitial) {
+              return const Center(child: CircularProgressIndicator());
+            }
+
+            if (state is LaporanDetailLoaded) {
+              final pertemuan = state.pertemuan;
+              final laporanMentees = state.laporanMentees;
+              return ListView(
+                padding: const EdgeInsets.all(16),
+                children: [
+                  // Info Umum Pertemuan
+                  Card(
+                    child: Padding(
+                      padding: const EdgeInsets.all(16),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            'Pertemuan ${DateFormat('d MMMM yyyy').format(pertemuan.tanggal)}',
+                            style: const TextStyle(
+                              fontSize: 18,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                          const Divider(height: 20),
+                          if (pertemuan.tempat != null)
+                            Text('Tempat: ${pertemuan.tempat}'),
+                          if (pertemuan.catatan != null)
+                            Text('Catatan: ${pertemuan.catatan}'),
+                          if (pertemuan.fotoUrl != null) ...[
+                            const SizedBox(height: 10),
+                            Image.network(pertemuan.fotoUrl!),
+                          ],
+                        ],
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 24),
+                  const Text(
+                    'Laporan Keaktifan Anggota',
+                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                  ),
+                  const SizedBox(height: 10),
+
+                  // Daftar Laporan Mentee
+                  ...laporanMentees.map((laporan) {
+                    return Card(
+                      child: ListTile(
+                        leading: CircleAvatar(
+                          child: Text(laporan.mentee?.namaLengkap[0] ?? '?'),
+                        ),
+                        title: Text(
+                          laporan.mentee?.namaLengkap ?? 'Nama tidak ditemukan',
+                        ),
+                        subtitle: Text(
+                          'Sholat: ${laporan.sholatWajib}, Dhuha: ${laporan.sholatDhuha}, Tilawah: ${laporan.tilawahQuran} lbr',
+                        ),
+                      ),
+                    );
+                  }),
+                ],
+              );
+            }
+
+            if (state is LaporanError) {
+              return Center(child: Text('Gagal memuat: ${state.message}'));
+            }
+
+            return const Center(child: Text('Terjadi kesalahan'));
+          },
+        ),
+        bottomNavigationBar: BlocBuilder<LaporanBloc, LaporanState>(
+          builder: (context, state) {
+            // Hanya tampilkan tombol jika data sudah dimuat
+            if (state is LaporanDetailLoaded) {
+              return Padding(
+                padding: const EdgeInsets.all(16.0),
+                child: Row(
+                  children: [
+                    Expanded(
+                      child: OutlinedButton.icon(
+                        icon: const Icon(Icons.edit_outlined),
+                        label: const Text('Edit'),
+                        onPressed: () async {
+                          final kelompokState = context
+                              .read<KelompokBloc>()
+                              .state;
+                          if (kelompokState is KelompokDetailLoaded) {
+                            // 2. Tunggu hasil dari halaman edit
+                            final result = await context.push<bool>(
+                              '/laporan/edit/${state.pertemuan.id}',
+                              extra: {
+                                'pertemuan': state.pertemuan,
+                                'laporanMentees': state.laporanMentees,
+                                'allMenteesInKelompok': kelompokState.mentees,
+                              },
+                            );
+
+                            // 3. Jika hasilnya true, tampilkan SnackBar & refresh
+                            if (result == true && mounted) {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                const SnackBar(
+                                  content: Text('Laporan berhasil diperbarui!'),
+                                  backgroundColor: Colors.green,
+                                ),
+                              );
+                              // Refresh data di halaman ini
+                              context.read<LaporanBloc>().add(
+                                FetchLaporanDetail(widget.pertemuanId),
+                              );
+                            }
+                          }
+                        },
+                      ),
+                    ),
+                    const SizedBox(width: 10),
+                    Expanded(
+                      child: ElevatedButton.icon(
+                        icon: const Icon(Icons.delete),
+                        label: const Text('Hapus'),
+                        onPressed: _showDeleteConfirmation,
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Colors.red[700],
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              );
+            }
+            // Sembunyikan tombol jika state bukan ...Loaded
+            return const SizedBox.shrink();
+          },
+        ),
       ),
     );
   }
