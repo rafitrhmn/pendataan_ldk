@@ -1,5 +1,3 @@
-// lib/pages/kelola_kelompok_page.dart
-
 import 'dart:async';
 import 'package:app/bloc/kelompok/kelompok_bloc.dart';
 import 'package:app/bloc/kelompok/kelompok_event.dart';
@@ -217,114 +215,6 @@ class _KelolaKelompokViewState extends State<_KelolaKelompokView> {
     );
   }
 
-  // Widget _buildKelompokList(KelompokLoaded state) {
-  //   if (state.filteredKelompok.isEmpty) {
-  //     return const Expanded(
-  //       child: Center(child: Text('Belum ada data kelompok.')),
-  //     );
-  //   }
-  //   return Expanded(
-  //     child: RefreshIndicator(
-  //       onRefresh: () async {
-  //         _searchController.clear(); // Hapus teks pencarian saat refresh
-  //         context.read<KelompokBloc>().add(FetchKelompok());
-  //       },
-  //       child: ListView.separated(
-  //         padding: const EdgeInsets.symmetric(vertical: 6),
-  //         itemCount: state.filteredKelompok.length,
-  //         separatorBuilder: (context, index) => const SizedBox(height: 16),
-  //         itemBuilder: (context, index) {
-  //           final kelompok = state.filteredKelompok[index];
-  //           return InkWell(
-  //             onTap: () async {
-  //               //  UBAH AKSI DI SINI: Navigasi ke halaman detail
-  //               final result = await GoRouter.of(
-  //                 context,
-  //               ).push<bool>('/kelola-kelompok/${kelompok.id}');
-  //               // Jika hasilnya adalah 'true', panggil event FetchKelompok
-  //               if (result == true && mounted) {
-  //                 context.read<KelompokBloc>().add(FetchKelompok());
-  //               }
-  //             },
-  //             // borderRadius: BorderRadius.circular(8.0),
-  //             child: Container(
-  //               padding: const EdgeInsets.all(16),
-  //               decoration: BoxDecoration(
-  //                 color: Colors.white,
-  //                 borderRadius: BorderRadius.circular(8.0),
-  //                 boxShadow: [
-  //                   BoxShadow(
-  //                     color: Colors.grey.withOpacity(0.15),
-  //                     spreadRadius: 2,
-  //                     blurRadius: 8,
-  //                     offset: const Offset(0, 3),
-  //                   ),
-  //                 ],
-  //               ),
-  //               child: Row(
-  //                 children: [
-  //                   Expanded(
-  //                     child: Column(
-  //                       crossAxisAlignment: CrossAxisAlignment.start,
-  //                       children: [
-  //                         Text(
-  //                           kelompok.namaKelompok,
-  //                           style: const TextStyle(
-  //                             fontWeight: FontWeight.bold,
-  //                             fontSize: 16,
-  //                           ),
-  //                         ),
-  //                         const SizedBox(height: 5),
-  //                         Text(
-  //                           // Menampilkan nama mentor dari data join
-  //                           'Mentor: ${kelompok.mentor?.username ?? 'Belum diatur'}',
-  //                           style: TextStyle(
-  //                             color: Colors.grey[600],
-  //                             fontSize: 14,
-  //                           ),
-  //                           overflow: TextOverflow.ellipsis,
-  //                         ),
-  //                         const SizedBox(height: 5),
-  //                         Text(
-  //                           '${kelompok.jumlahMentee} Anggota', // Tampilkan jumlah mentee
-  //                           style: TextStyle(
-  //                             color: Colors.blue[700],
-  //                             fontSize: 13,
-  //                             fontWeight: FontWeight.w600,
-  //                           ),
-  //                         ),
-  //                       ],
-  //                     ),
-  //                   ),
-  //                   PopupMenuButton<String>(
-  //                     onSelected: (value) {
-  //                       if (value == 'edit') {
-  //                         //  PANGGIL METHOD DI SINI
-  //                         _showEditKelompokDialog(kelompok);
-  //                       } else if (value == 'delete') {
-  //                         _showDeleteConfirmationDialog(kelompok);
-  //                       }
-  //                     },
-  //                     itemBuilder: (context) => [
-  //                       const PopupMenuItem(value: 'edit', child: Text('Edit')),
-  //                       const PopupMenuItem(
-  //                         value: 'delete',
-  //                         child: Text('Hapus'),
-  //                       ),
-  //                     ],
-  //                   ),
-  //                 ],
-  //               ),
-  //             ),
-  //           );
-  //         },
-  //       ),
-  //     ),
-  //   );
-  // }
-
-  // Lokasi: file kelola_kelompok_page.dart -> class __KelolaKelompokViewState
-
   Widget _buildKelompokList(KelompokLoaded state) {
     if (state.filteredKelompok.isEmpty) {
       return const Expanded(
@@ -415,14 +305,7 @@ class _KelolaKelompokViewState extends State<_KelolaKelompokView> {
                       },
                       tooltip: 'Lihat Detail',
                     ),
-                    const SizedBox(width: 8),
-                    CircularIconButton(
-                      icon: Icons.assessment_outlined,
-                      onPressed: () {
-                        // TODO: Navigasi ke halaman Laporan Keaktifan
-                      },
-                      tooltip: 'Laporan Keaktifan',
-                    ),
+
                     const SizedBox(width: 8),
                     CircularIconButton(
                       icon: Icons.edit_outlined,

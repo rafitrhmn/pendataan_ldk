@@ -9,7 +9,6 @@ import 'package:app/widgets/appbar.dart';
 import 'package:app/widgets/mentor/add_mentor_dialog.dart';
 import 'package:app/widgets/mentor/delete_mentor_dialog.dart';
 import 'package:app/widgets/mentor/edit_mentor.dart';
-import 'package:app/widgets/mentor/view_mentor_dialog.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -56,13 +55,6 @@ class __KelolaMentorViewState extends State<_KelolaMentorView> {
       // DIUBAH: Mengirim event SearchMentors
       context.read<MentorBloc>().add(SearchMentors(query));
     });
-  }
-
-  void _showViewMentorDialog(MentorModel mentor) {
-    showDialog(
-      context: context,
-      builder: (_) => ViewMentorDialog(mentor: mentor),
-    );
   }
 
   // DIUBAH: Semua fungsi dialog disesuaikan untuk Mentor

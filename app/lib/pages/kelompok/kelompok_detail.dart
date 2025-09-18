@@ -1,17 +1,35 @@
-// lib/pages/kelompok/kelompok_detail_page.dart
-
 import 'package:app/bloc/kelompok/kelompok_bloc.dart';
 import 'package:app/bloc/kelompok/kelompok_event.dart';
 import 'package:app/bloc/kelompok/kelompok_state.dart';
+import 'package:app/bloc/laporan/laporan_bloc.dart';
+import 'package:app/bloc/laporan/laporan_event.dart';
+import 'package:app/bloc/laporan/laporan_state.dart';
 import 'package:app/bloc/mentee/mentee_bloc.dart';
 import 'package:app/bloc/mentee/mentee_event.dart';
 import 'package:app/bloc/mentee/mentee_state.dart';
 import 'package:app/models/kelompok_model.dart';
 import 'package:app/models/mentee_model.dart';
 import 'package:app/widgets/kelompok/add_mentee_to_kelompok.dart';
+import 'package:app/widgets/mentee/view_mentee_dialog.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
+import 'package:intl/intl.dart';
+
+// Wrapper untuk menyediakan LaporanBloc khusus untuk halaman ini
+class KelompokDetailPageWrapper extends StatelessWidget {
+  final String kelompokId;
+  const KelompokDetailPageWrapper({super.key, required this.kelompokId});
+
+  @override
+  Widget build(BuildContext context) {
+    // Menyediakan LaporanBloc agar bisa diakses oleh KelompokDetailPage
+    return BlocProvider(
+      create: (context) => LaporanBloc(),
+      child: KelompokDetailPage(kelompokId: kelompokId),
+    );
+  }
+}
 
 class KelompokDetailPage extends StatefulWidget {
   final String kelompokId;
@@ -28,6 +46,7 @@ class _KelompokDetailPageState extends State<KelompokDetailPage> {
     super.initState();
     // Memanggil event untuk mengambil data detail saat halaman pertama kali dibuka
     context.read<KelompokBloc>().add(FetchKelompokDetail(widget.kelompokId));
+    context.read<LaporanBloc>().add(FetchRiwayatPertemuan(widget.kelompokId));
   }
 
   // Helper untuk menampilkan dialog tambah anggota
@@ -81,6 +100,14 @@ class _KelompokDetailPageState extends State<KelompokDetailPage> {
     }
   }
 
+  // Buat helper untuk menampilkan dialog detail mentee
+  void _showViewMenteeDialog(Mentee mentee) {
+    showDialog(
+      context: context,
+      builder: (_) => ViewMenteeDialog(mentee: mentee),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -94,26 +121,40 @@ class _KelompokDetailPageState extends State<KelompokDetailPage> {
         foregroundColor: Colors.white,
         elevation: 2,
       ),
-      body: BlocListener<MenteeBloc, MenteeState>(
-        // Listener untuk Aksi dari MenteeBloc (misal: setelah berhasil assign)
-        listener: (context, state) {
-          if (state is MenteeAssignSuccess || state is MenteeRemoveSuccess) {
-            // Jika berhasil assign ATAU remove, refresh data detail kelompok
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(
-                content: Text(
-                  state is MenteeAssignSuccess
-                      ? 'Mentee berhasil ditambahkan!'
-                      : 'Mentee berhasil dikeluarkan.',
-                ),
-                backgroundColor: Colors.green,
-              ),
-            );
-            context.read<KelompokBloc>().add(
-              FetchKelompokDetail(widget.kelompokId),
-            );
-          }
-        },
+      body: MultiBlocListener(
+        listeners: [
+          BlocListener<MenteeBloc, MenteeState>(
+            listener: (context, state) {
+              if (state is MenteeAssignSuccess ||
+                  state is MenteeRemoveSuccess) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(
+                    content: Text(
+                      state is MenteeAssignSuccess
+                          ? 'Mentee berhasil ditambahkan!'
+                          : 'Mentee berhasil dikeluarkan.',
+                    ),
+                    backgroundColor: const Color.fromARGB(255, 89, 123, 90),
+                  ),
+                );
+                // Refresh data detail kelompok (termasuk daftar anggota)
+                context.read<KelompokBloc>().add(
+                  FetchKelompokDetail(widget.kelompokId),
+                );
+              }
+            },
+          ),
+          BlocListener<LaporanBloc, LaporanState>(
+            listener: (context, state) {
+              if (state is LaporanSubmitSuccess) {
+                // Refresh riwayat pertemuan setelah laporan berhasil dibuat
+                context.read<LaporanBloc>().add(
+                  FetchRiwayatPertemuan(widget.kelompokId),
+                );
+              }
+            },
+          ),
+        ],
         child: BlocBuilder<KelompokBloc, KelompokState>(
           builder: (context, state) {
             if (state is KelompokDetailLoading || state is KelompokInitial) {
@@ -154,17 +195,29 @@ class _KelompokDetailPageState extends State<KelompokDetailPage> {
                       ],
                     ),
                     const SizedBox(height: 16),
-
-                    // Daftar Anggota Mentee
-                    if (mentees.isEmpty)
-                      const Padding(
-                        padding: EdgeInsets.symmetric(vertical: 32.0),
-                        child: Center(
-                          child: Text('Belum ada anggota di kelompok ini.'),
+                    _buildMenteeList(mentees),
+                    const SizedBox(height: 24),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        const Text(
+                          'Riwayat Pertemuan',
+                          style: TextStyle(
+                            fontSize: 18,
+                            fontWeight: FontWeight.bold,
+                          ),
                         ),
-                      )
-                    else
-                      _buildMenteeList(mentees),
+                        ElevatedButton.icon(
+                          icon: const Icon(Icons.add, size: 20),
+                          label: const Text('Laporan Baru'),
+                          onPressed: () {
+                            context.push('/laporan/add', extra: state);
+                          },
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 16),
+                    _buildRiwayatPertemuanList(),
                   ],
                 ),
               );
@@ -222,6 +275,9 @@ class _KelompokDetailPageState extends State<KelompokDetailPage> {
 
   // Widget untuk daftar mentee
   Widget _buildMenteeList(List<Mentee> mentees) {
+    if (mentees.isEmpty) {
+      return const Center(child: Text('Belum ada anggota di kelompok ini.'));
+    }
     return ListView.separated(
       physics:
           const NeverScrollableScrollPhysics(), // Agar bisa di-scroll oleh parent ListView
@@ -235,19 +291,78 @@ class _KelompokDetailPageState extends State<KelompokDetailPage> {
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(10),
           ),
-          child: ListTile(
-            leading: CircleAvatar(child: Text(mentee.namaLengkap[0])),
-            title: Text(mentee.namaLengkap),
-            subtitle: Text(mentee.prodi),
-            trailing: IconButton(
-              icon: const Icon(Icons.remove_circle_outline, color: Colors.red),
-              onPressed: () {
-                _showRemoveConfirmationDialog(mentee);
-              },
-              tooltip: 'Keluarkan dari kelompok',
+          child: InkWell(
+            onTap: () => _showViewMenteeDialog(mentee),
+            child: ListTile(
+              // leading: CircleAvatar(child: Text(mentee.namaLengkap[0])),
+              title: Text(mentee.namaLengkap),
+              subtitle: Text(mentee.prodi),
+              trailing: IconButton(
+                icon: const Icon(
+                  Icons.remove_circle_outline,
+                  color: Colors.red,
+                ),
+                onPressed: () {
+                  _showRemoveConfirmationDialog(mentee);
+                },
+                tooltip: 'Keluarkan dari kelompok',
+              ),
             ),
           ),
         );
+      },
+    );
+  }
+
+  //  WIDGET BARU UNTUK MENAMPILKAN RIWAYAT PERTEMUAN
+  Widget _buildRiwayatPertemuanList() {
+    return BlocBuilder<LaporanBloc, LaporanState>(
+      builder: (context, state) {
+        if (state is RiwayatPertemuanLoaded) {
+          if (state.riwayat.isEmpty) {
+            return const Padding(
+              padding: EdgeInsets.symmetric(vertical: 24),
+              child: Center(child: Text('Belum ada laporan pertemuan.')),
+            );
+          }
+          return ListView.separated(
+            physics: const NeverScrollableScrollPhysics(),
+            shrinkWrap: true,
+            itemCount: state.riwayat.length,
+            separatorBuilder: (_, __) => const SizedBox(height: 10),
+            itemBuilder: (context, index) {
+              final pertemuan = state.riwayat[index];
+              return Card(
+                child: ListTile(
+                  leading: const Icon(Icons.book_outlined),
+                  title: Text(
+                    'Pertemuan ${DateFormat('d MMMM yyyy').format(pertemuan.tanggal)}',
+                  ),
+                  trailing: const Icon(Icons.chevron_right),
+                  onTap: () async {
+                    final result = await context.push<bool>(
+                      '/kelola-kelompok/${widget.kelompokId}/laporan/${pertemuan.id}',
+                    );
+
+                    // 3. Jika hasilnya 'true', tampilkan SnackBar & refresh
+                    if (result == true && mounted) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(
+                          content: Text('Aksi pada laporan berhasil!'),
+                          backgroundColor: Colors.green,
+                        ),
+                      );
+                      context.read<LaporanBloc>().add(
+                        FetchRiwayatPertemuan(widget.kelompokId),
+                      );
+                    }
+                  },
+                ),
+              );
+            },
+          );
+        }
+        return const Center(child: CircularProgressIndicator());
       },
     );
   }
