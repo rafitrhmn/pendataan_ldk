@@ -68,3 +68,12 @@ class MentorUpdateSuccess extends MentorState {}
 class MentorDeleting extends MentorState {}
 
 class MentorDeleteSuccess extends MentorState {}
+
+class MentorUsernameChecking extends MentorState {}
+
+class MentorUsernameAvailable extends MentorState {}
+
+class MentorUsernameTaken extends MentorState {
+  final String message;
+  const MentorUsernameTaken(this.message);
+}

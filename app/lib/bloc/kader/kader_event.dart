@@ -75,3 +75,5 @@ class CheckKaderUsername extends KaderEvent {
   @override
   List<Object> get props => [username];
 }
+
+class ResetKaderState extends KaderEvent {}

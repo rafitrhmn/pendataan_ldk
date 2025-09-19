@@ -69,12 +69,14 @@ class _EditMentorDialogState extends State<EditMentorDialog> {
 
   void _saveChanges() {
     if (_formKey.currentState!.validate()) {
-      // DIUBAH: Mengirim event UpdateMentor ke MentorBloc
       context.read<MentorBloc>().add(
         UpdateMentor(
           id: widget.mentorToEdit.id,
           newUsername: _usernameController.text,
-          newPhone: _phoneController.text,
+          //  PASTIKAN NOMOR HP DIBERSIHKAN DI SINI
+          newPhone: _phoneController.text
+              .replaceAll(' ', '')
+              .replaceAll('-', ''),
           newJabatan: _jabatanController.text,
         ),
       );

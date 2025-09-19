@@ -1,4 +1,6 @@
-// Lokasi: lib/widgets/add_mentor_dialog.dart
+import 'dart:async';
+import 'package:app/bloc/kader/kader_bloc.dart';
+import 'package:app/bloc/kader/kader_state.dart';
 import 'package:app/bloc/mentor/mentor_bloc.dart';
 import 'package:app/bloc/mentor/mentor_event.dart';
 import 'package:app/bloc/mentor/mentor_state.dart';
@@ -24,15 +26,34 @@ class _AddMentorDialogState extends State<AddMentorDialog> {
 
   int _currentStep = 0;
   bool _isPasswordVisible = false;
+  Timer? _debounce;
+
+  @override
+  void initState() {
+    super.initState();
+    _usernameController.addListener(_onUsernameChanged);
+  }
 
   @override
   void dispose() {
-    _usernameController.dispose();
+    _debounce?.cancel();
+    _usernameController.removeListener(_onUsernameChanged);
     _phoneController.dispose();
     _jabatanController.dispose();
     _passwordController.dispose();
     _confirmPasswordController.dispose();
     super.dispose();
+  }
+
+  void _onUsernameChanged() {
+    if (_debounce?.isActive ?? false) _debounce!.cancel();
+    _debounce = Timer(const Duration(milliseconds: 700), () {
+      if (_usernameController.text.isNotEmpty) {
+        context.read<MentorBloc>().add(
+          CheckMentorUsername(_usernameController.text),
+        );
+      }
+    });
   }
 
   InputDecoration _buildInputDecoration(
@@ -61,8 +82,15 @@ class _AddMentorDialogState extends State<AddMentorDialog> {
     );
   }
 
+  //  UBAH METHOD _nextStep
   void _nextStep() {
-    if (_formKey.currentState!.validate()) {
+    final isFormValid = _formKey.currentState!.validate();
+    if (!isFormValid) return;
+
+    final currentState = context.read<MentorBloc>().state;
+    if (currentState is MentorUsernameTaken) {
+      // Blokir jika username sudah diambil
+    } else {
       setState(() {
         _currentStep = 1;
       });
@@ -157,25 +185,87 @@ class _AddMentorDialogState extends State<AddMentorDialog> {
   }
 
   Widget _buildStep1() {
-    // Tidak ada perubahan logika di sini, hanya perlu memastikan controllernya benar
     return Column(
       children: [
-        TextFormField(
-          controller: _usernameController,
-          decoration: _buildInputDecoration(
-            'Username',
-            suffixIcon: Icon(
-              Icons.person_outline,
-              color: Colors.black.withOpacity(0.5),
-            ),
-          ),
-          validator: (value) {
-            if (value == null || value.isEmpty)
-              return 'Username tidak boleh kosong';
-            return null;
+        // --- WIDGET UNTUK INPUT USERNAME DENGAN VALIDASI REAL-TIME ---
+        BlocBuilder<MentorBloc, MentorState>(
+          builder: (context, state) {
+            Widget? verificationIcon;
+            String? errorText;
+
+            // Tentukan ikon verifikasi berdasarkan state BLoC
+            if (state is MentorUsernameChecking) {
+              verificationIcon = const Padding(
+                padding: EdgeInsets.all(14.0),
+                child: SizedBox(
+                  height: 20,
+                  width: 20,
+                  child: CircularProgressIndicator(strokeWidth: 2.5),
+                ),
+              );
+            } else if (state is MentorUsernameTaken) {
+              verificationIcon = const Icon(
+                Icons.error_outline,
+                color: Colors.red,
+              );
+              errorText = state.message;
+            } else if (state is MentorUsernameAvailable) {
+              verificationIcon = const Icon(
+                Icons.check_circle_outline,
+                color: Colors.green,
+              );
+            }
+
+            return Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                TextFormField(
+                  controller: _usernameController,
+                  autofillHints: const [AutofillHints.username],
+                  decoration: _buildInputDecoration(
+                    'Username',
+                    suffixIcon: Stack(
+                      alignment: Alignment.center,
+                      children: [
+                        // ================== PERBAIKAN DI SINI ==================
+                        // Ikon dasar hanya akan terlihat jika TIDAK ada proses verifikasi
+                        if (verificationIcon == null)
+                          Icon(
+                            Icons.person_outline,
+                            color: Colors.black.withOpacity(0.5),
+                          ),
+
+                        // Ikon verifikasi akan muncul menggantikan ikon dasar
+                        if (verificationIcon != null) verificationIcon,
+                        // =======================================================
+                      ],
+                    ),
+                  ),
+                  validator: (value) {
+                    if (value == null || value.isEmpty) {
+                      return 'Username tidak boleh kosong';
+                    }
+                    return null;
+                  },
+                ),
+                if (errorText != null)
+                  Padding(
+                    padding: const EdgeInsets.only(top: 6.0, left: 12.0),
+                    child: Text(
+                      errorText,
+                      style: TextStyle(
+                        color: Theme.of(context).colorScheme.error,
+                        fontSize: 12,
+                      ),
+                    ),
+                  ),
+              ],
+            );
           },
         ),
         const SizedBox(height: 16),
+
+        // --- WIDGET UNTUK INPUT NOMOR HANDPHONE ---
         TextFormField(
           controller: _phoneController,
           decoration: _buildInputDecoration(
@@ -187,18 +277,21 @@ class _AddMentorDialogState extends State<AddMentorDialog> {
           ),
           keyboardType: TextInputType.phone,
           validator: (value) {
-            if (value == null || value.isEmpty)
+            if (value == null || value.isEmpty) {
               return 'Nomor handphone tidak boleh kosong';
+            }
             final sanitizedPhone = value
                 .replaceAll(' ', '')
                 .replaceAll('-', '');
-            if (sanitizedPhone.length < 11 || sanitizedPhone.length > 13) {
-              return 'Nomor HP harus 11, 12, atau 13 digit';
+            if (sanitizedPhone.length < 10 || sanitizedPhone.length > 13) {
+              return 'Nomor HP harus antara 10-13 digit';
             }
             return null;
           },
         ),
         const SizedBox(height: 16),
+
+        // --- WIDGET UNTUK INPUT JABATAN ---
         TextFormField(
           controller: _jabatanController,
           decoration: _buildInputDecoration(
@@ -209,23 +302,35 @@ class _AddMentorDialogState extends State<AddMentorDialog> {
             ),
           ),
           validator: (value) {
-            if (value == null || value.isEmpty)
+            if (value == null || value.isEmpty) {
               return 'Jabatan tidak boleh kosong';
+            }
             return null;
           },
         ),
         const SizedBox(height: 32),
-        ElevatedButton(
-          onPressed: _nextStep,
-          style: ElevatedButton.styleFrom(
-            minimumSize: const Size(double.infinity, 50),
-            backgroundColor: Colors.blue[600],
-            foregroundColor: Colors.white,
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(10),
-            ),
-          ),
-          child: const Text('Lanjut'),
+
+        // --- TOMBOL LANJUT YANG DINAMIS ---
+        BlocBuilder<MentorBloc, MentorState>(
+          builder: (context, state) {
+            final bool isButtonDisabled =
+                state is MentorUsernameChecking || state is MentorUsernameTaken;
+
+            return ElevatedButton(
+              onPressed: isButtonDisabled ? null : _nextStep,
+              style: ElevatedButton.styleFrom(
+                minimumSize: const Size(double.infinity, 50),
+                backgroundColor: isButtonDisabled
+                    ? Colors.grey
+                    : Colors.blue[600],
+                foregroundColor: Colors.white,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(10),
+                ),
+              ),
+              child: const Text('Lanjut'),
+            );
+          },
         ),
       ],
     );

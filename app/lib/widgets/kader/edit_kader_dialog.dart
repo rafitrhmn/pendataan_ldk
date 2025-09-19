@@ -1,5 +1,3 @@
-// edit_kader_dialog.dart
-
 import 'package:app/bloc/kader/kader_bloc.dart';
 import 'package:app/bloc/kader/kader_event.dart';
 import 'package:app/bloc/kader/kader_state.dart';
@@ -72,7 +70,9 @@ class _EditKaderDialogState extends State<EditKaderDialog> {
         UpdateKader(
           id: widget.kaderToEdit.id,
           newUsername: _usernameController.text,
-          newPhone: _phoneController.text,
+          newPhone: _phoneController.text
+              .replaceAll(' ', '')
+              .replaceAll('-', ''),
           newJabatan: _jabatanController.text,
         ),
       );
@@ -163,9 +163,20 @@ class _EditKaderDialogState extends State<EditKaderDialog> {
                         ),
                       ),
                       keyboardType: TextInputType.phone,
-                      validator: (value) => (value == null || value.isEmpty)
-                          ? 'Nomor handphone tidak boleh kosong'
-                          : null,
+                      validator: (value) {
+                        if (value == null || value.isEmpty) {
+                          return 'Nomor handphone tidak boleh kosong';
+                        }
+                        // Tambahkan validasi panjang digit
+                        final sanitizedPhone = value
+                            .replaceAll(' ', '')
+                            .replaceAll('-', '');
+                        if (sanitizedPhone.length < 10 ||
+                            sanitizedPhone.length > 13) {
+                          return 'Nomor HP harus antara 10-13 digit';
+                        }
+                        return null;
+                      },
                     ),
                     const SizedBox(height: 16),
                     TextFormField(

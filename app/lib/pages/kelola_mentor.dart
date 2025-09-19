@@ -57,17 +57,19 @@ class __KelolaMentorViewState extends State<_KelolaMentorView> {
     });
   }
 
-  // DIUBAH: Semua fungsi dialog disesuaikan untuk Mentor
-  void _showAddMentorDialog() {
-    showDialog(
+  void _showAddMentorDialog() async {
+    await showDialog(
       context: context,
-      builder: (_) {
-        return BlocProvider.value(
-          value: BlocProvider.of<MentorBloc>(context),
-          child: const AddMentorDialog(), // DIUBAH
-        );
-      },
+      barrierDismissible: false,
+      builder: (_) => BlocProvider.value(
+        value: BlocProvider.of<MentorBloc>(context),
+        child: const AddMentorDialog(),
+      ),
     );
+
+    if (mounted) {
+      context.read<MentorBloc>().add(ResetMentorState());
+    }
   }
 
   void _showDeleteConfirmationDialog(MentorModel mentor) {

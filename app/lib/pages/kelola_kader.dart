@@ -56,19 +56,25 @@ class __KelolaKaderViewState extends State<_KelolaKaderView> {
     });
   }
 
-  // Helper untuk menampilkan dialog dengan benar
-  void _showAddKaderDialog() {
-    showDialog(
+  void _showAddKaderDialog() async {
+    // 1. Jadikan async
+    await showDialog(
+      // 2. Tunggu dialog selesai
       context: context,
+      barrierDismissible: false, // Mencegah dialog ditutup saat klik di luar
       builder: (_) {
-        // 'context' utama (dari halaman) sudah memiliki KaderBloc
-        // BlocProvider.value akan meneruskannya ke context dialog
         return BlocProvider.value(
           value: BlocProvider.of<KaderBloc>(context),
           child: const AddKaderDialog(),
         );
       },
     );
+
+    // 3. Setelah dialog ditutup (baik dengan tombol X atau setelah sukses),
+    //    kirim event untuk me-reset state BLoC.
+    if (mounted) {
+      context.read<KaderBloc>().add(ResetKaderState());
+    }
   }
 
   void _showDeleteConfirmationDialog(Kader kader) {
