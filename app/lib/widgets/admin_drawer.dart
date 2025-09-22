@@ -82,13 +82,13 @@ class AdminDrawer extends StatelessWidget {
               ).go('/kelola-kelompok'); // Arahkan ke route baru
             },
           ),
-          ListTile(
-            leading: const Icon(Icons.book_outlined),
-            title: const Text('Kelola PAI'),
-            onTap: () {
-              // TODO: Navigasi ke halaman Kelola PAI
-            },
-          ),
+          // ListTile(
+          //   leading: const Icon(Icons.book_outlined),
+          //   title: const Text('Kelola PAI'),
+          //   onTap: () {
+          //     // TODO: Navigasi ke halaman Kelola PAI
+          //   },
+          // ),
         ],
       ),
     );

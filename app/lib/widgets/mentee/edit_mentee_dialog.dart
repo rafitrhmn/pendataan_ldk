@@ -64,7 +64,7 @@ class _EditMenteeDialogState extends State<EditMenteeDialog> {
           prodi: _selectedProdi ?? '',
           semester: _selectedSemester ?? 1,
           angkatan: int.tryParse(_angkatanController.text) ?? 0,
-          noHp: _noHpController.text,
+          noHp: _noHpController.text.replaceAll(' ', '').replaceAll('-', ''),
         ),
       );
     }
@@ -286,11 +286,23 @@ class _EditMenteeDialogState extends State<EditMenteeDialog> {
                       ),
                     ),
                     keyboardType: TextInputType.phone,
-                    validator: (v) => v!.isEmpty ? 'Wajib diisi' : null,
+                    validator: (value) {
+                      if (value == null || value.isEmpty) {
+                        return 'Nomor handphone tidak boleh kosong';
+                      }
+                      // Tambahkan validasi panjang digit
+                      final sanitizedPhone = value
+                          .replaceAll(' ', '')
+                          .replaceAll('-', '');
+                      if (sanitizedPhone.length < 10 ||
+                          sanitizedPhone.length > 13) {
+                        return 'Nomor HP harus antara 10-13 digit';
+                      }
+                      return null;
+                    },
                   ),
                   const SizedBox(height: 32),
 
-                  // GAYA BARU: Layout tombol aksi yang konsisten
                   Row(
                     children: [
                       Expanded(

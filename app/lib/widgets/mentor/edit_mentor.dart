@@ -159,9 +159,20 @@ class _EditMentorDialogState extends State<EditMentorDialog> {
                     ),
                   ),
                   keyboardType: TextInputType.phone,
-                  validator: (value) => (value == null || value.isEmpty)
-                      ? 'Nomor handphone tidak boleh kosong'
-                      : null,
+                  validator: (value) {
+                    if (value == null || value.isEmpty) {
+                      return 'Nomor handphone tidak boleh kosong';
+                    }
+                    // Tambahkan validasi panjang digit
+                    final sanitizedPhone = value
+                        .replaceAll(' ', '')
+                        .replaceAll('-', '');
+                    if (sanitizedPhone.length < 10 ||
+                        sanitizedPhone.length > 13) {
+                      return 'Nomor HP harus antara 10-13 digit';
+                    }
+                    return null;
+                  },
                 ),
                 const SizedBox(height: 16),
                 TextFormField(
