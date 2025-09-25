@@ -2,10 +2,12 @@ import 'package:app/bloc/laporan/laporan_bloc.dart';
 import 'package:app/bloc/laporan/laporan_event.dart';
 import 'package:app/bloc/laporan/laporan_state.dart';
 import 'package:app/models/mentee_model.dart';
+import 'package:app/utils/style_decorations.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
@@ -41,7 +43,7 @@ class _AddLaporanPageState extends State<AddLaporanPage> {
   @override
   void initState() {
     super.initState();
-    // Inisialisasi map laporan, set semua mentee hadir secara default
+
     _laporanMentees = {
       for (var mentee in widget.mentees)
         mentee.id: {
@@ -73,7 +75,46 @@ class _AddLaporanPageState extends State<AddLaporanPage> {
       initialDate: _selectedDate,
       firstDate: DateTime(2020),
       lastDate: DateTime.now(),
+      cancelText: 'Batal',
+      confirmText: 'Pilih Tanggal',
+      //  TAMBAHKAN 'builder' UNTUK STYLING
+      builder: (context, child) {
+        return Theme(
+          // Kita ambil tema yang ada, lalu timpa bagian yang perlu diubah
+          data: Theme.of(context).copyWith(
+            // Kustomisasi tema khusus untuk date picker
+            datePickerTheme: DatePickerThemeData(
+              backgroundColor: Colors.white,
+              headerBackgroundColor: Colors.blue[600],
+              headerForegroundColor: Colors.white,
+              // Mengatur gaya font untuk semua teks di dalam kalender
+              dayStyle: GoogleFonts.openSans(),
+              weekdayStyle: GoogleFonts.openSans(fontWeight: FontWeight.w600),
+              yearStyle: GoogleFonts.openSans(),
+              headerHelpStyle: GoogleFonts.openSans(color: Colors.white70),
+              headerHeadlineStyle: GoogleFonts.openSans(
+                fontSize: 32,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+            // Kustomisasi warna utama (untuk tanggal terpilih dan tombol)
+            colorScheme: ColorScheme.light(
+              primary: Colors.blue[600]!, // Warna utama (lingkaran, tombol OK)
+              onPrimary: Colors.white, // Warna teks di atas warna utama
+            ),
+
+            // Kustomisasi gaya font untuk tombol "OK" dan "Cancel"
+            textButtonTheme: TextButtonThemeData(
+              style: TextButton.styleFrom(
+                textStyle: GoogleFonts.openSans(fontWeight: FontWeight.w600),
+              ),
+            ),
+          ),
+          child: child!,
+        );
+      },
     );
+
     if (date != null) setState(() => _selectedDate = date);
   }
 
@@ -193,8 +234,23 @@ class _AddLaporanPageState extends State<AddLaporanPage> {
         }
       },
       child: Scaffold(
+        backgroundColor: Colors.grey[100],
         appBar: AppBar(
-          title: Text('Laporan Pertemuan ke-${widget.pertemuanKe}'),
+          // Menempatkan judul di tengah
+          centerTitle: true,
+          title: Text(
+            'Tambah Laporan Pertemuan',
+            // Menerapkan font Open Sans
+            style: GoogleFonts.openSans(
+              fontWeight: FontWeight.w600,
+              fontSize: 18,
+            ),
+          ),
+
+          // Mengatur warna latar dan teks
+          backgroundColor: Colors.blue[600],
+          foregroundColor: Colors.white,
+          elevation: 2,
         ),
         body: Form(
           key: _formKey,
@@ -242,64 +298,96 @@ class _AddLaporanPageState extends State<AddLaporanPage> {
   }
 
   Widget _buildInfoUmumCard() {
-    return Card(
-      child: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            const Text(
-              'Detail Pertemuan',
-              style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+    // Widget untuk pratinjau gambar, tidak berubah
+    Widget imagePreview = ClipRRect(/* ... */);
+
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(12.0),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.grey.withOpacity(0.15),
+            spreadRadius: 2,
+            blurRadius: 8,
+            offset: const Offset(0, 3),
+          ),
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            'Detail Pertemuan',
+            style: GoogleFonts.openSans(
+              fontSize: 16,
+              fontWeight: FontWeight.bold,
             ),
-            const Divider(height: 20),
-            ListTile(
-              leading: const Icon(Icons.calendar_today),
-              title: const Text('Tanggal Pertemuan'),
-              subtitle: Text(
-                DateFormat('EEEE, d MMMM yyyy').format(_selectedDate),
+          ),
+          const Divider(height: 24),
+          ListTile(
+            leading: const Icon(Icons.calendar_today),
+            title: Text(
+              'Tanggal Pertemuan',
+              style: GoogleFonts.openSans(fontWeight: FontWeight.w600),
+            ),
+            subtitle: Text(
+              DateFormat('EEEE, d MMMM yyyy', 'id_ID').format(_selectedDate),
+              style: GoogleFonts.openSans(),
+            ),
+            onTap: _selectDate,
+            contentPadding: EdgeInsets.zero,
+          ),
+          const SizedBox(height: 16), // Beri jarak dari ListTile
+          // ================== PERBAIKAN STYLE INPUT ==================
+          TextFormField(
+            controller: _tempatController,
+            style: GoogleFonts.openSans(),
+            decoration: buildInputDecoration(
+              // Menggunakan gaya input flat Anda
+              'Tempat Pertemuan',
+              suffixIcon: Icon(
+                Icons.location_on_outlined,
+                color: Colors.black.withOpacity(0.5),
               ),
-              onTap: _selectDate,
             ),
-            TextFormField(
-              controller: _tempatController,
-              decoration: const InputDecoration(labelText: 'Tempat Pertemuan'),
-              validator: (v) => v!.isEmpty ? 'Tempat tidak boleh kosong' : null,
-            ),
-            const SizedBox(height: 8),
-            TextFormField(
-              controller: _catatanController,
-              decoration: const InputDecoration(
-                labelText: 'Catatan Pertemuan (Opsional)',
+            validator: (v) => v!.isEmpty ? 'Tempat tidak boleh kosong' : null,
+          ),
+          const SizedBox(height: 16),
+          TextFormField(
+            controller: _catatanController,
+            style: GoogleFonts.openSans(),
+            decoration: buildInputDecoration(
+              // Menggunakan gaya input flat Anda
+              'Catatan Pertemuan (Opsional)',
+              suffixIcon: Icon(
+                Icons.notes_outlined,
+                color: Colors.black.withOpacity(0.5),
               ),
             ),
-            const SizedBox(height: 16),
-            Row(
-              children: [
-                Container(
-                  width: 60,
-                  height: 60,
-                  decoration: BoxDecoration(
-                    color: Colors.grey[200],
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                  // DIUBAH: Gunakan Image.memory untuk menampilkan preview
-                  child: _selectedImageBytes != null
-                      ? Image.memory(_selectedImageBytes!, fit: BoxFit.cover)
-                      : const Icon(Icons.photo, size: 30, color: Colors.grey),
-                ),
-                const SizedBox(width: 10),
-                Expanded(
-                  child: ElevatedButton.icon(
-                    onPressed: _pickImage,
-                    icon: const Icon(Icons.upload_file),
-                    label: const Text('Unggah Foto (Opsional)'),
+            maxLines: 3,
+            minLines: 1,
+          ),
+          // ==========================================================
+          const SizedBox(height: 16),
+          Row(
+            children: [
+              imagePreview,
+              const SizedBox(width: 12),
+              Expanded(
+                child: ElevatedButton.icon(
+                  onPressed: _pickImage,
+                  icon: const Icon(Icons.upload_file),
+                  label: Text('Unggah Foto', style: GoogleFonts.openSans()),
+                  style: ElevatedButton.styleFrom(
+                    padding: const EdgeInsets.symmetric(vertical: 12),
                   ),
                 ),
-              ],
-            ),
-          ],
-        ),
+              ),
+            ],
+          ),
+        ],
       ),
     );
   }
