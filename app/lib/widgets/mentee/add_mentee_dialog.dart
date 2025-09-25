@@ -128,6 +128,7 @@ class _AddMenteeDialogState extends State<AddMenteeDialog> {
                   TextFormField(
                     controller: _namaController,
                     autofillHints: const [AutofillHints.name],
+                    style: GoogleFonts.openSans(),
                     decoration: _buildInputDecoration(
                       'Nama Lengkap',
                       suffixIcon: Icon(
@@ -142,6 +143,7 @@ class _AddMenteeDialogState extends State<AddMenteeDialog> {
                     value: _selectedGender,
                     isExpanded: true,
                     dropdownColor: Colors.white,
+                    style: GoogleFonts.openSans(),
                     decoration: _buildInputDecoration(
                       'Gender',
                       suffixIcon: Icon(
@@ -172,6 +174,7 @@ class _AddMenteeDialogState extends State<AddMenteeDialog> {
                     value: _selectedProdi,
                     isExpanded: true,
                     dropdownColor: Colors.white,
+                    style: GoogleFonts.openSans(),
                     decoration: _buildInputDecoration(
                       'Program Studi',
                       suffixIcon: Icon(
@@ -202,6 +205,7 @@ class _AddMenteeDialogState extends State<AddMenteeDialog> {
                     value: _selectedSemester,
                     isExpanded: true,
                     dropdownColor: Colors.white,
+                    style: GoogleFonts.openSans(),
                     decoration: _buildInputDecoration(
                       'Semester',
                       suffixIcon: Icon(
@@ -230,6 +234,7 @@ class _AddMenteeDialogState extends State<AddMenteeDialog> {
                   const SizedBox(height: 16),
                   TextFormField(
                     controller: _angkatanController,
+                    style: GoogleFonts.openSans(),
                     decoration: _buildInputDecoration(
                       'Angkatan',
                       suffixIcon: Icon(
@@ -245,6 +250,7 @@ class _AddMenteeDialogState extends State<AddMenteeDialog> {
                   TextFormField(
                     controller: _noHpController,
                     autofillHints: const [AutofillHints.telephoneNumber],
+                    style: GoogleFonts.openSans(),
                     decoration: _buildInputDecoration(
                       'Nomor HP',
                       suffixIcon: Icon(
@@ -303,7 +309,11 @@ class _AddMenteeDialogState extends State<AddMenteeDialog> {
                             borderRadius: BorderRadius.circular(10),
                           ),
                         ),
-                        child: const Text('Simpan'),
+                        child: Text(
+                          'Simpan',
+                          textAlign: TextAlign.center,
+                          style: GoogleFonts.openSans(fontSize: 14),
+                        ),
                       );
                     },
                   ),

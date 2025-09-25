@@ -156,6 +156,7 @@ class _EditMenteeDialogState extends State<EditMenteeDialog> {
                   TextFormField(
                     controller: _namaController,
                     autofillHints: const [AutofillHints.name],
+                    style: GoogleFonts.openSans(),
                     decoration: _buildInputDecoration(
                       'Nama Lengkap',
                       suffixIcon: Icon(
@@ -171,6 +172,7 @@ class _EditMenteeDialogState extends State<EditMenteeDialog> {
                     value: _selectedGender,
                     isExpanded: true,
                     dropdownColor: Colors.white,
+                    style: GoogleFonts.openSans(),
                     decoration: _buildInputDecoration(
                       'Gender',
                       suffixIcon: Icon(
@@ -201,6 +203,7 @@ class _EditMenteeDialogState extends State<EditMenteeDialog> {
                     value: _selectedProdi,
                     isExpanded: true,
                     dropdownColor: Colors.white,
+                    style: GoogleFonts.openSans(),
                     decoration: _buildInputDecoration(
                       'Program Studi',
                       suffixIcon: Icon(
@@ -231,6 +234,7 @@ class _EditMenteeDialogState extends State<EditMenteeDialog> {
                     value: _selectedSemester,
                     isExpanded: true,
                     dropdownColor: Colors.white,
+                    style: GoogleFonts.openSans(),
                     decoration: _buildInputDecoration(
                       'Semester',
                       suffixIcon: Icon(
@@ -262,6 +266,7 @@ class _EditMenteeDialogState extends State<EditMenteeDialog> {
                     autofillHints: const [
                       AutofillHints.creditCardExpirationYear,
                     ], // Hint yang mendekati
+                    style: GoogleFonts.openSans(),
                     decoration: _buildInputDecoration(
                       'Angkatan',
                       suffixIcon: Icon(
@@ -278,6 +283,7 @@ class _EditMenteeDialogState extends State<EditMenteeDialog> {
                   TextFormField(
                     controller: _noHpController,
                     autofillHints: const [AutofillHints.telephoneNumber],
+                    style: GoogleFonts.openSans(),
                     decoration: _buildInputDecoration(
                       'Nomor HP',
                       suffixIcon: Icon(
@@ -314,7 +320,10 @@ class _EditMenteeDialogState extends State<EditMenteeDialog> {
                               borderRadius: BorderRadius.circular(10),
                             ),
                           ),
-                          child: const Text('Batal'),
+                          child: Text(
+                            'Batal',
+                            style: GoogleFonts.openSans(fontSize: 14),
+                          ),
                         ),
                       ),
                       const SizedBox(width: 16),
@@ -351,9 +360,10 @@ class _EditMenteeDialogState extends State<EditMenteeDialog> {
                                   borderRadius: BorderRadius.circular(10),
                                 ),
                               ),
-                              child: const Text(
+                              child: Text(
                                 'Simpan Perubahan',
                                 textAlign: TextAlign.center,
+                                style: GoogleFonts.openSans(fontSize: 14),
                               ),
                             );
                           },

@@ -137,6 +137,7 @@ class _EditMentorDialogState extends State<EditMentorDialog> {
                 const SizedBox(height: 24),
                 TextFormField(
                   controller: _usernameController,
+                  style: GoogleFonts.openSans(),
                   decoration: _buildInputDecoration(
                     'Username',
                     suffixIcon: Icon(
@@ -151,6 +152,7 @@ class _EditMentorDialogState extends State<EditMentorDialog> {
                 const SizedBox(height: 16),
                 TextFormField(
                   controller: _phoneController,
+                  style: GoogleFonts.openSans(),
                   decoration: _buildInputDecoration(
                     'Nomor Handphone',
                     suffixIcon: Icon(
@@ -177,6 +179,7 @@ class _EditMentorDialogState extends State<EditMentorDialog> {
                 const SizedBox(height: 16),
                 TextFormField(
                   controller: _jabatanController,
+                  style: GoogleFonts.openSans(),
                   decoration: _buildInputDecoration(
                     'Jabatan',
                     suffixIcon: Icon(
@@ -200,7 +203,10 @@ class _EditMentorDialogState extends State<EditMentorDialog> {
                             borderRadius: BorderRadius.circular(10),
                           ),
                         ),
-                        child: const Text('Batal'),
+                        child: Text(
+                          'Batal',
+                          style: GoogleFonts.openSans(fontSize: 14),
+                        ),
                       ),
                     ),
                     const SizedBox(width: 16),
@@ -238,9 +244,10 @@ class _EditMentorDialogState extends State<EditMentorDialog> {
                                 borderRadius: BorderRadius.circular(10),
                               ),
                             ),
-                            child: const Text(
+                            child: Text(
                               'Simpan Perubahan',
                               textAlign: TextAlign.center,
+                              style: GoogleFonts.openSans(fontSize: 14),
                             ),
                           );
                         },

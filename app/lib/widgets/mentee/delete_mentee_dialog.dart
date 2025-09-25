@@ -68,7 +68,10 @@ class DeleteMenteeDialog extends StatelessWidget {
                     ),
                     child: Text(
                       'Batal',
-                      style: TextStyle(color: Colors.grey[800]),
+                      style: GoogleFonts.openSans(
+                        fontSize: 14,
+                        color: Colors.grey[800],
+                      ),
                     ),
                   ),
                 ),
@@ -91,7 +94,10 @@ class DeleteMenteeDialog extends StatelessWidget {
                       ),
                       elevation: 0,
                     ),
-                    child: const Text('Hapus'),
+                    child: Text(
+                      'Hapus',
+                      style: GoogleFonts.openSans(fontSize: 14),
+                    ),
                   ),
                 ),
               ],

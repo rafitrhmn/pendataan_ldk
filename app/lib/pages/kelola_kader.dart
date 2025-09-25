@@ -3,7 +3,7 @@ import 'package:app/bloc/kader/kader_bloc.dart';
 import 'package:app/bloc/kader/kader_event.dart';
 import 'package:app/bloc/kader/kader_state.dart';
 import 'package:app/models/kader_model.dart';
-import 'package:app/utils/icon_style.dart';
+import 'package:app/utils/style_decorations.dart';
 import 'package:app/widgets/kader/add_kader_dialog.dart';
 import 'package:app/widgets/admin_drawer.dart';
 import 'package:app/widgets/appbar.dart';
@@ -215,9 +215,11 @@ class __KelolaKaderViewState extends State<_KelolaKaderView> {
         Expanded(
           child: TextField(
             controller: _searchController,
-            onChanged: _onSearchChanged, // Optimasi dengan debounce
+            onChanged: _onSearchChanged,
+            style: GoogleFonts.openSans(),
             decoration: InputDecoration(
               hintText: 'Cari nama kader...',
+              hintStyle: GoogleFonts.openSans(color: Colors.grey[600]),
               prefixIcon: const Icon(Icons.search),
               border: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(8),
@@ -286,7 +288,7 @@ class __KelolaKaderViewState extends State<_KelolaKaderView> {
                       // Baris 1: Username
                       Text(
                         kader.username,
-                        style: const TextStyle(
+                        style: GoogleFonts.openSans(
                           fontWeight: FontWeight.bold,
                           fontSize: 16,
                         ),
@@ -304,7 +306,7 @@ class __KelolaKaderViewState extends State<_KelolaKaderView> {
                           const SizedBox(width: 6),
                           Text(
                             kader.noHp ?? 'No HP belum diatur',
-                            style: TextStyle(
+                            style: GoogleFonts.openSans(
                               color: Colors.grey[700],
                               fontSize: 14,
                             ),
@@ -324,7 +326,7 @@ class __KelolaKaderViewState extends State<_KelolaKaderView> {
                           const SizedBox(width: 6),
                           Text(
                             kader.jabatan ?? 'Jabatan belum diatur',
-                            style: TextStyle(
+                            style: GoogleFonts.openSans(
                               color: Colors.grey[700],
                               fontSize: 14,
                             ),

@@ -3,7 +3,7 @@ import 'package:app/bloc/mentor/mentor_bloc.dart'; // DIUBAH
 import 'package:app/bloc/mentor/mentor_event.dart'; // DIUBAH
 import 'package:app/bloc/mentor/mentor_state.dart'; // DIUBAH
 import 'package:app/models/mentor_model.dart'; // DIUBAH
-import 'package:app/utils/icon_style.dart';
+import 'package:app/utils/style_decorations.dart';
 import 'package:app/widgets/admin_drawer.dart';
 import 'package:app/widgets/appbar.dart';
 import 'package:app/widgets/mentor/add_mentor_dialog.dart';
@@ -221,8 +221,10 @@ class __KelolaMentorViewState extends State<_KelolaMentorView> {
           child: TextField(
             controller: _searchController,
             onChanged: _onSearchChanged,
+            style: GoogleFonts.openSans(),
             decoration: InputDecoration(
               hintText: 'Cari nama mentor...', // DIUBAH
+              hintStyle: GoogleFonts.openSans(color: Colors.grey[600]),
               prefixIcon: const Icon(Icons.search),
               border: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(8),
@@ -288,7 +290,7 @@ class __KelolaMentorViewState extends State<_KelolaMentorView> {
                       // Baris 1: Username
                       Text(
                         mentor.username,
-                        style: const TextStyle(
+                        style: GoogleFonts.openSans(
                           fontWeight: FontWeight.bold,
                           fontSize: 16,
                         ),
@@ -306,7 +308,7 @@ class __KelolaMentorViewState extends State<_KelolaMentorView> {
                           const SizedBox(width: 6),
                           Text(
                             mentor.noHp ?? 'No HP belum diatur',
-                            style: TextStyle(
+                            style: GoogleFonts.openSans(
                               color: Colors.grey[700],
                               fontSize: 14,
                             ),
@@ -326,7 +328,7 @@ class __KelolaMentorViewState extends State<_KelolaMentorView> {
                           const SizedBox(width: 6),
                           Text(
                             mentor.jabatan ?? 'Jabatan belum diatur',
-                            style: TextStyle(
+                            style: GoogleFonts.openSans(
                               color: Colors.grey[700],
                               fontSize: 14,
                             ),

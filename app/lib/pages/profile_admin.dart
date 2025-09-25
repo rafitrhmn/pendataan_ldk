@@ -100,7 +100,7 @@ class ProfilePage extends StatelessWidget {
   Widget _buildLogoutButton(BuildContext context) {
     return ElevatedButton.icon(
       icon: const Icon(Icons.logout, size: 18),
-      label: const Text('Logout'),
+      label: Text('Logout', style: GoogleFonts.openSans(fontSize: 16)),
       onPressed: () {
         // Memicu event logout dari AuthBloc
         context.read<AuthBloc>().add(AuthLogoutRequested());

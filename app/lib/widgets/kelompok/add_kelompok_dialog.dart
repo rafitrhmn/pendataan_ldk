@@ -1,5 +1,3 @@
-// lib/widgets/kelompok/add_kelompok_dialog.dart
-
 import 'package:app/bloc/kelompok/kelompok_bloc.dart';
 import 'package:app/bloc/kelompok/kelompok_event.dart';
 import 'package:app/bloc/kelompok/kelompok_state.dart';
@@ -7,6 +5,7 @@ import 'package:app/bloc/mentor/mentor_bloc.dart';
 import 'package:app/bloc/mentor/mentor_event.dart';
 import 'package:app/bloc/mentor/mentor_state.dart';
 import 'package:app/models/mentor_model.dart';
+import 'package:app/utils/style_decorations.dart';
 import 'package:app/widgets/constants.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -47,28 +46,6 @@ class _AddKelompokDialogState extends State<AddKelompokDialog> {
         ),
       );
     }
-  }
-
-  // GAYA BARU: Helper styling yang konsisten
-  InputDecoration _buildInputDecoration(String hintText, {Widget? suffixIcon}) {
-    return InputDecoration(
-      hintText: hintText,
-      hintStyle: GoogleFonts.openSans(
-        // color: Colors.black.withOpacity(0.5),
-        fontSize: 14,
-      ),
-      filled: true,
-      fillColor: const Color(0x33C4C4C4),
-      border: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(10),
-        borderSide: BorderSide.none,
-      ),
-      contentPadding: const EdgeInsets.symmetric(
-        vertical: 15.0,
-        horizontal: 24.0,
-      ),
-      suffixIcon: suffixIcon,
-    );
   }
 
   @override
@@ -129,7 +106,8 @@ class _AddKelompokDialogState extends State<AddKelompokDialog> {
                 // GAYA BARU: Input fields yang disesuaikan
                 TextFormField(
                   controller: _namaController,
-                  decoration: _buildInputDecoration(
+                  style: GoogleFonts.openSans(),
+                  decoration: buildInputDecoration(
                     'Nama Kelompok',
                     suffixIcon: Icon(
                       Icons.hub_outlined,
@@ -146,6 +124,7 @@ class _AddKelompokDialogState extends State<AddKelompokDialog> {
                     'Pilih Hari Pertemuan',
                     style: GoogleFonts.openSans(fontSize: 14),
                   ),
+                  style: GoogleFonts.openSans(),
                   isExpanded: true,
                   dropdownColor: Colors.white,
                   items: AppConstants.hariPertemuan.map((String hari) {
@@ -160,7 +139,7 @@ class _AddKelompokDialogState extends State<AddKelompokDialog> {
                     });
                   },
                   validator: (v) => v == null ? 'Wajib memilih jadwal' : null,
-                  decoration: _buildInputDecoration(
+                  decoration: buildInputDecoration(
                     'Jadwal Pertemuan',
                     suffixIcon: Icon(
                       Icons.calendar_month_outlined,
@@ -178,9 +157,10 @@ class _AddKelompokDialogState extends State<AddKelompokDialog> {
                           'Pilih Mentor',
                           style: GoogleFonts.openSans(fontSize: 14),
                         ),
+                        style: GoogleFonts.openSans(),
                         isExpanded: true,
                         dropdownColor: Colors.white,
-                        decoration: _buildInputDecoration(
+                        decoration: buildInputDecoration(
                           'Mentor',
                           suffixIcon: Icon(
                             Icons.school_outlined,
@@ -240,7 +220,10 @@ class _AddKelompokDialogState extends State<AddKelompokDialog> {
                           borderRadius: BorderRadius.circular(10),
                         ),
                       ),
-                      child: const Text('Simpan'),
+                      child: Text(
+                        'Simpan',
+                        style: GoogleFonts.openSans(fontSize: 14),
+                      ),
                     );
                   },
                 ),

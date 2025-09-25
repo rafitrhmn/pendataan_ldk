@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:google_fonts/google_fonts.dart';
 
 // Widget AppBar harus mengimplementasikan PreferredSizeWidget
 class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
@@ -10,7 +11,14 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
   @override
   Widget build(BuildContext context) {
     return AppBar(
-      title: Text(title), // Menggunakan title dari parameter
+      title: Text(
+        title,
+        style: GoogleFonts.openSans(
+          // Menggunakan font Open Sans
+          color: Colors.black87, // Ganti warna agar kontras dengan latar putih
+          fontWeight: FontWeight.w600,
+        ),
+      ), // Menggunakan title dari parameter
       backgroundColor: Colors.white,
       elevation: 0,
       actions: [

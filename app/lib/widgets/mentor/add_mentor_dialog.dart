@@ -222,6 +222,7 @@ class _AddMentorDialogState extends State<AddMentorDialog> {
                 TextFormField(
                   controller: _usernameController,
                   autofillHints: const [AutofillHints.username],
+                  style: GoogleFonts.openSans(),
                   decoration: _buildInputDecoration(
                     'Username',
                     suffixIcon: Stack(
@@ -268,6 +269,7 @@ class _AddMentorDialogState extends State<AddMentorDialog> {
         // --- WIDGET UNTUK INPUT NOMOR HANDPHONE ---
         TextFormField(
           controller: _phoneController,
+          style: GoogleFonts.openSans(),
           decoration: _buildInputDecoration(
             'Nomor Handphone',
             suffixIcon: Icon(
@@ -294,6 +296,7 @@ class _AddMentorDialogState extends State<AddMentorDialog> {
         // --- WIDGET UNTUK INPUT JABATAN ---
         TextFormField(
           controller: _jabatanController,
+          style: GoogleFonts.openSans(),
           decoration: _buildInputDecoration(
             'Jabatan',
             suffixIcon: Icon(
@@ -328,7 +331,7 @@ class _AddMentorDialogState extends State<AddMentorDialog> {
                   borderRadius: BorderRadius.circular(10),
                 ),
               ),
-              child: const Text('Lanjut'),
+              child: Text('Lanjut', style: GoogleFonts.openSans(fontSize: 14)),
             );
           },
         ),
@@ -355,6 +358,7 @@ class _AddMentorDialogState extends State<AddMentorDialog> {
         TextFormField(
           controller: _usernameController,
           enabled: false,
+          style: GoogleFonts.openSans(),
           decoration: _buildInputDecoration(
             'Username',
             suffixIcon: Icon(
@@ -368,6 +372,7 @@ class _AddMentorDialogState extends State<AddMentorDialog> {
         TextFormField(
           controller: _passwordController,
           obscureText: !_isPasswordVisible,
+          style: GoogleFonts.openSans(),
           autofillHints: const [AutofillHints.newPassword],
           decoration: _buildInputDecoration(
             'Password',
@@ -391,6 +396,7 @@ class _AddMentorDialogState extends State<AddMentorDialog> {
         TextFormField(
           controller: _confirmPasswordController,
           obscureText: !_isPasswordVisible,
+          style: GoogleFonts.openSans(),
           autofillHints: const [AutofillHints.newPassword],
           decoration: _buildInputDecoration(
             'Ulangi Password',
@@ -415,7 +421,10 @@ class _AddMentorDialogState extends State<AddMentorDialog> {
             Expanded(
               child: OutlinedButton.icon(
                 icon: const Icon(Icons.arrow_back),
-                label: const Text('Kembali'),
+                label: Text(
+                  'Kembali',
+                  style: GoogleFonts.openSans(fontSize: 14),
+                ),
                 onPressed: _previousStep,
                 style: OutlinedButton.styleFrom(
                   minimumSize: const Size(0, 50),
@@ -460,7 +469,11 @@ class _AddMentorDialogState extends State<AddMentorDialog> {
                         borderRadius: BorderRadius.circular(10),
                       ),
                     ),
-                    child: const Text('Buat Akun', textAlign: TextAlign.center),
+                    child: Text(
+                      'Buat Akun',
+                      textAlign: TextAlign.center,
+                      style: GoogleFonts.openSans(fontSize: 14),
+                    ),
                   );
                 },
               ),

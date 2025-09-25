@@ -3,7 +3,7 @@ import 'package:app/bloc/kelompok/kelompok_bloc.dart';
 import 'package:app/bloc/kelompok/kelompok_event.dart';
 import 'package:app/bloc/kelompok/kelompok_state.dart';
 import 'package:app/models/kelompok_model.dart';
-import 'package:app/utils/icon_style.dart';
+import 'package:app/utils/style_decorations.dart';
 import 'package:app/widgets/admin_drawer.dart';
 import 'package:app/widgets/appbar.dart';
 import 'package:app/widgets/kelompok/add_kelompok_dialog.dart';
@@ -186,8 +186,10 @@ class _KelolaKelompokViewState extends State<_KelolaKelompokView> {
           child: TextField(
             controller: _searchController,
             onChanged: _onSearchChanged,
+            style: GoogleFonts.openSans(),
             decoration: InputDecoration(
               hintText: 'Cari nama kelompok...',
+              hintStyle: GoogleFonts.openSans(color: Colors.grey[600]),
               prefixIcon: const Icon(Icons.search),
               border: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(8),
@@ -267,7 +269,7 @@ class _KelolaKelompokViewState extends State<_KelolaKelompokView> {
                         children: [
                           Text(
                             kelompok.namaKelompok,
-                            style: const TextStyle(
+                            style: GoogleFonts.openSans(
                               fontWeight: FontWeight.bold,
                               fontSize: 16,
                             ),
@@ -275,7 +277,8 @@ class _KelolaKelompokViewState extends State<_KelolaKelompokView> {
                           const SizedBox(height: 5),
                           Text(
                             'Mentor: ${kelompok.mentor?.username ?? 'Belum diatur'}',
-                            style: TextStyle(
+
+                            style: GoogleFonts.openSans(
                               color: Colors.grey[600],
                               fontSize: 14,
                             ),
@@ -284,7 +287,7 @@ class _KelolaKelompokViewState extends State<_KelolaKelompokView> {
                           const SizedBox(height: 5),
                           Text(
                             '${kelompok.jumlahMentee} Anggota',
-                            style: TextStyle(
+                            style: GoogleFonts.openSans(
                               color: Colors.blue[700],
                               fontSize: 13,
                               fontWeight: FontWeight.w600,
