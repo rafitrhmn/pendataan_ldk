@@ -3,6 +3,9 @@ import 'package:app/bloc/laporan/laporan_event.dart';
 import 'package:app/bloc/laporan/laporan_state.dart';
 import 'package:app/models/mentee_model.dart';
 import 'package:app/utils/style_decorations.dart';
+import 'package:app/widgets/laporan/penilaian_dhuha_input.dart';
+import 'package:app/widgets/laporan/penilaian_sholat_input.dart';
+import 'package:app/widgets/laporan/penilaian_tilawah_input.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -39,6 +42,7 @@ class _AddLaporanPageState extends State<AddLaporanPage> {
 
   // Map untuk menyimpan state laporan dari setiap mentee
   late final Map<String, Map<String, dynamic>> _laporanMentees;
+  // Nilai awal
 
   @override
   void initState() {
@@ -48,7 +52,7 @@ class _AddLaporanPageState extends State<AddLaporanPage> {
       for (var mentee in widget.mentees)
         mentee.id: {
           'mentee_id': mentee.id,
-          'hadir': true,
+          'hadir': false,
           'sholat_wajib': TextEditingController(),
           'sholat_dhuha': TextEditingController(),
           'tilawah_quran': TextEditingController(),
@@ -222,7 +226,14 @@ class _AddLaporanPageState extends State<AddLaporanPage> {
     return BlocListener<LaporanBloc, LaporanState>(
       listener: (context, state) {
         if (state is LaporanSubmitSuccess) {
-          // Kirim sinyal 'true' agar halaman detail me-refresh riwayat
+          // 1. Tampilkan SnackBar sukses
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('Laporan berhasil disimpan!'),
+              backgroundColor: Colors.green,
+            ),
+          );
+          // 2. Kembali ke halaman sebelumnya dan kirim sinyal refresh
           context.pop(true);
         } else if (state is LaporanError) {
           ScaffoldMessenger.of(context).showSnackBar(
@@ -262,9 +273,12 @@ class _AddLaporanPageState extends State<AddLaporanPage> {
               const SizedBox(height: 24),
 
               // Bagian Laporan Anggota
-              const Text(
+              Text(
                 'Laporan Keaktifan Anggota',
-                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                style: GoogleFonts.openSans(
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                ),
               ),
               const SizedBox(height: 10),
               ...widget.mentees.map((mentee) => _buildMenteeReportCard(mentee)),
@@ -284,7 +298,15 @@ class _AddLaporanPageState extends State<AddLaporanPage> {
                   return ElevatedButton(
                     onPressed: _submitLaporan,
                     style: ElevatedButton.styleFrom(
-                      minimumSize: const Size(double.infinity, 50),
+                      backgroundColor: Colors.blue[600],
+                      foregroundColor: Colors.white,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      padding: const EdgeInsets.symmetric(
+                        vertical: 15,
+                        horizontal: 16,
+                      ),
                     ),
                     child: const Text('Simpan Laporan'),
                   );
@@ -299,7 +321,31 @@ class _AddLaporanPageState extends State<AddLaporanPage> {
 
   Widget _buildInfoUmumCard() {
     // Widget untuk pratinjau gambar, tidak berubah
-    Widget imagePreview = ClipRRect(/* ... */);
+    Widget imagePreview;
+
+    if (_selectedImageBytes != null) {
+      // Kasus 1: Tampilkan gambar baru yang dipilih dari memori (bytes)
+      imagePreview = ClipRRect(
+        borderRadius: BorderRadius.circular(8),
+        child: Image.memory(
+          _selectedImageBytes!,
+          width: 60,
+          height: 60,
+          fit: BoxFit.cover,
+        ),
+      );
+    } else {
+      // Kasus 3: Tampilan default jika tidak ada gambar
+      imagePreview = Container(
+        width: 60,
+        height: 60,
+        decoration: BoxDecoration(
+          color: Colors.grey[200],
+          borderRadius: BorderRadius.circular(8),
+        ),
+        child: const Icon(Icons.photo, size: 30, color: Colors.grey),
+      );
+    }
 
     return Container(
       padding: const EdgeInsets.all(16),
@@ -321,7 +367,7 @@ class _AddLaporanPageState extends State<AddLaporanPage> {
           Text(
             'Detail Pertemuan',
             style: GoogleFonts.openSans(
-              fontSize: 16,
+              fontSize: 18,
               fontWeight: FontWeight.bold,
             ),
           ),
@@ -369,7 +415,6 @@ class _AddLaporanPageState extends State<AddLaporanPage> {
             maxLines: 3,
             minLines: 1,
           ),
-          // ==========================================================
           const SizedBox(height: 16),
           Row(
             children: [
@@ -378,10 +423,23 @@ class _AddLaporanPageState extends State<AddLaporanPage> {
               Expanded(
                 child: ElevatedButton.icon(
                   onPressed: _pickImage,
-                  icon: const Icon(Icons.upload_file),
-                  label: Text('Unggah Foto', style: GoogleFonts.openSans()),
+                  icon: const Icon(Icons.upload_file, size: 20),
+
+                  label: Text(
+                    'Unggah Foto',
+                    style: GoogleFonts.openSans(fontWeight: FontWeight.w600),
+                  ),
+
                   style: ElevatedButton.styleFrom(
-                    padding: const EdgeInsets.symmetric(vertical: 12),
+                    backgroundColor: Colors.blue[600],
+                    foregroundColor: Colors.white,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    padding: const EdgeInsets.symmetric(
+                      vertical: 15,
+                      horizontal: 16,
+                    ),
                   ),
                 ),
               ),
@@ -396,56 +454,50 @@ class _AddLaporanPageState extends State<AddLaporanPage> {
     final report = _laporanMentees[mentee.id]!;
     final bool isHadir = report['hadir'];
 
-    return Card(
+    return Container(
       margin: const EdgeInsets.symmetric(vertical: 8),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(12.0),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.grey.withOpacity(0.15),
+            spreadRadius: 2,
+            blurRadius: 8,
+            offset: const Offset(0, 3),
+          ),
+        ],
+      ),
       child: Column(
         children: [
           CheckboxListTile(
             title: Text(
               mentee.namaLengkap,
-              style: const TextStyle(fontWeight: FontWeight.bold),
+              style: GoogleFonts.openSans(fontWeight: FontWeight.bold),
             ),
-            subtitle: const Text('Kehadiran'),
+            subtitle: Text('Kehadiran', style: GoogleFonts.openSans()),
             value: isHadir,
             onChanged: (val) => setState(() => report['hadir'] = val!),
+            activeColor: Colors.blue[600],
           ),
           if (isHadir)
             Padding(
               padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
               child: Column(
+                crossAxisAlignment:
+                    CrossAxisAlignment.start, // Pastikan teks rata kiri
                 children: [
-                  TextFormField(
-                    controller: report['sholat_wajib'],
-                    decoration: const InputDecoration(
-                      labelText: 'Sholat Wajib (kali)',
-                      isDense: true,
-                    ),
-                    keyboardType: TextInputType.number,
-                    inputFormatters: [FilteringTextInputFormatter.digitsOnly],
-                    validator: (v) => v!.isEmpty ? 'Wajib diisi' : null,
-                  ),
-                  const SizedBox(height: 8),
-                  TextFormField(
-                    controller: report['sholat_dhuha'],
-                    decoration: const InputDecoration(
-                      labelText: 'Sholat Dhuha (kali)',
-                      isDense: true,
-                    ),
-                    keyboardType: TextInputType.number,
-                    inputFormatters: [FilteringTextInputFormatter.digitsOnly],
-                    validator: (v) => v!.isEmpty ? 'Wajib diisi' : null,
-                  ),
-                  const SizedBox(height: 8),
-                  TextFormField(
-                    controller: report['tilawah_quran'],
-                    decoration: const InputDecoration(
-                      labelText: 'Tilawah (lembar)',
-                      isDense: true,
-                    ),
-                    keyboardType: TextInputType.number,
-                    inputFormatters: [FilteringTextInputFormatter.digitsOnly],
-                    validator: (v) => v!.isEmpty ? 'Wajib diisi' : null,
-                  ),
+                  const Divider(),
+                  const SizedBox(height: 16),
+                  // Panggil widget baru Anda di sini
+                  PenilaianSholatInput(controller: report['sholat_wajib']),
+
+                  const SizedBox(height: 16),
+
+                  // --- Input Sholat Dhuha ---
+                  PenilaianDhuhaInput(controller: report['sholat_dhuha']),
+                  const SizedBox(height: 16),
+                  PenilaianTilawahInput(controller: report['tilawah_quran']),
                 ],
               ),
             ),
