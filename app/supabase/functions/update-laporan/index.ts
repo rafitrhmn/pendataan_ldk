@@ -13,8 +13,7 @@ serve(async (req) => {
 
   try {
     // Ambil semua data yang dikirim dari Flutter
-    const { pertemuan_id, tanggal, tempat, catatan, foto_url, laporan_mentees } = await req.json();
-
+   const { pertemuan_id, tanggal, tempat, catatan, foto_url, old_foto_url, laporan_mentees } = await req.json();
     if (!pertemuan_id || !tanggal || !laporan_mentees) {
       throw new Error('ID pertemuan, tanggal, dan laporan mentee wajib diisi.');
     }
@@ -23,6 +22,19 @@ serve(async (req) => {
       Deno.env.get('SUPABASE_URL') ?? '',
       Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
     );
+
+     if (old_foto_url && old_foto_url !== foto_url) {
+      try {
+        const oldFileName = old_foto_url.split('/').pop();
+        if (oldFileName) {
+          await supabaseAdmin.storage.from('foto_pertemuan').remove([oldFileName]);
+        }
+      } catch(e) {
+        const error = e as Error;
+        console.error('Gagal menghapus foto lama:', error.message);
+      }
+    }
+
 
     // 1. Update data utama di tabel 'pertemuan'
     const { error: updateError } = await supabaseAdmin

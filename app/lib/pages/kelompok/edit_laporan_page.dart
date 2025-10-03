@@ -166,6 +166,7 @@ class _EditLaporanPageState extends State<EditLaporanPage> {
           tempat: _tempatController.text,
           catatan: _catatanController.text,
           fotoUrl: imageUrl,
+          oldFotoUrl: widget.pertemuan.fotoUrl,
           laporanMentees: laporanList,
         ),
       );

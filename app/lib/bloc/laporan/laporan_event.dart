@@ -42,7 +42,8 @@ class UpdateLaporanPertemuan extends LaporanEvent {
   final DateTime tanggal;
   final String? tempat;
   final String? catatan;
-  final String? fotoUrl;
+  final String? fotoUrl; // URL baru
+  final String? oldFotoUrl; //  TAMBAHKAN INI
   final List<Map<String, dynamic>> laporanMentees;
 
   const UpdateLaporanPertemuan({
@@ -51,6 +52,7 @@ class UpdateLaporanPertemuan extends LaporanEvent {
     this.tempat,
     this.catatan,
     this.fotoUrl,
+    this.oldFotoUrl, //  TAMBAHKAN INI
     required this.laporanMentees,
   });
 }

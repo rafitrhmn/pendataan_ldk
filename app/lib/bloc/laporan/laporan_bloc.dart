@@ -135,6 +135,7 @@ class LaporanBloc extends Bloc<LaporanEvent, LaporanState> {
           'tempat': event.tempat,
           'catatan': event.catatan,
           'foto_url': event.fotoUrl,
+          'old_foto_url': event.oldFotoUrl,
           'laporan_mentees': event.laporanMentees,
         },
       );
