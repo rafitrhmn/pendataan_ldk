@@ -1,8 +1,10 @@
+// supabase/functions/delete-laporan/index.ts
+
 import { serve } from 'https://deno.land/std@0.177.0/http/server.ts'
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.0.0'
 
 const corsHeaders = {
-  'Access-Control-Allow-Origin': '*',
+  'Access-control-allow-origin': '*',
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 }
 
@@ -13,9 +15,7 @@ serve(async (req) => {
 
   try {
     const { pertemuan_id } = await req.json();
-    if (!pertemuan_id) {
-      throw new Error('ID Pertemuan wajib diisi.');
-    }
+    if (!pertemuan_id) throw new Error('ID Pertemuan wajib diisi.');
 
     const supabaseAdmin = createClient(
       Deno.env.get('SUPABASE_URL') ?? '',
@@ -29,30 +29,43 @@ serve(async (req) => {
       .eq('id', pertemuan_id)
       .single();
 
-    if (selectError) throw selectError;
+    if (selectError) {
+      // Jika record tidak ditemukan, anggap saja sudah terhapus.
+      if(selectError.code === 'PGRST116') {
+         return new Response(JSON.stringify({ success: true, message: 'Laporan tidak ditemukan, mungkin sudah dihapus' }), {
+            headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+            status: 200,
+          });
+      }
+      throw selectError;
+    }
 
     // LANGKAH 2: Jika ada URL foto, hapus file dari Storage
     if (pertemuanData && pertemuanData.foto_url) {
-      // Ekstrak nama file dari URL lengkapnya.
-      // Contoh URL: .../storage/v1/object/public/foto_pertemuan/namafile.jpg
-      const fileName = pertemuanData.foto_url.split('/').pop(); 
+      const fileName = pertemuanData.foto_url.split('/').pop();
       
       if (fileName) {
-        // Perintah untuk menghapus file dari bucket
-        await supabaseAdmin.storage.from('foto_pertemuan').remove([fileName]);
+        //  PERBAIKAN: Tangkap error spesifik dari storage.remove
+        const { error: storageError } = await supabaseAdmin.storage
+          .from('foto_pertemuan')
+          .remove([fileName]);
+        
+        // Jika ada error saat menghapus file (misal: file not found),
+        // kita bisa memilih untuk mengabaikannya dan tetap lanjut, atau menghentikan proses.
+        // Untuk kasus ini, kita log errornya tapi tetap lanjut menghapus record DB.
+        if (storageError) {
+          console.error(`Gagal menghapus file ${fileName} dari storage:`, storageError.message);
+        }
       }
     }
 
     // LANGKAH 3: Hapus record dari tabel 'pertemuan'
-    // Data di 'laporan_mentee' akan ikut terhapus otomatis berkat ON DELETE CASCADE
-    const { error: deleteError } = await supabaseAdmin
+    const { error: deleteDbError } = await supabaseAdmin
       .from('pertemuan')
       .delete()
       .eq('id', pertemuan_id);
       
-    if (deleteError) {
-      throw deleteError;
-    }
+    if (deleteDbError) throw deleteDbError;
 
     return new Response(JSON.stringify({ success: true, message: 'Laporan dan foto terkait berhasil dihapus' }), {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
