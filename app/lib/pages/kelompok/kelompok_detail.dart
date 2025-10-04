@@ -524,7 +524,6 @@ class _KelompokDetailPageState extends State<KelompokDetailPage> {
     );
   }
 
-  //  WIDGET BARU UNTUK MENAMPILKAN RIWAYAT PERTEMUAN
   Widget _buildRiwayatPertemuanList() {
     return BlocBuilder<LaporanBloc, LaporanState>(
       builder: (context, state) {
@@ -535,26 +534,16 @@ class _KelompokDetailPageState extends State<KelompokDetailPage> {
               child: Center(child: Text('Belum ada laporan pertemuan.')),
             );
           }
-          return ListView.separated(
-            physics: const NeverScrollableScrollPhysics(),
-            shrinkWrap: true,
-            itemCount: state.riwayat.length,
-            separatorBuilder: (_, __) => const SizedBox(height: 10),
-            itemBuilder: (context, index) {
-              final pertemuan = state.riwayat[index];
-              return Card(
-                child: ListTile(
-                  leading: const Icon(Icons.book_outlined),
-                  title: Text(
-                    'Pertemuan ${DateFormat('d MMMM yyyy').format(pertemuan.tanggal)}',
-                  ),
-                  trailing: const Icon(Icons.chevron_right),
+          // Gunakan Column agar tidak ada error scrolling di dalam ListView
+          return Column(
+            children: state.riwayat.map((pertemuan) {
+              return Padding(
+                padding: const EdgeInsets.only(bottom: 12.0),
+                child: InkWell(
                   onTap: () async {
                     final result = await context.push<bool>(
                       '/kelola-kelompok/${widget.kelompokId}/laporan/${pertemuan.id}',
                     );
-
-                    // 3. Jika hasilnya 'true', tampilkan SnackBar & refresh
                     if (result == true && mounted) {
                       ScaffoldMessenger.of(context).showSnackBar(
                         const SnackBar(
@@ -567,35 +556,66 @@ class _KelompokDetailPageState extends State<KelompokDetailPage> {
                       );
                     }
                   },
+                  borderRadius: BorderRadius.circular(12.0),
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 16,
+                      vertical: 12,
+                    ),
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(12.0),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.grey.withOpacity(0.1),
+                          spreadRadius: 1,
+                          blurRadius: 5,
+                          offset: const Offset(0, 2),
+                        ),
+                      ],
+                    ),
+                    child: Row(
+                      children: [
+                        const Icon(Icons.book_outlined, color: Colors.blue),
+                        const SizedBox(width: 16),
+                        Expanded(
+                          child: Text(
+                            'Pertemuan ${DateFormat('d MMMM yyyy', 'id_ID').format(pertemuan.tanggal)}',
+                            style: GoogleFonts.openSans(
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                        ),
+                        const Icon(Icons.chevron_right, color: Colors.grey),
+                      ],
+                    ),
+                  ),
                 ),
               );
-            },
+            }).toList(),
           );
         }
         return const Center(child: CircularProgressIndicator());
       },
     );
   }
+}
 
-  // Helper untuk membuat baris detail
-  Widget _buildDetailRow({required String label, required String value}) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          label,
-          style: GoogleFonts.openSans(color: Colors.grey[600], fontSize: 14),
-        ),
-        const SizedBox(height: 4),
-        Text(
-          value,
-          style: GoogleFonts.openSans(
-            fontSize: 16,
-            fontWeight: FontWeight.bold,
-          ),
-          // style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-        ),
-      ],
-    );
-  }
+// Helper untuk membuat baris detail
+Widget _buildDetailRow({required String label, required String value}) {
+  return Column(
+    crossAxisAlignment: CrossAxisAlignment.start,
+    children: [
+      Text(
+        label,
+        style: GoogleFonts.openSans(color: Colors.grey[600], fontSize: 14),
+      ),
+      const SizedBox(height: 4),
+      Text(
+        value,
+        style: GoogleFonts.openSans(fontSize: 16, fontWeight: FontWeight.bold),
+        // style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+      ),
+    ],
+  );
 }
