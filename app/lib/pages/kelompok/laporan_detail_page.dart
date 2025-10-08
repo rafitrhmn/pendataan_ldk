@@ -1,5 +1,3 @@
-// lib/pages/laporan/laporan_detail_page.dart
-
 import 'package:app/bloc/kelompok/kelompok_bloc.dart';
 import 'package:app/bloc/kelompok/kelompok_state.dart';
 import 'package:app/bloc/laporan/laporan_bloc.dart';
@@ -8,6 +6,7 @@ import 'package:app/bloc/laporan/laporan_state.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
 
 class LaporanDetailPage extends StatefulWidget {
@@ -84,7 +83,24 @@ class _LaporanDetailPageState extends State<LaporanDetailPage> {
       },
 
       child: Scaffold(
-        appBar: AppBar(title: const Text('Detail Laporan')),
+        backgroundColor: Colors.grey[100],
+        appBar: AppBar(
+          // Menempatkan judul di tengah
+          centerTitle: true,
+          title: Text(
+            'Detail Laporan Pertemuan',
+            // Menerapkan font Open Sans
+            style: GoogleFonts.openSans(
+              fontWeight: FontWeight.w600,
+              fontSize: 18,
+            ),
+          ),
+
+          // Mengatur warna latar dan teks
+          backgroundColor: Colors.blue[600],
+          foregroundColor: Colors.white,
+          elevation: 2,
+        ),
         body: BlocBuilder<LaporanBloc, LaporanState>(
           buildWhen: (previous, current) {
             // Abaikan semua state aksi: submitting, update success, dan delete success
@@ -104,36 +120,107 @@ class _LaporanDetailPageState extends State<LaporanDetailPage> {
                 padding: const EdgeInsets.all(16),
                 children: [
                   // Info Umum Pertemuan
-                  Card(
-                    child: Padding(
-                      padding: const EdgeInsets.all(16),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            'Pertemuan ${DateFormat('d MMMM yyyy').format(pertemuan.tanggal)}',
-                            style: const TextStyle(
-                              fontSize: 18,
-                              fontWeight: FontWeight.bold,
+                  Container(
+                    padding: const EdgeInsets.all(20.0),
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(12.0),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.grey.withOpacity(0.15),
+                          spreadRadius: 2,
+                          blurRadius: 8,
+                          offset: const Offset(0, 3),
+                        ),
+                      ],
+                    ),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        // Judul Utama
+                        Text(
+                          'Pertemuan ${DateFormat('d MMMM yyyy', 'id_ID').format(pertemuan.tanggal)}',
+                          style: GoogleFonts.openSans(
+                            fontSize: 18,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        const Divider(height: 24, thickness: 1),
+
+                        // Detail Tempat
+                        _buildDetailRow(
+                          icon: Icons.location_on_outlined,
+                          label: 'Tempat',
+                          value: pertemuan.tempat ?? 'Tidak disebutkan',
+                        ),
+                        const SizedBox(height: 12),
+
+                        // Detail Catatan
+                        _buildDetailRow(
+                          icon: Icons.notes_outlined,
+                          label: 'Catatan',
+                          value:
+                              pertemuan.catatan != null &&
+                                  pertemuan.catatan!.isNotEmpty
+                              ? pertemuan.catatan!
+                              : 'Tidak ada catatan.',
+                        ),
+
+                        if (pertemuan.fotoUrl != null) ...[
+                          const SizedBox(height: 16),
+                          ClipRRect(
+                            borderRadius: BorderRadius.circular(
+                              12.0,
+                            ), // Samakan radiusnya
+                            child: Image.network(
+                              pertemuan.fotoUrl!,
+                              fit: BoxFit.cover, // Pastikan gambar mengisi area
+                              // ================== TAMBAHKAN LOGIKA INI ==================
+                              loadingBuilder:
+                                  (
+                                    BuildContext context,
+                                    Widget child,
+                                    ImageChunkEvent? loadingProgress,
+                                  ) {
+                                    if (loadingProgress == null) {
+                                      // Jika gambar sudah selesai dimuat, tampilkan gambarnya
+                                      return child;
+                                    }
+                                    // Selama gambar masih dimuat, tampilkan loading spinner
+                                    return Container(
+                                      height:
+                                          200, // Beri tinggi agar spinner terlihat
+                                      color: Colors.grey[200],
+                                      child: Center(
+                                        child: CircularProgressIndicator(
+                                          // Hitung persen loading jika datanya tersedia
+                                          value:
+                                              loadingProgress
+                                                      .expectedTotalBytes !=
+                                                  null
+                                              ? loadingProgress
+                                                        .cumulativeBytesLoaded /
+                                                    loadingProgress
+                                                        .expectedTotalBytes!
+                                              : null,
+                                        ),
+                                      ),
+                                    );
+                                  },
+                              // ==========================================================
                             ),
                           ),
-                          const Divider(height: 20),
-                          if (pertemuan.tempat != null)
-                            Text('Tempat: ${pertemuan.tempat}'),
-                          if (pertemuan.catatan != null)
-                            Text('Catatan: ${pertemuan.catatan}'),
-                          if (pertemuan.fotoUrl != null) ...[
-                            const SizedBox(height: 10),
-                            Image.network(pertemuan.fotoUrl!),
-                          ],
                         ],
-                      ),
+                      ],
                     ),
                   ),
                   const SizedBox(height: 24),
-                  const Text(
+                  Text(
                     'Laporan Keaktifan Anggota',
-                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                    style: GoogleFonts.openSans(
+                      fontWeight: FontWeight.bold,
+                      fontSize: 18,
+                    ),
                   ),
                   const SizedBox(height: 10),
 
@@ -230,4 +317,40 @@ class _LaporanDetailPageState extends State<LaporanDetailPage> {
       ),
     );
   }
+}
+
+Widget _buildDetailRow({
+  required IconData icon,
+  required String label,
+  required String value,
+}) {
+  return Row(
+    crossAxisAlignment: CrossAxisAlignment.start,
+    children: [
+      Icon(icon, color: Colors.grey[600], size: 20),
+      const SizedBox(width: 16),
+      Expanded(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              label,
+              style: GoogleFonts.openSans(
+                color: Colors.grey[700],
+                fontSize: 13,
+              ),
+            ),
+            const SizedBox(height: 2),
+            Text(
+              value,
+              style: GoogleFonts.openSans(
+                fontSize: 16,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+          ],
+        ),
+      ),
+    ],
+  );
 }
