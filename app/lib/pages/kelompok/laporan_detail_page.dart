@@ -3,11 +3,47 @@ import 'package:app/bloc/kelompok/kelompok_state.dart';
 import 'package:app/bloc/laporan/laporan_bloc.dart';
 import 'package:app/bloc/laporan/laporan_event.dart';
 import 'package:app/bloc/laporan/laporan_state.dart';
+import 'package:app/widgets/laporan/penilaian_dhuha_input.dart';
+import 'package:app/widgets/laporan/penilaian_sholat_input.dart';
+import 'package:app/widgets/laporan/penilaian_tilawah_input.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
+
+String _getPenilaianSholatWajib(int? jumlahDitinggalkan) {
+  final int sholatDilaksanakan = 35 - (jumlahDitinggalkan ?? 35);
+  if (sholatDilaksanakan >= 34) return 'Unggul';
+  if (sholatDilaksanakan >= 30) return 'Sangat Baik';
+  if (sholatDilaksanakan >= 25) return 'Baik';
+  if (sholatDilaksanakan >= 20) return 'Cukup';
+  if (sholatDilaksanakan >= 15) return 'Kurang';
+  return 'Sangat Kurang';
+}
+
+// Helper untuk mendapatkan level penilaian Sholat Dhuha
+String _getPenilaianDhuha(int? jumlahDilaksanakan) {
+  final int dhuha = jumlahDilaksanakan ?? 0;
+  if (dhuha >= 13) return 'Unggul';
+  if (dhuha >= 11) return 'Sangat Baik';
+  if (dhuha >= 9) return 'Baik';
+  if (dhuha >= 7) return 'Cukup';
+  if (dhuha >= 5) return 'Kurang';
+  return 'Sangat Kurang';
+}
+
+// Helper untuk mendapatkan level penilaian Tilawah
+String _getPenilaianTilawah(int? jumlahLembar) {
+  final int tilawah = jumlahLembar ?? 0;
+  if (tilawah >= 7) return 'Unggul';
+  if (tilawah >= 6) return 'Sangat Baik';
+  if (tilawah >= 5) return 'Baik';
+  if (tilawah >= 4) return 'Cukup';
+  if (tilawah >= 2) return 'Kurang';
+  // ... sisa logikanya
+  return 'Sangat Kurang';
+}
 
 class LaporanDetailPage extends StatefulWidget {
   final String pertemuanId;
@@ -223,23 +259,71 @@ class _LaporanDetailPageState extends State<LaporanDetailPage> {
                     ),
                   ),
                   const SizedBox(height: 10),
-
-                  // Daftar Laporan Mentee
-                  ...laporanMentees.map((laporan) {
-                    return Card(
-                      child: ListTile(
-                        leading: CircleAvatar(
-                          child: Text(laporan.mentee?.namaLengkap[0] ?? '?'),
-                        ),
-                        title: Text(
-                          laporan.mentee?.namaLengkap ?? 'Nama tidak ditemukan',
-                        ),
-                        subtitle: Text(
-                          'Sholat: ${laporan.sholatWajib}, Dhuha: ${laporan.sholatDhuha}, Tilawah: ${laporan.tilawahQuran} lbr',
-                        ),
+                  if (laporanMentees.isEmpty)
+                    const Center(
+                      child: Text(
+                        'Tidak ada laporan anggota untuk pertemuan ini.',
                       ),
-                    );
-                  }),
+                    )
+                  else
+                    Column(
+                      children: laporanMentees.map((laporan) {
+                        return Container(
+                          margin: const EdgeInsets.symmetric(vertical: 8),
+                          padding: const EdgeInsets.all(16.0),
+                          decoration: BoxDecoration(
+                            color: Colors.white,
+                            borderRadius: BorderRadius.circular(12.0),
+                            boxShadow: [
+                              BoxShadow(
+                                color: Colors.grey.withOpacity(0.15),
+                                spreadRadius: 2,
+                                blurRadius: 8,
+                                offset: const Offset(0, 3),
+                              ),
+                            ],
+                          ),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              // Baris 1: Nama Mentee
+                              Text(
+                                laporan.mentee?.namaLengkap ??
+                                    'Nama tidak ditemukan',
+                                style: GoogleFonts.openSans(
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 16,
+                                ),
+                              ),
+                              const Divider(height: 20),
+
+                              // Baris 2: Sholat Wajib
+                              _buildReportRow(
+                                'Sholat Wajib',
+                                //  context, // <--- Berikan context di sini
+                                '${35 - (laporan.sholatWajib ?? 35)} rakaat', // Menampilkan jumlah yang dikerjakan
+                                _getPenilaianSholatWajib(laporan.sholatWajib),
+                              ),
+                              SizedBox(height: 3),
+
+                              // Baris 3: Sholat Dhuha
+                              _buildReportRow(
+                                'Sholat Dhuha',
+                                '${laporan.sholatDhuha ?? 0} kali',
+                                _getPenilaianDhuha(laporan.sholatDhuha),
+                              ),
+                              SizedBox(height: 3),
+                              // Baris 4: Tilawah
+                              _buildReportRow(
+                                'Tilawah',
+                                '${laporan.tilawahQuran ?? 0} lembar',
+                                _getPenilaianTilawah(laporan.tilawahQuran),
+                              ),
+                            ],
+                          ),
+                        );
+                      }).toList(),
+                    ),
                 ],
               );
             }
@@ -317,6 +401,72 @@ class _LaporanDetailPageState extends State<LaporanDetailPage> {
       ),
     );
   }
+
+  Widget _buildReportRow(String label, String value, String penilaian) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 4.0),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // Kolom Label (lebar tetap)
+          SizedBox(
+            width: 110, // Atur lebar ini agar semua titik dua (:) sejajar
+            child: Text(
+              '$label :',
+              style: GoogleFonts.openSans(
+                fontSize: 14,
+                color: Colors.grey[800],
+              ),
+            ),
+          ),
+          // Kolom Nilai dan Penilaian
+          Expanded(
+            child: Text.rich(
+              TextSpan(
+                style: GoogleFonts.openSans(fontSize: 14),
+                children: [
+                  TextSpan(text: '$value, '),
+                  TextSpan(
+                    text: 'Penilaian $penilaian',
+                    style: GoogleFonts.openSans(
+                      fontSize: 14,
+                      fontWeight: FontWeight.w600,
+                    ),
+                    // style: const TextStyle(fontWeight: FontWeight.w600),
+                  ),
+                ],
+              ),
+            ),
+          ),
+          const SizedBox(width: 8), // Beri sedikit jarak
+          IconButton(
+            icon: Icon(Icons.info_outline, color: Colors.grey[500], size: 20),
+            onPressed: () {
+              // Logika untuk menampilkan dialog yang sesuai
+              if (label.contains('Wajib')) {
+                showDialog(
+                  context: context,
+                  builder: (context) => const InfoPenilaianDialog(),
+                );
+              } else if (label.contains('Dhuha')) {
+                showDialog(
+                  context: context,
+                  builder: (context) => const InfoPenilaianDhuhaDialog(),
+                );
+              } else if (label.contains('Tilawah')) {
+                showDialog(
+                  context: context,
+                  builder: (context) => const InfoPenilaianTilawahDialog(),
+                );
+              }
+            },
+            padding: EdgeInsets.zero,
+            constraints: const BoxConstraints(),
+          ),
+        ],
+      ),
+    );
+  }
 }
 
 Widget _buildDetailRow({
@@ -354,3 +504,61 @@ Widget _buildDetailRow({
     ],
   );
 }
+
+// Widget _buildReportRow(String label, String value, String penilaian) {
+//   return Padding(
+//     padding: const EdgeInsets.symmetric(vertical: 4.0),
+//     child: Row(
+//       crossAxisAlignment: CrossAxisAlignment.start,
+//       children: [
+//         // Kolom Label (lebar tetap)
+//         SizedBox(
+//           width: 110, // Atur lebar ini agar semua titik dua (:) sejajar
+//           child: Text(
+//             '$label :',
+//             style: GoogleFonts.openSans(fontSize: 14, color: Colors.grey[800]),
+//           ),
+//         ),
+//         // Kolom Nilai dan Penilaian
+//         Expanded(
+//           child: Text.rich(
+//             TextSpan(
+//               style: GoogleFonts.openSans(fontSize: 14),
+//               children: [
+//                 TextSpan(text: '$value, '),
+//                 TextSpan(
+//                   text: 'Penilaian $penilaian',
+//                   style: GoogleFonts.openSans(
+//                     fontSize: 14,
+//                     fontWeight: FontWeight.w600,
+//                   ),
+//                   // style: const TextStyle(fontWeight: FontWeight.w600),
+//                 ),
+//               ],
+//             ),
+//           ),
+//         ),
+//         const SizedBox(width: 8), // Beri sedikit jarak
+//         IconButton(
+//           icon: Icon(
+//             Icons.info_outline,
+//             color: Colors.grey[500],
+//             size: 20,
+//           ),
+//           onPressed: () {
+//             // Logika untuk menampilkan dialog yang sesuai
+//             if (label.contains('Wajib')) {
+//               showDialog(context: context, builder: (context) => const InfoPenilaianDialog());
+//             } else if (label.contains('Dhuha')) {
+//               showDialog(context: context, builder: (context) => const InfoPenilaianDhuhaDialog());
+//             } else if (label.contains('Tilawah')) {
+//               showDialog(context: context, builder: (context) => const InfoPenilaianTilawahDialog());
+//             }
+//           },
+//           padding: EdgeInsets.zero,
+//           constraints: const BoxConstraints(),
+//         ),
+//       ],
+//     ),
+//   );
+// }
