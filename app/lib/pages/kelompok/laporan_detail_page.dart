@@ -377,16 +377,34 @@ class _LaporanDetailPageState extends State<LaporanDetailPage> {
                             }
                           }
                         },
+                        style: OutlinedButton.styleFrom(
+                          minimumSize: const Size(0, 50), // Atur tinggi tombol
+                          foregroundColor:
+                              Colors.grey[800], // Warna teks dan ikon
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(10),
+                          ),
+                          side: BorderSide(
+                            color: Colors.grey.shade400,
+                          ), // Warna border
+                        ),
                       ),
                     ),
-                    const SizedBox(width: 10),
+                    const SizedBox(width: 12),
                     Expanded(
                       child: ElevatedButton.icon(
                         icon: const Icon(Icons.delete),
                         label: const Text('Hapus'),
                         onPressed: _showDeleteConfirmation,
                         style: ElevatedButton.styleFrom(
+                          minimumSize: const Size(0, 50), // Atur tinggi tombol
                           backgroundColor: Colors.red[700],
+                          foregroundColor: Colors.white,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(10),
+                          ),
+                          elevation: 2,
+                          shadowColor: Colors.red.withOpacity(0.2),
                         ),
                       ),
                     ),
