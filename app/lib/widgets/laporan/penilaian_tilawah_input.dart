@@ -220,7 +220,7 @@ class InfoPenilaianTilawahDialog extends StatelessWidget {
                 ),
               ),
               child: Text(
-                'Mengerti',
+                'Ok',
                 style: GoogleFonts.openSans(fontWeight: FontWeight.w600),
               ),
             ),
