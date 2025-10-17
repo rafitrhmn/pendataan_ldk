@@ -55,31 +55,108 @@ class LaporanDetailPage extends StatefulWidget {
 
 class _LaporanDetailPageState extends State<LaporanDetailPage> {
   // Helper untuk dialog konfirmasi hapus
+  // Lokasi: lib/pages/laporan/laporan_detail_page.dart
+
   void _showDeleteConfirmation() {
     showDialog(
       context: context,
-      builder: (dialogContext) => AlertDialog(
-        title: const Text('Hapus Laporan'),
-        content: const Text(
-          'Apakah Anda yakin? Laporan yang dihapus tidak dapat dipulihkan.',
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.of(dialogContext).pop(),
-            child: const Text('Batal'),
+      builder: (dialogContext) {
+        // Menggunakan widget Dialog langsung untuk kustomisasi penuh
+        return Dialog(
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(12.0),
           ),
-          FilledButton(
-            style: FilledButton.styleFrom(backgroundColor: Colors.red),
-            onPressed: () {
-              context.read<LaporanBloc>().add(
-                DeleteLaporanPertemuan(widget.pertemuanId),
-              );
-              Navigator.of(dialogContext).pop();
-            },
-            child: const Text('Hapus'),
+          backgroundColor: Colors.white,
+          child: Padding(
+            padding: const EdgeInsets.all(24.0),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                // Ikon untuk visual
+                Container(
+                  padding: const EdgeInsets.all(12),
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    color: Colors.red.withOpacity(0.1),
+                  ),
+                  child: const Icon(
+                    Icons.delete_outline,
+                    color: Colors.red,
+                    size: 40,
+                  ),
+                ),
+                const SizedBox(height: 16),
+                // Judul
+                Text(
+                  'Hapus Laporan',
+                  style: GoogleFonts.openSans(
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                const SizedBox(height: 8),
+                // Konten/Deskripsi
+                Text(
+                  'Apakah Anda yakin? Laporan yang dihapus tidak dapat dipulihkan.',
+                  textAlign: TextAlign.center,
+                  style: GoogleFonts.openSans(
+                    fontSize: 14,
+                    color: Colors.grey[700],
+                  ),
+                ),
+                const SizedBox(height: 24),
+                // Tombol Aksi
+                Row(
+                  children: [
+                    Expanded(
+                      child: OutlinedButton(
+                        onPressed: () => Navigator.of(dialogContext).pop(),
+                        style: OutlinedButton.styleFrom(
+                          minimumSize: const Size(0, 50),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(10),
+                          ),
+                          side: BorderSide(color: Colors.grey.shade400),
+                        ),
+                        child: Text(
+                          'Batal',
+                          style: GoogleFonts.openSans(color: Colors.grey[800]),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(width: 16),
+                    Expanded(
+                      child: ElevatedButton(
+                        onPressed: () {
+                          context.read<LaporanBloc>().add(
+                            DeleteLaporanPertemuan(widget.pertemuanId),
+                          );
+                          Navigator.of(dialogContext).pop();
+                        },
+                        style: ElevatedButton.styleFrom(
+                          minimumSize: const Size(0, 50),
+                          backgroundColor: Colors.red,
+                          foregroundColor: Colors.white,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(10),
+                          ),
+                          elevation: 0,
+                        ),
+                        child: Text(
+                          'Hapus',
+                          style: GoogleFonts.openSans(
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            ),
           ),
-        ],
-      ),
+        );
+      },
     );
   }
 

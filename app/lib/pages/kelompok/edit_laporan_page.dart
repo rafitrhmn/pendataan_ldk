@@ -4,6 +4,10 @@ import 'package:app/bloc/laporan/laporan_state.dart';
 import 'package:app/models/laporan_mentee_model.dart';
 import 'package:app/models/mentee_model.dart';
 import 'package:app/models/pertemuan_model.dart';
+import 'package:app/utils/style_decorations.dart';
+import 'package:app/widgets/laporan/penilaian_dhuha_input.dart';
+import 'package:app/widgets/laporan/penilaian_sholat_input.dart';
+import 'package:app/widgets/laporan/penilaian_tilawah_input.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -11,6 +15,7 @@ import 'package:go_router/go_router.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:google_fonts/google_fonts.dart';
 
 class EditLaporanPage extends StatefulWidget {
   final Pertemuan pertemuan;
@@ -110,7 +115,48 @@ class _EditLaporanPageState extends State<EditLaporanPage> {
       initialDate: _selectedDate,
       firstDate: DateTime(2020),
       lastDate: DateTime.now(),
+
+      // Teks tombol kustom
+      cancelText: 'Batal',
+      confirmText: 'Pilih Tanggal',
+
+      // Builder untuk menerapkan tema kustom
+      builder: (context, child) {
+        return Theme(
+          data: Theme.of(context).copyWith(
+            // Kustomisasi tema date picker
+            datePickerTheme: DatePickerThemeData(
+              backgroundColor: Colors.white,
+              headerBackgroundColor: Colors.blue[600],
+              headerForegroundColor: Colors.white,
+              dayStyle: GoogleFonts.openSans(),
+              weekdayStyle: GoogleFonts.openSans(fontWeight: FontWeight.w600),
+              yearStyle: GoogleFonts.openSans(),
+              headerHelpStyle: GoogleFonts.openSans(color: Colors.white70),
+              headerHeadlineStyle: GoogleFonts.openSans(
+                fontSize: 32,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+
+            // Kustomisasi warna utama
+            colorScheme: ColorScheme.light(
+              primary: Colors.blue[600]!,
+              onPrimary: Colors.white,
+            ),
+
+            // Kustomisasi gaya font tombol
+            textButtonTheme: TextButtonThemeData(
+              style: TextButton.styleFrom(
+                textStyle: GoogleFonts.openSans(fontWeight: FontWeight.w600),
+              ),
+            ),
+          ),
+          child: child!,
+        );
+      },
     );
+
     if (date != null) setState(() => _selectedDate = date);
   }
 
@@ -189,7 +235,20 @@ class _EditLaporanPageState extends State<EditLaporanPage> {
         }
       },
       child: Scaffold(
-        appBar: AppBar(title: Text('Edit Laporan Pertemuan')),
+        backgroundColor: Colors.grey[100],
+        appBar: AppBar(
+          centerTitle: true,
+          title: Text(
+            'Edit Laporan Pertemuan', // Judul disesuaikan
+            style: GoogleFonts.openSans(
+              fontWeight: FontWeight.w600,
+              fontSize: 18,
+            ),
+          ),
+          backgroundColor: Colors.blue[600],
+          foregroundColor: Colors.white,
+          elevation: 2,
+        ),
         body: Form(
           key: _formKey,
           child: ListView(
@@ -218,7 +277,15 @@ class _EditLaporanPageState extends State<EditLaporanPage> {
                   return ElevatedButton(
                     onPressed: _saveChanges,
                     style: ElevatedButton.styleFrom(
-                      minimumSize: const Size(double.infinity, 50),
+                      backgroundColor: Colors.blue[600],
+                      foregroundColor: Colors.white,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      padding: const EdgeInsets.symmetric(
+                        vertical: 15,
+                        horizontal: 16,
+                      ),
                     ),
                     child: const Text('Simpan Perubahan'),
                   );
@@ -232,10 +299,9 @@ class _EditLaporanPageState extends State<EditLaporanPage> {
   }
 
   Widget _buildInfoUmumCard() {
-    // Logika untuk menentukan widget pratinjau gambar
+    // Widget untuk pratinjau gambar, tidak berubah
     Widget imagePreview;
     if (_selectedImageBytes != null) {
-      // Jika ada gambar baru yang dipilih, tampilkan dari memory
       imagePreview = ClipRRect(
         borderRadius: BorderRadius.circular(8),
         child: Image.memory(
@@ -245,19 +311,7 @@ class _EditLaporanPageState extends State<EditLaporanPage> {
           fit: BoxFit.cover,
         ),
       );
-    } else if (_existingImageUrl != null) {
-      // Jika ada gambar lama dari database, tampilkan dari network
-      imagePreview = ClipRRect(
-        borderRadius: BorderRadius.circular(8),
-        child: Image.network(
-          _existingImageUrl!,
-          width: 60,
-          height: 60,
-          fit: BoxFit.cover,
-        ),
-      );
     } else {
-      // Tampilan default jika tidak ada gambar
       imagePreview = Container(
         width: 60,
         height: 60,
@@ -269,56 +323,101 @@ class _EditLaporanPageState extends State<EditLaporanPage> {
       );
     }
 
-    return Card(
-      child: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            const Text(
-              'Detail Pertemuan',
-              style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+    // DIUBAH: Menggunakan Container dengan BoxDecoration
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(12.0),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.grey.withOpacity(0.15),
+            spreadRadius: 2,
+            blurRadius: 8,
+            offset: const Offset(0, 3),
+          ),
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            'Detail Pertemuan',
+            style: GoogleFonts.openSans(
+              fontSize: 18,
+              fontWeight: FontWeight.bold,
             ),
-            const Divider(height: 20),
-            ListTile(
-              leading: const Icon(Icons.calendar_today),
-              title: const Text('Tanggal Pertemuan'),
-              subtitle: Text(
-                DateFormat('EEEE, d MMMM yyyy').format(_selectedDate),
+          ),
+          const Divider(height: 24),
+          ListTile(
+            leading: const Icon(Icons.calendar_today),
+            title: Text(
+              'Tanggal Pertemuan',
+              style: GoogleFonts.openSans(fontWeight: FontWeight.w600),
+            ),
+            subtitle: Text(
+              DateFormat('EEEE, d MMMM yyyy', 'id_ID').format(_selectedDate),
+              style: GoogleFonts.openSans(),
+            ),
+            onTap: _selectDate,
+            contentPadding: EdgeInsets.zero,
+          ),
+          const SizedBox(height: 16),
+          TextFormField(
+            controller: _tempatController,
+            style: GoogleFonts.openSans(),
+            decoration: buildInputDecoration(
+              'Tempat Pertemuan',
+              suffixIcon: Icon(
+                Icons.location_on_outlined,
+                color: Colors.black.withOpacity(0.5),
               ),
-              onTap: _selectDate,
-              contentPadding: EdgeInsets.zero,
             ),
-            TextFormField(
-              controller: _tempatController,
-              decoration: const InputDecoration(labelText: 'Tempat Pertemuan'),
-              validator: (v) => v!.isEmpty ? 'Tempat tidak boleh kosong' : null,
-            ),
-            const SizedBox(height: 8),
-            TextFormField(
-              controller: _catatanController,
-              decoration: const InputDecoration(
-                labelText: 'Catatan Pertemuan (Opsional)',
+            validator: (v) => v!.isEmpty ? 'Tempat tidak boleh kosong' : null,
+          ),
+          const SizedBox(height: 12),
+          TextFormField(
+            controller: _catatanController,
+            style: GoogleFonts.openSans(),
+            decoration: buildInputDecoration(
+              'Catatan Pertemuan (Opsional)',
+              suffixIcon: Icon(
+                Icons.notes_outlined,
+                color: Colors.black.withOpacity(0.5),
               ),
-              maxLines: 3,
-              minLines: 1,
             ),
-            const SizedBox(height: 16),
-            Row(
-              children: [
-                imagePreview,
-                const SizedBox(width: 10),
-                Expanded(
-                  child: ElevatedButton.icon(
-                    onPressed: _pickImage,
-                    icon: const Icon(Icons.upload_file),
-                    label: const Text('Ganti Foto'),
+            maxLines: 5,
+            minLines: 1,
+          ),
+          const SizedBox(height: 16),
+          Row(
+            children: [
+              imagePreview,
+              const SizedBox(width: 12),
+              Expanded(
+                child: ElevatedButton.icon(
+                  onPressed: _pickImage,
+                  icon: const Icon(Icons.upload_file, size: 20),
+                  label: Text(
+                    'Unggah Foto',
+                    style: GoogleFonts.openSans(fontWeight: FontWeight.w600),
+                  ),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.blue[600],
+                    foregroundColor: Colors.white,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    padding: const EdgeInsets.symmetric(
+                      vertical: 15,
+                      horizontal: 16,
+                    ),
                   ),
                 ),
-              ],
-            ),
-          ],
-        ),
+              ),
+            ],
+          ),
+        ],
       ),
     );
   }
@@ -327,56 +426,51 @@ class _EditLaporanPageState extends State<EditLaporanPage> {
     final report = _laporanMenteesMap[mentee.id]!;
     final bool isHadir = report['hadir'];
 
-    return Card(
+    return Container(
       margin: const EdgeInsets.symmetric(vertical: 8),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(12.0),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.grey.withOpacity(0.15),
+            spreadRadius: 2,
+            blurRadius: 8,
+            offset: const Offset(0, 3),
+          ),
+        ],
+      ),
       child: Column(
         children: [
           CheckboxListTile(
             title: Text(
               mentee.namaLengkap,
-              style: const TextStyle(fontWeight: FontWeight.bold),
+              style: GoogleFonts.openSans(fontWeight: FontWeight.bold),
             ),
-            subtitle: const Text('Kehadiran'),
+            subtitle: Text('Kehadiran', style: GoogleFonts.openSans()),
             value: isHadir,
             onChanged: (val) => setState(() => report['hadir'] = val!),
+            activeColor: Colors.blue[600],
           ),
           if (isHadir)
             Padding(
               padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
               child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  TextFormField(
-                    controller: report['sholat_wajib'],
-                    decoration: const InputDecoration(
-                      labelText: 'Sholat Wajib (kali)',
-                      isDense: true,
-                    ),
-                    keyboardType: TextInputType.number,
-                    inputFormatters: [FilteringTextInputFormatter.digitsOnly],
-                    validator: (v) => v!.isEmpty ? 'Wajib diisi' : null,
-                  ),
-                  const SizedBox(height: 8),
-                  TextFormField(
-                    controller: report['sholat_dhuha'],
-                    decoration: const InputDecoration(
-                      labelText: 'Sholat Dhuha (kali)',
-                      isDense: true,
-                    ),
-                    keyboardType: TextInputType.number,
-                    inputFormatters: [FilteringTextInputFormatter.digitsOnly],
-                    validator: (v) => v!.isEmpty ? 'Wajib diisi' : null,
-                  ),
-                  const SizedBox(height: 8),
-                  TextFormField(
-                    controller: report['tilawah_quran'],
-                    decoration: const InputDecoration(
-                      labelText: 'Tilawah (lembar)',
-                      isDense: true,
-                    ),
-                    keyboardType: TextInputType.number,
-                    inputFormatters: [FilteringTextInputFormatter.digitsOnly],
-                    validator: (v) => v!.isEmpty ? 'Wajib diisi' : null,
-                  ),
+                  const Divider(),
+                  const SizedBox(height: 16),
+
+                  // --- Panggil Widget Penilaian Sholat Wajib ---
+                  PenilaianSholatInput(controller: report['sholat_wajib']),
+                  const SizedBox(height: 16),
+
+                  // --- Panggil Widget Penilaian Sholat Dhuha ---
+                  PenilaianDhuhaInput(controller: report['sholat_dhuha']),
+                  const SizedBox(height: 16),
+
+                  // --- Panggil Widget Penilaian Tilawah ---
+                  PenilaianTilawahInput(controller: report['tilawah_quran']),
                 ],
               ),
             ),
