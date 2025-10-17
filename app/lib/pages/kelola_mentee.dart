@@ -3,7 +3,7 @@ import 'package:app/bloc/mentee/mentee_bloc.dart';
 import 'package:app/bloc/mentee/mentee_event.dart';
 import 'package:app/bloc/mentee/mentee_state.dart';
 import 'package:app/models/mentee_model.dart';
-import 'package:app/utils/icon_style.dart';
+import 'package:app/utils/style_decorations.dart';
 import 'package:app/widgets/admin_drawer.dart';
 import 'package:app/widgets/appbar.dart';
 import 'package:app/widgets/mentee/add_mentee_dialog.dart';
@@ -202,8 +202,10 @@ class _KelolaMenteeViewState extends State<_KelolaMenteeView> {
           child: TextField(
             controller: _searchController,
             onChanged: _onSearchChanged,
+            style: GoogleFonts.openSans(),
             decoration: InputDecoration(
               hintText: 'Cari nama mentee...',
+              hintStyle: GoogleFonts.openSans(color: Colors.grey[600]),
               prefixIcon: const Icon(Icons.search),
               border: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(8),
@@ -276,7 +278,7 @@ class _KelolaMenteeViewState extends State<_KelolaMenteeView> {
                           // Baris 1: Nama Lengkap
                           Text(
                             mentee.namaLengkap,
-                            style: const TextStyle(
+                            style: GoogleFonts.openSans(
                               fontWeight: FontWeight.bold,
                               fontSize: 16,
                             ),
@@ -294,7 +296,7 @@ class _KelolaMenteeViewState extends State<_KelolaMenteeView> {
                               const SizedBox(width: 6),
                               Text(
                                 mentee.prodi,
-                                style: TextStyle(
+                                style: GoogleFonts.openSans(
                                   color: Colors.grey[700],
                                   fontSize: 14,
                                 ),
@@ -314,7 +316,7 @@ class _KelolaMenteeViewState extends State<_KelolaMenteeView> {
                               const SizedBox(width: 6),
                               Text(
                                 'Angkatan ${mentee.angkatan}',
-                                style: TextStyle(
+                                style: GoogleFonts.openSans(
                                   color: Colors.grey[700],
                                   fontSize: 14,
                                 ),

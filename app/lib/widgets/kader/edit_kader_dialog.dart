@@ -1,5 +1,3 @@
-// edit_kader_dialog.dart
-
 import 'package:app/bloc/kader/kader_bloc.dart';
 import 'package:app/bloc/kader/kader_event.dart';
 import 'package:app/bloc/kader/kader_state.dart';
@@ -50,6 +48,7 @@ class _EditKaderDialogState extends State<EditKaderDialog> {
       hintText: hintText,
       hintStyle: GoogleFonts.openSans(
         color: Colors.black.withOpacity(0.5),
+        // color: Colors.grey[600],
         fontSize: 14,
       ),
       filled: true,
@@ -72,7 +71,9 @@ class _EditKaderDialogState extends State<EditKaderDialog> {
         UpdateKader(
           id: widget.kaderToEdit.id,
           newUsername: _usernameController.text,
-          newPhone: _phoneController.text,
+          newPhone: _phoneController.text
+              .replaceAll(' ', '')
+              .replaceAll('-', ''),
           newJabatan: _jabatanController.text,
         ),
       );
@@ -140,6 +141,7 @@ class _EditKaderDialogState extends State<EditKaderDialog> {
                     TextFormField(
                       controller: _usernameController,
                       autofillHints: const [AutofillHints.name],
+                      style: GoogleFonts.openSans(),
                       decoration: _buildInputDecoration(
                         'Username',
                         suffixIcon: Icon(
@@ -155,6 +157,7 @@ class _EditKaderDialogState extends State<EditKaderDialog> {
                     TextFormField(
                       controller: _phoneController,
                       autofillHints: const [AutofillHints.telephoneNumber],
+                      style: GoogleFonts.openSans(),
                       decoration: _buildInputDecoration(
                         'Nomor Handphone',
                         suffixIcon: Icon(
@@ -163,16 +166,29 @@ class _EditKaderDialogState extends State<EditKaderDialog> {
                         ),
                       ),
                       keyboardType: TextInputType.phone,
-                      validator: (value) => (value == null || value.isEmpty)
-                          ? 'Nomor handphone tidak boleh kosong'
-                          : null,
+                      validator: (value) {
+                        if (value == null || value.isEmpty) {
+                          return 'Nomor handphone tidak boleh kosong';
+                        }
+                        // Tambahkan validasi panjang digit
+                        final sanitizedPhone = value
+                            .replaceAll(' ', '')
+                            .replaceAll('-', '');
+                        if (sanitizedPhone.length < 10 ||
+                            sanitizedPhone.length > 13) {
+                          return 'Nomor HP harus antara 10-13 digit';
+                        }
+                        return null;
+                      },
                     ),
                     const SizedBox(height: 16),
                     TextFormField(
                       controller: _jabatanController,
                       autofillHints: const [AutofillHints.jobTitle],
+                      style: GoogleFonts.openSans(),
                       decoration: _buildInputDecoration(
                         'Jabatan',
+
                         suffixIcon: Icon(
                           Icons.work_outline,
                           color: Colors.black.withOpacity(0.5),
@@ -196,7 +212,10 @@ class _EditKaderDialogState extends State<EditKaderDialog> {
                                 borderRadius: BorderRadius.circular(10),
                               ),
                             ),
-                            child: const Text('Batal'),
+                            child: Text(
+                              'Batal',
+                              style: GoogleFonts.openSans(fontSize: 14),
+                            ),
                           ),
                         ),
                         const SizedBox(width: 16),
@@ -233,9 +252,10 @@ class _EditKaderDialogState extends State<EditKaderDialog> {
                                     borderRadius: BorderRadius.circular(10),
                                   ),
                                 ),
-                                child: const Text(
+                                child: Text(
                                   'Simpan Perubahan',
                                   textAlign: TextAlign.center,
+                                  style: GoogleFonts.openSans(fontSize: 14),
                                 ),
                               );
                             },

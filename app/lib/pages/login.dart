@@ -120,12 +120,18 @@ class _LoginPageState extends State<LoginPage> {
                     const SizedBox(height: 20),
                     TextField(
                       controller: _usernameController,
+                      style: GoogleFonts.openSans(
+                        fontSize: 14,
+                        fontWeight:
+                            FontWeight.w600, // Sedikit tebal agar mudah dibaca
+                        color: Colors.black87, // Warna teks input
+                      ),
                       decoration: InputDecoration(
                         // Teks petunjuk yang akan hilang saat pengguna mengetik
                         hintText: 'Username',
                         // Gaya teks untuk hintText
                         hintStyle: GoogleFonts.openSans(
-                          color: Colors.black.withOpacity(0.5),
+                          color: const Color.fromRGBO(0, 0, 0, 0.4),
                           fontSize: 14,
                         ),
                         // Memberi warna latar belakang pada field
@@ -144,8 +150,11 @@ class _LoginPageState extends State<LoginPage> {
                         // DITAMBAHKAN: Ikon di ujung kanan
                         suffixIcon: Icon(
                           Icons.person_outline, // Ikon pengguna/user
-                          color: Colors.black.withOpacity(
-                            0.5,
+                          color: const Color.fromRGBO(
+                            0,
+                            0,
+                            0,
+                            0.4,
                           ), // Warna disamakan dengan hintText
                         ),
                       ),
@@ -154,10 +163,16 @@ class _LoginPageState extends State<LoginPage> {
                     TextField(
                       controller: _passwordController,
                       obscureText: !_isPasswordVisible,
+                      style: GoogleFonts.openSans(
+                        fontSize: 14,
+                        fontWeight:
+                            FontWeight.w600, // Sedikit tebal agar mudah dibaca
+                        color: Colors.black87, // Warna teks input
+                      ),
                       decoration: InputDecoration(
                         hintText: 'Password',
                         hintStyle: GoogleFonts.openSans(
-                          color: Colors.black.withOpacity(0.5),
+                          color: const Color.fromRGBO(0, 0, 0, 0.5),
                           fontSize: 14,
                         ),
                         filled: true,
@@ -175,7 +190,7 @@ class _LoginPageState extends State<LoginPage> {
                             _isPasswordVisible
                                 ? Icons.visibility
                                 : Icons.visibility_off,
-                            color: Colors.black.withOpacity(0.5),
+                            color: const Color.fromRGBO(0, 0, 0, 0.4),
                           ),
                           onPressed: () => setState(
                             () => _isPasswordVisible = !_isPasswordVisible,

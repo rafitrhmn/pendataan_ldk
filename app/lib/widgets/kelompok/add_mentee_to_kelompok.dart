@@ -6,6 +6,7 @@ import 'package:app/bloc/mentee/mentee_state.dart';
 import 'package:app/models/mentee_model.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:google_fonts/google_fonts.dart';
 
 class AddMenteeToKelompokDialog extends StatefulWidget {
   final String kelompokId;
@@ -63,7 +64,14 @@ class _AddMenteeToKelompokDialogState extends State<AddMenteeToKelompokDialog> {
         }
       },
       child: AlertDialog(
-        title: const Text('Tambah Anggota Mentee'),
+        title: Text(
+          'Tambah Anggota Mentee',
+          style: GoogleFonts.openSans(
+            fontSize: 18,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+        backgroundColor: Colors.white,
         content: BlocBuilder<MenteeBloc, MenteeState>(
           builder: (context, state) {
             if (state is UnassignedMenteesLoaded) {
@@ -72,8 +80,13 @@ class _AddMenteeToKelompokDialogState extends State<AddMenteeToKelompokDialog> {
               }
               return DropdownButton<String>(
                 value: _selectedMenteeId,
+                dropdownColor: Colors.white,
                 isExpanded: true,
-                hint: const Text('Pilih Mentee'),
+                style: GoogleFonts.openSans(fontSize: 14),
+                hint: Text(
+                  'Pilih Mentee',
+                  style: GoogleFonts.openSans(fontSize: 14),
+                ),
                 items: state.mentees.map((Mentee mentee) {
                   return DropdownMenuItem<String>(
                     value: mentee.id,
@@ -87,23 +100,65 @@ class _AddMenteeToKelompokDialogState extends State<AddMenteeToKelompokDialog> {
           },
         ),
         actions: [
-          TextButton(
-            onPressed: () => Navigator.of(context).pop(),
-            child: const Text('Batal'),
+          // Tombol Batal dengan gaya OutlinedButton
+          Expanded(
+            child: OutlinedButton(
+              onPressed: () => Navigator.of(context).pop(),
+              style: OutlinedButton.styleFrom(
+                minimumSize: const Size(0, 50), // Menyesuaikan tinggi
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                side: BorderSide(color: Colors.grey.shade400),
+              ),
+              child: Text(
+                'Batal',
+                style: GoogleFonts.openSans(color: Colors.grey[800]),
+              ),
+            ),
           ),
-          BlocBuilder<MenteeBloc, MenteeState>(
-            builder: (context, state) {
-              if (state is MenteeSubmitting) {
-                return const ElevatedButton(
-                  onPressed: null,
-                  child: Text('Menyimpan...'),
+          const SizedBox(width: 12), // Jarak antar tombol
+          // Tombol Simpan/Aksi dengan gaya ElevatedButton
+          Expanded(
+            child: BlocBuilder<MenteeBloc, MenteeState>(
+              builder: (context, state) {
+                // Kondisi loading
+                if (state is MenteeSubmitting) {
+                  return ElevatedButton(
+                    onPressed: null,
+                    style: ElevatedButton.styleFrom(
+                      minimumSize: const Size(0, 50),
+                      backgroundColor: Colors.grey,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                    ),
+                    child: const SizedBox(
+                      height: 24,
+                      width: 24,
+                      child: CircularProgressIndicator(
+                        strokeWidth: 3,
+                        color: Colors.white,
+                      ),
+                    ),
+                  );
+                }
+
+                // Kondisi normal/aktif
+                return ElevatedButton(
+                  onPressed: _selectedMenteeId == null ? null : _submit,
+                  style: ElevatedButton.styleFrom(
+                    minimumSize: const Size(0, 50),
+                    backgroundColor: Colors.blue[600],
+                    foregroundColor: Colors.white,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                  ),
+                  child: Text('Simpan', style: GoogleFonts.openSans()),
                 );
-              }
-              return ElevatedButton(
-                onPressed: _selectedMenteeId == null ? null : _submit,
-                child: const Text('Simpan'),
-              );
-            },
+              },
+            ),
           ),
         ],
       ),

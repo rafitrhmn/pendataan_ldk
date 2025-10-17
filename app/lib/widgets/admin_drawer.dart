@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:google_fonts/google_fonts.dart';
 
 class AdminDrawer extends StatelessWidget {
   const AdminDrawer({super.key});
@@ -8,7 +9,7 @@ class AdminDrawer extends StatelessWidget {
   Widget build(BuildContext context) {
     return Drawer(
       backgroundColor: Colors.white,
-      elevation: 0,
+      elevation: 1, // Beri sedikit shadow
       child: ListView(
         padding: EdgeInsets.zero,
         children: [
@@ -23,74 +24,88 @@ class AdminDrawer extends StatelessWidget {
                   child: Image.asset('assets/images/logo_2.png', height: 45),
                 ),
                 const SizedBox(height: 12),
-                const Text(
+                Text(
                   'Sistem Pembinaan',
-                  style: TextStyle(
+                  style: GoogleFonts.openSans(
                     color: Colors.white,
                     fontSize: 18,
                     fontWeight: FontWeight.bold,
                   ),
                 ),
-                const Text(
+                Text(
                   'LDK Al-Faateh',
-                  style: TextStyle(color: Colors.white70, fontSize: 14),
+                  style: GoogleFonts.openSans(
+                    color: Colors.white70,
+                    fontSize: 14,
+                  ),
                 ),
               ],
             ),
           ),
-          ListTile(
-            leading: const Icon(Icons.home_outlined),
-            title: const Text('Beranda'),
-            onTap: () {
-              Navigator.pop(context); // Tutup drawer
-              GoRouter.of(context).go('/dashadmin');
-            },
+
+          // Menggunakan helper untuk membuat ListTile yang konsisten
+          _buildDrawerItem(
+            context: context,
+            icon: Icons.home_outlined,
+            title: 'Beranda',
+            route: '/dashadmin',
           ),
-          ListTile(
-            leading: const Icon(Icons.groups_outlined),
-            title: const Text('Kelola Kader'),
-            onTap: () {
-              Navigator.pop(context); // Tutup drawer dulu
-              GoRouter.of(context).go('/kelola-kader');
-            },
+          _buildDrawerItem(
+            context: context,
+            icon: Icons.groups_outlined,
+            title: 'Kelola Kader',
+            route: '/kelola-kader',
           ),
-          ListTile(
-            leading: const Icon(Icons.school_outlined),
-            title: const Text('Kelola Mentor'),
-            onTap: () {
-              Navigator.pop(context); // Tutup drawer dulu
-              GoRouter.of(context).go('/kelola-mentor');
-            },
+          _buildDrawerItem(
+            context: context,
+            icon: Icons.school_outlined,
+            title: 'Kelola Mentor',
+            route: '/kelola-mentor',
           ),
-          ListTile(
-            leading: const Icon(Icons.face_retouching_natural_outlined),
-            title: const Text('Kelola Mantee'),
-            onTap: () {
-              Navigator.pop(context); // Tutup drawer dulu
-              GoRouter.of(context).go('/kelola-mentee');
-            },
+          _buildDrawerItem(
+            context: context,
+            icon: Icons.face_retouching_natural_outlined,
+            title: 'Kelola Mentee',
+            route: '/kelola-mentee',
           ),
-          ListTile(
-            leading: const Icon(
-              Icons.hub_outlined,
-            ), // Ikon yang cocok untuk kelompok
-            title: const Text('Kelola Kelompok'),
-            onTap: () {
-              Navigator.pop(context);
-              GoRouter.of(
-                context,
-              ).go('/kelola-kelompok'); // Arahkan ke route baru
-            },
-          ),
-          ListTile(
-            leading: const Icon(Icons.book_outlined),
-            title: const Text('Kelola PAI'),
-            onTap: () {
-              // TODO: Navigasi ke halaman Kelola PAI
-            },
+          _buildDrawerItem(
+            context: context,
+            icon: Icons.hub_outlined,
+            title: 'Kelola Kelompok',
+            route: '/kelola-kelompok',
           ),
         ],
       ),
+    );
+  }
+
+  //  BUAT HELPER WIDGET UNTUK LISTTILE
+  Widget _buildDrawerItem({
+    required BuildContext context,
+    required IconData icon,
+    required String title,
+    required String route,
+  }) {
+    final String currentLocation = GoRouterState.of(context).uri.toString();
+    final bool isSelected = currentLocation == route;
+
+    return ListTile(
+      leading: Icon(
+        icon,
+        color: isSelected ? Colors.blue[600] : Colors.grey[600],
+      ),
+      title: Text(
+        title,
+        style: GoogleFonts.openSans(
+          fontWeight: isSelected ? FontWeight.w600 : FontWeight.w500,
+          color: isSelected ? Colors.blue[600] : Colors.grey[800],
+        ),
+      ),
+      tileColor: isSelected ? Colors.blue[50] : null,
+      onTap: () {
+        Navigator.pop(context); // Selalu tutup drawer
+        context.go(route); // Gunakan context.go() yang ringkas
+      },
     );
   }
 }

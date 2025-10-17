@@ -69,12 +69,14 @@ class _EditMentorDialogState extends State<EditMentorDialog> {
 
   void _saveChanges() {
     if (_formKey.currentState!.validate()) {
-      // DIUBAH: Mengirim event UpdateMentor ke MentorBloc
       context.read<MentorBloc>().add(
         UpdateMentor(
           id: widget.mentorToEdit.id,
           newUsername: _usernameController.text,
-          newPhone: _phoneController.text,
+          //  PASTIKAN NOMOR HP DIBERSIHKAN DI SINI
+          newPhone: _phoneController.text
+              .replaceAll(' ', '')
+              .replaceAll('-', ''),
           newJabatan: _jabatanController.text,
         ),
       );
@@ -135,6 +137,7 @@ class _EditMentorDialogState extends State<EditMentorDialog> {
                 const SizedBox(height: 24),
                 TextFormField(
                   controller: _usernameController,
+                  style: GoogleFonts.openSans(),
                   decoration: _buildInputDecoration(
                     'Username',
                     suffixIcon: Icon(
@@ -149,6 +152,7 @@ class _EditMentorDialogState extends State<EditMentorDialog> {
                 const SizedBox(height: 16),
                 TextFormField(
                   controller: _phoneController,
+                  style: GoogleFonts.openSans(),
                   decoration: _buildInputDecoration(
                     'Nomor Handphone',
                     suffixIcon: Icon(
@@ -157,13 +161,25 @@ class _EditMentorDialogState extends State<EditMentorDialog> {
                     ),
                   ),
                   keyboardType: TextInputType.phone,
-                  validator: (value) => (value == null || value.isEmpty)
-                      ? 'Nomor handphone tidak boleh kosong'
-                      : null,
+                  validator: (value) {
+                    if (value == null || value.isEmpty) {
+                      return 'Nomor handphone tidak boleh kosong';
+                    }
+                    // Tambahkan validasi panjang digit
+                    final sanitizedPhone = value
+                        .replaceAll(' ', '')
+                        .replaceAll('-', '');
+                    if (sanitizedPhone.length < 10 ||
+                        sanitizedPhone.length > 13) {
+                      return 'Nomor HP harus antara 10-13 digit';
+                    }
+                    return null;
+                  },
                 ),
                 const SizedBox(height: 16),
                 TextFormField(
                   controller: _jabatanController,
+                  style: GoogleFonts.openSans(),
                   decoration: _buildInputDecoration(
                     'Jabatan',
                     suffixIcon: Icon(
@@ -187,7 +203,10 @@ class _EditMentorDialogState extends State<EditMentorDialog> {
                             borderRadius: BorderRadius.circular(10),
                           ),
                         ),
-                        child: const Text('Batal'),
+                        child: Text(
+                          'Batal',
+                          style: GoogleFonts.openSans(fontSize: 14),
+                        ),
                       ),
                     ),
                     const SizedBox(width: 16),
@@ -225,9 +244,10 @@ class _EditMentorDialogState extends State<EditMentorDialog> {
                                 borderRadius: BorderRadius.circular(10),
                               ),
                             ),
-                            child: const Text(
+                            child: Text(
                               'Simpan Perubahan',
                               textAlign: TextAlign.center,
+                              style: GoogleFonts.openSans(fontSize: 14),
                             ),
                           );
                         },

@@ -74,3 +74,10 @@ class DeleteMentor extends MentorEvent {
   @override
   List<Object> get props => [id];
 }
+
+class CheckMentorUsername extends MentorEvent {
+  final String username;
+  const CheckMentorUsername(this.username);
+}
+
+class ResetMentorState extends MentorEvent {}

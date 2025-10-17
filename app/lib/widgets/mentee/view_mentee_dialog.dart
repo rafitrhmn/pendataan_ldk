@@ -94,12 +94,15 @@ class ViewMenteeDialog extends StatelessWidget {
             children: [
               Text(
                 label,
-                style: TextStyle(color: Colors.grey[700], fontSize: 12),
+                style: GoogleFonts.openSans(
+                  color: Colors.grey[700],
+                  fontSize: 12,
+                ),
               ),
               const SizedBox(height: 2),
               Text(
                 value,
-                style: const TextStyle(
+                style: GoogleFonts.openSans(
                   fontSize: 16,
                   fontWeight: FontWeight.w600,
                 ),

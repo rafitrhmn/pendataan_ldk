@@ -1,5 +1,4 @@
 import 'dart:async';
-
 import 'package:app/bloc/kader/kader_bloc.dart';
 import 'package:app/bloc/kader/kader_event.dart';
 import 'package:app/bloc/kader/kader_state.dart';
@@ -219,6 +218,7 @@ class _AddKaderDialogState extends State<AddKaderDialog> {
               children: [
                 TextFormField(
                   controller: _usernameController,
+                  style: GoogleFonts.openSans(),
                   decoration: _buildInputDecoration(
                     'Username',
                     suffixIcon: suffixIcon,
@@ -249,6 +249,7 @@ class _AddKaderDialogState extends State<AddKaderDialog> {
         const SizedBox(height: 16),
         TextFormField(
           controller: _phoneController,
+          style: GoogleFonts.openSans(),
           decoration: _buildInputDecoration(
             'Nomor Handphone',
             suffixIcon: Icon(
@@ -272,6 +273,7 @@ class _AddKaderDialogState extends State<AddKaderDialog> {
         const SizedBox(height: 16),
         TextFormField(
           controller: _jabatanController,
+          style: GoogleFonts.openSans(),
           decoration: _buildInputDecoration(
             'Jabatan',
             suffixIcon: Icon(
@@ -296,7 +298,7 @@ class _AddKaderDialogState extends State<AddKaderDialog> {
               borderRadius: BorderRadius.circular(10),
             ),
           ),
-          child: const Text('Lanjut'),
+          child: Text('Lanjut', style: GoogleFonts.openSans(fontSize: 14)),
         ),
       ],
     );
@@ -321,6 +323,7 @@ class _AddKaderDialogState extends State<AddKaderDialog> {
         TextFormField(
           controller: _usernameController,
           enabled: false, // Tidak bisa diubah
+          style: GoogleFonts.openSans(),
           decoration: _buildInputDecoration(
             'Username',
             suffixIcon: Icon(
@@ -336,6 +339,7 @@ class _AddKaderDialogState extends State<AddKaderDialog> {
           obscureText: !_isPasswordVisible, // Gunakan state, bukan 'true'
           // TAMBAHKAN BARIS INI: Beri tahu browser ini adalah password baru
           autofillHints: const [AutofillHints.newPassword],
+          style: GoogleFonts.openSans(),
           decoration: _buildInputDecoration(
             'Password',
             suffixIcon: IconButton(
@@ -365,6 +369,7 @@ class _AddKaderDialogState extends State<AddKaderDialog> {
           obscureText: !_isPasswordVisible, // Gunakan state yang sama
           // TAMBAHKAN BARIS INI: Beri tahu browser ini adalah password baru
           autofillHints: const [AutofillHints.newPassword],
+          style: GoogleFonts.openSans(),
           decoration: _buildInputDecoration(
             'Ulangi Password',
             // Berikan juga IconButton di sini
@@ -392,7 +397,10 @@ class _AddKaderDialogState extends State<AddKaderDialog> {
             Expanded(
               child: OutlinedButton.icon(
                 icon: const Icon(Icons.arrow_back),
-                label: const Text('Kembali'),
+                label: Text(
+                  'Kembali',
+                  style: GoogleFonts.openSans(fontSize: 14),
+                ),
                 onPressed: _previousStep,
                 style: OutlinedButton.styleFrom(
                   minimumSize: const Size(0, 50),
@@ -441,7 +449,11 @@ class _AddKaderDialogState extends State<AddKaderDialog> {
                         borderRadius: BorderRadius.circular(10),
                       ),
                     ),
-                    child: const Text('Buat Akun', textAlign: TextAlign.center),
+                    child: Text(
+                      'Buat Akun',
+                      textAlign: TextAlign.center,
+                      style: GoogleFonts.openSans(fontSize: 14),
+                    ),
                   );
                 },
               ),

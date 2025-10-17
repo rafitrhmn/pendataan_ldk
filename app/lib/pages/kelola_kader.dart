@@ -3,13 +3,12 @@ import 'package:app/bloc/kader/kader_bloc.dart';
 import 'package:app/bloc/kader/kader_event.dart';
 import 'package:app/bloc/kader/kader_state.dart';
 import 'package:app/models/kader_model.dart';
-import 'package:app/utils/icon_style.dart';
+import 'package:app/utils/style_decorations.dart';
 import 'package:app/widgets/kader/add_kader_dialog.dart';
 import 'package:app/widgets/admin_drawer.dart';
 import 'package:app/widgets/appbar.dart';
 import 'package:app/widgets/kader/delete_kader_dialog.dart';
 import 'package:app/widgets/kader/edit_kader_dialog.dart';
-import 'package:app/widgets/kader/view_kader_dialog.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -57,26 +56,25 @@ class __KelolaKaderViewState extends State<_KelolaKaderView> {
     });
   }
 
-  // void _showViewKaderDialog(Kader kader) {
-  //   showDialog(
-  //     context: context,
-  //     builder: (_) => ViewKaderDialog(kader: kader),
-  //   );
-  // }
-
-  // Helper untuk menampilkan dialog dengan benar
-  void _showAddKaderDialog() {
-    showDialog(
+  void _showAddKaderDialog() async {
+    // 1. Jadikan async
+    await showDialog(
+      // 2. Tunggu dialog selesai
       context: context,
+      barrierDismissible: false, // Mencegah dialog ditutup saat klik di luar
       builder: (_) {
-        // 'context' utama (dari halaman) sudah memiliki KaderBloc
-        // BlocProvider.value akan meneruskannya ke context dialog
         return BlocProvider.value(
           value: BlocProvider.of<KaderBloc>(context),
           child: const AddKaderDialog(),
         );
       },
     );
+
+    // 3. Setelah dialog ditutup (baik dengan tombol X atau setelah sukses),
+    //    kirim event untuk me-reset state BLoC.
+    if (mounted) {
+      context.read<KaderBloc>().add(ResetKaderState());
+    }
   }
 
   void _showDeleteConfirmationDialog(Kader kader) {
@@ -217,9 +215,11 @@ class __KelolaKaderViewState extends State<_KelolaKaderView> {
         Expanded(
           child: TextField(
             controller: _searchController,
-            onChanged: _onSearchChanged, // Optimasi dengan debounce
+            onChanged: _onSearchChanged,
+            style: GoogleFonts.openSans(),
             decoration: InputDecoration(
               hintText: 'Cari nama kader...',
+              hintStyle: GoogleFonts.openSans(color: Colors.grey[600]),
               prefixIcon: const Icon(Icons.search),
               border: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(8),
@@ -288,7 +288,7 @@ class __KelolaKaderViewState extends State<_KelolaKaderView> {
                       // Baris 1: Username
                       Text(
                         kader.username,
-                        style: const TextStyle(
+                        style: GoogleFonts.openSans(
                           fontWeight: FontWeight.bold,
                           fontSize: 16,
                         ),
@@ -306,7 +306,7 @@ class __KelolaKaderViewState extends State<_KelolaKaderView> {
                           const SizedBox(width: 6),
                           Text(
                             kader.noHp ?? 'No HP belum diatur',
-                            style: TextStyle(
+                            style: GoogleFonts.openSans(
                               color: Colors.grey[700],
                               fontSize: 14,
                             ),
@@ -326,7 +326,7 @@ class __KelolaKaderViewState extends State<_KelolaKaderView> {
                           const SizedBox(width: 6),
                           Text(
                             kader.jabatan ?? 'Jabatan belum diatur',
-                            style: TextStyle(
+                            style: GoogleFonts.openSans(
                               color: Colors.grey[700],
                               fontSize: 14,
                             ),

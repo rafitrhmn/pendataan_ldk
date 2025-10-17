@@ -8,6 +8,7 @@ import 'kader_state.dart';
 class KaderBloc extends Bloc<KaderEvent, KaderState> {
   final supabase = Supabase.instance.client;
   RealtimeChannel? _subscription;
+  KaderLoaded? _lastLoadedState;
 
   KaderBloc() : super(KaderInitial()) {
     on<FetchKaderisasi>(_onFetchKaderisasi);
@@ -17,6 +18,7 @@ class KaderBloc extends Bloc<KaderEvent, KaderState> {
     on<UpdateKader>(_onUpdateKader);
     on<DeleteKader>(_onDeleteKader);
     on<CheckKaderUsername>(_onCheckKaderUsername);
+    on<ResetKaderState>(_onResetKaderState);
   }
 
   Future<void> _onFetchKaderisasi(
@@ -33,7 +35,13 @@ class KaderBloc extends Bloc<KaderEvent, KaderState> {
 
       final cadres = (response as List).map((e) => Kader.fromJson(e)).toList();
 
-      emit(KaderLoaded(allCadres: cadres, filteredCadres: cadres));
+      // DIUBAH: Simpan state loaded ke dalam variabel
+      final loadedState = KaderLoaded(
+        allCadres: cadres,
+        filteredCadres: cadres,
+      );
+      _lastLoadedState = loadedState;
+      emit(loadedState);
 
       // listen realtime sekali saja
       _subscription ??= supabase
@@ -49,6 +57,17 @@ class KaderBloc extends Bloc<KaderEvent, KaderState> {
           .subscribe();
     } catch (e) {
       emit(KaderError(e.toString()));
+    }
+  }
+
+  // BARU: Method untuk menangani event reset
+  void _onResetKaderState(ResetKaderState event, Emitter<KaderState> emit) {
+    // Jika ada state loaded yang tersimpan, kembalikan state tersebut
+    if (_lastLoadedState != null) {
+      emit(_lastLoadedState!);
+    } else {
+      // Sebagai pengaman, jika belum ada data, fetch dari awal
+      add(FetchKaderisasi());
     }
   }
 
@@ -110,28 +129,26 @@ class KaderBloc extends Bloc<KaderEvent, KaderState> {
     }
   }
 
-  // Method baru di dalam KaderBloc
   Future<void> _onUpdateKader(
     UpdateKader event,
     Emitter<KaderState> emit,
   ) async {
     emit(KaderUpdating());
     try {
+      // Memanggil Edge Function 'update-kader' yang baru saja kita buat
       final response = await supabase.functions.invoke(
         'update-kader',
         body: {
           'id': event.id,
           'username': event.newUsername,
           'jabatan': event.newJabatan,
-          'no_hp': event.newPhone, // Sesuaikan dengan nama kolom di tabel
+          'no_hp': event.newPhone,
         },
       );
 
       if (response.data?['success'] == true) {
         emit(KaderUpdateSuccess());
-        // CATATAN: Kita tidak perlu fetch ulang di sini!
-        // Listener realtime kita akan otomatis mendeteksi perubahan
-        // dan memicu FetchKaderisasi. Sangat efisien!
+        // Realtime akan menangani refresh, jadi tidak perlu add(FetchKaderisasi())
       } else {
         emit(KaderError(response.data?['error'] ?? 'Gagal mengupdate kader'));
       }

@@ -76,7 +76,10 @@ class DeleteKaderDialog extends StatelessWidget {
                     ),
                     child: Text(
                       'Batal',
-                      style: TextStyle(color: Colors.grey[800]),
+                      style: GoogleFonts.openSans(
+                        fontSize: 14,
+                        color: Colors.grey[800],
+                      ),
                     ),
                   ),
                 ),
@@ -98,7 +101,10 @@ class DeleteKaderDialog extends StatelessWidget {
                       ),
                       elevation: 0, // Hilangkan shadow agar lebih flat
                     ),
-                    child: const Text('Hapus'),
+                    child: Text(
+                      'Hapus',
+                      style: GoogleFonts.openSans(fontSize: 14),
+                    ),
                   ),
                 ),
               ],
